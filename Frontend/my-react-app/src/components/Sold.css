@@ -1,0 +1,86 @@
+.sold-container {
+  max-width: 750px;
+  margin: 60px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.sold-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 50px;
+}
+
+.sold-group {
+  text-align: left;
+  margin-bottom: 25px;
+}
+
+.sold-group label {
+  font-size: 16px;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.sold-select {
+  width: 100%;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* Item Box */
+.sold-item-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.sold-item-img {
+  width: 70px;
+  height: 80px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.sold-item-name {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Price Row */
+.sold-price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.sold-info-text {
+  text-align: center;
+  font-size: 14px;
+  margin: 40px 0 20px;
+  opacity: 0.7;
+}
+
+/* Submit Button */
+.sold-submit-btn {
+  width: 100%;
+  padding: 14px 0;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.sold-submit-btn:hover {
+  background: #333;
+}

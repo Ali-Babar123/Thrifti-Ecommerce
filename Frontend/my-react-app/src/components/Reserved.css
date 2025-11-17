@@ -1,0 +1,86 @@
+.reserved-container {
+  max-width: 750px;
+  margin: 60px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+.reserved-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 50px;
+}
+
+.reserved-group {
+  text-align: left;
+  margin-bottom: 25px;
+}
+
+.reserved-group label {
+  font-size: 16px;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.reserved-select {
+  width: 100%;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* Item Box */
+.reserved-item-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.reserved-item-img {
+  width: 70px;
+  height: 80px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.reserved-item-name {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* Price Row */
+.reserved-price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.reserved-info-text {
+  text-align: center;
+  font-size: 14px;
+  margin: 40px 0 20px;
+  opacity: 0.7;
+}
+
+/* Submit Button */
+.reserved-submit-btn {
+  width: 100%;
+  padding: 14px 0;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.reserved-submit-btn:hover {
+  background: #333;
+}

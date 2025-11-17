@@ -1,0 +1,432 @@
+/* Container */
+.messages-container {
+  display: flex;
+  min-height: 100vh;
+  background: #fff;
+  padding: 0px 0px 40px;
+  padding-top: 20px;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Sidebar */
+.chat-sidebar {
+  width: 300px;
+  border-right: 1px solid #ccc;
+  padding: 20px;
+  margin-left: 35px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.breadcrumb {
+  color: #777;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.search-box {
+  position: relative;
+}
+
+.search-box .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #777;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 8px 10px 8px 36px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  font-size: 15px;
+  outline: none;
+}
+
+.sidebar-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.all-chats-heading{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 10px;
+}
+.all-chats-heading p{
+  font-size: 14px;
+}
+
+.chat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.chat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  position: relative;
+}
+
+.chat-item:hover,
+.chat-item.active {
+  background-color: #f6f6f6;
+}
+
+.chat-item img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.chat-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #222;
+}
+
+.chat-snippet {
+  font-size: 13px;
+  color: #777;
+}
+
+.chat-time {
+  position: absolute;
+  right: 10px;
+  font-size: 11px;
+  color: #aaa;
+}
+
+/* Chat Main */
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 80px 30px 40px;
+  border-bottom: 1px solid #eee;
+}
+
+.chat-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-user img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+}
+
+.chat-user h4 {
+  font-size: 16px;
+}
+
+.chat-user p {
+  font-size: 13px;
+  color: #777;
+}
+
+/* Active Now */
+.active-status {
+  font-size: 12px;
+  color: #00b660;
+  font-weight: 500;
+}
+
+/* Chat Actions */
+.chat-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.message-icon {
+  color: #000;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.message-icon:hover {
+  transform: scale(1.1);
+}
+
+.cancel-offer {
+  background: transparent;
+  border: 1px solid #f5a5a5;
+  color: #ff4a4a;
+  border-radius: 20px;
+  padding: 6px 14px;
+  cursor: pointer;
+}
+
+.payment-btn {
+  background: #00b660;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+/* Chat Body */
+.chat-body {
+  flex: 1;
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Chat Messages */
+.chat-message {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.chat-message img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.message-bubble {
+  max-width: 60%;
+  padding: 10px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  position: relative;
+}
+
+.message-bubble span {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #999;
+  text-align: right;
+}
+
+/* Sender */
+.sender {
+  flex-direction: row;
+}
+
+.sender .message-bubble {
+  background: #f1f1f1;
+  color: #333;
+  border-top-left-radius: 0;
+}
+
+/* Receiver */
+.receiver {
+  flex-direction: row-reverse;
+}
+
+.receiver .message-bubble {
+  background: #000;
+  color: #fff;
+  border-top-right-radius: 0;
+}
+
+/* Chat Input */
+.chat-input {
+  border-top: 1px solid #eee;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: center;
+  background: #fff;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 12px 100px 12px 40px;
+  border: 1px solid #ccc;
+  border-radius: 30px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.input-wrapper input:focus {
+  border-color: #000;
+}
+
+/* Left Mic Icon */
+.left-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #777;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+/* Right Icons */
+.right-icons {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.input-icon {
+  color: black;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.input-icon:hover {
+  color: #000;
+}
+
+/* -------------------------------------------------- */
+/* ✅ RESPONSIVE DESIGN – Keeps desktop layout intact */
+/* -------------------------------------------------- */
+
+/* Tablets and small laptops (≤ 1024px) */
+@media (max-width: 1024px) {
+  .messages-container {
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .chat-sidebar {
+    width: 100%;
+    margin-left: 0;
+    padding: 15px;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+  }
+
+  .chat-main {
+    width: 100%;
+  }
+
+  .chat-header {
+    padding: 30px 20px;
+  }
+
+  .chat-body {
+    padding: 20px;
+  }
+
+  .chat-item img {
+    width: 35px;
+    height: 35px;
+  }
+
+  .chat-user img {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Tablets and large phones (≤ 768px) */
+@media (max-width: 768px) {
+  .chat-sidebar{
+    display: none;
+  }
+  .chat-header {
+    padding: 20px 15px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .chat-user h4 {
+    font-size: 15px;
+  }
+
+  .chat-user p {
+    font-size: 12px;
+  }
+
+  .chat-body {
+    padding: 15px;
+  }
+
+  .message-bubble {
+    max-width: 80%;
+    font-size: 13px;
+  }
+
+  .input-wrapper input {
+    padding: 10px 70px 10px 40px;
+    font-size: 14px;
+  }
+
+  .right-icons {
+    gap: 8px;
+  }
+
+  .cancel-offer,
+  .payment-btn {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile screens (≤ 480px) */
+@media (max-width: 480px) {
+  .chat-sidebar {
+    display: none;
+  }
+
+  .chat-header {
+    padding: 15px 10px;
+  }
+
+  .chat-user img {
+    width: 35px;
+    height: 35px;
+  }
+
+  .chat-body {
+    padding: 10px;
+  }
+
+  .message-bubble {
+    font-size: 12px;
+    max-width: 90%;
+  }
+
+  .chat-input {
+    padding: 10px;
+  }
+
+  .input-wrapper input {
+    padding: 8px 60px 8px 36px;
+    font-size: 13px;
+  }
+
+  .left-icon,
+  .input-icon {
+    font-size: 16px;
+  }
+}

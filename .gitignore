@@ -1,0 +1,18 @@
+# Node modules
+frontend/node_modules/
+backend/node_modules/
+
+# Environment files
+frontend/.env
+backend/.env
+.env
+
+# Logs
+*.log
+
+# Build folders
+frontend/dist/
+frontend/build/
+backend/dist/
+backend/build/
+Backend/config/serviceAccountKey.json

@@ -1,0 +1,503 @@
+.sell-container {
+  margin: 30px auto;
+  padding: 20px 122px 40px;
+  color: #222;
+}
+
+.breadcrumb p {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.sell-title {
+  font-size: 28px;
+  margin-bottom: 25px;
+}
+
+/* Upload section */
+.upload-box {
+  border: 1.5px dashed #ccc;
+  border-radius: 5px;
+  text-align: center;
+  padding: 40px 20px;
+  margin-bottom: 20px;
+}
+
+.upload-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-icon {
+  width: 32px;
+  height: 32px;
+  color: #444;
+}
+
+.drag-text {
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.or-text {
+  color: #888;
+  font-size: 13px;
+}
+
+.choose-btn {
+  padding: 6px 14px;
+  border: 1px solid #000;
+  border-radius: 4px;
+  color: #000;
+  background: #fff;
+  cursor: pointer;
+}
+
+/* Quality box */
+.quality-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f7f7f7;
+  border-radius: 4px;
+  padding: 18px 15px;
+  margin-bottom: 35px;
+  margin-top: 20px;
+}
+
+.camera-icon {
+  width: 18px;
+  height: 18px;
+  color: #555;
+}
+
+.quality-box p {
+  font-size: 14px;
+  color: #555;
+}
+
+.quality-box a {
+  color: #000;
+  text-decoration: underline;
+}
+
+/* Form layout */
+.sell-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 60px;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label {
+  font-size: 16px;
+  color: #333;
+}
+
+input,
+select,
+textarea {
+  padding: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  font-size: 15px;
+}
+
+textarea {
+  height: 100px;
+  resize: none;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Buttons */
+.button-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin-top: 15px;
+  gap: 10px;
+}
+
+.save-draft {
+  border: 1px solid #000;
+  font-size: 16px;
+  background: #fff;
+  border-radius: 4px;
+  color: #000;
+  padding: 7px 16px;
+  cursor: pointer;
+}
+
+.upload-btn {
+  border: none;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  border-radius: 4px;
+  padding: 7px 16px;
+  cursor: pointer;
+}
+
+/* Dropdown display */
+.dropdown-display {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+}
+
+
+/* ✅ Fix for brand search input size */
+.brand-search-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+  margin-bottom: 6px;
+  box-sizing: border-box;
+}
+
+/* Prevent dropdown from stretching due to input */
+.multi-select .dropdown-menu {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+
+/* Dropdown menu */
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  margin-top: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* Dropdown option */
+.dropdown-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.dropdown-option span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* brings color circle and text close together */
+}
+.dropdown-option:hover {
+  background: #f5f5f5;
+}
+
+/* Fix for brand input size inside dropdown */
+.brand-input-fix {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  padding: 0; /* Removes extra padding */
+  height: 20px; /* Keeps same visual height as others */
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Custom checkbox */
+.custom-checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.custom-checkbox.checked {
+  background-color: black;
+}
+
+.custom-checkbox.checked::after {
+  content: "✓";
+  position: absolute;
+  top: 47%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1.1);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Uploaded images */
+.uploaded-image {
+  position: relative;
+  display: inline-block;
+}
+
+.preview-image {
+  width: 100%;
+  max-width: 250px;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.add-more {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: #000;
+  color: #fff;
+  border-radius: 50%;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Image grid */
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1.5px dashed #ccc;
+  border-radius: 8px;
+  justify-content: flex-start;
+  background: #fafafa;
+}
+
+.image-item {
+  position: relative;
+  width: 193px;
+  height: 180px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.remove-icon {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: 2px solid #ccc;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 50%;
+  padding: 3px;
+  cursor: pointer;
+}
+
+.add-image {
+  width: 180px;
+  height: 180px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-image:hover {
+  background: #f0f0f0;
+}
+
+/* ---------- RESPONSIVE DESIGN ---------- */
+
+/* Tablets (up to 1024px) */
+@media (max-width: 1024px) {
+  .sell-container {
+    padding: 20px 60px 40px;
+  }
+
+  .form-row {
+    gap: 30px;
+  }
+
+  .dropdown-display {
+    padding: 10px 12px;
+  }
+
+  input,
+  select,
+  textarea {
+    padding: 12px;
+  }
+
+  .upload-box {
+    padding: 30px 15px;
+  }
+
+  .sell-title {
+    font-size: 24px;
+  }
+}
+
+/* Mobile (up to 768px) */
+@media (max-width: 768px) {
+  .sell-container {
+    padding: 20px 25px 40px;
+  }
+
+  .breadcrumb p {
+    font-size: 16px;
+  }
+
+  .sell-title {
+    font-size: 22px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .button-group {
+    flex-direction: column;
+
+    gap: 12px;
+  }
+
+  .upload-box {
+    padding: 25px 10px;
+  }
+
+  .drag-text {
+    font-size: 18px;
+  }
+
+  .image-item,
+  .add-image {
+    width: 140px;
+    height: 140px;
+  }
+
+  .dropdown-menu {
+    max-height: 180px;
+  }
+}
+
+/* Small mobile (up to 480px) */
+@media (max-width: 480px) {
+  .sell-container {
+    padding: 20px 15px;
+  }
+
+  .sell-title {
+    font-size: 20px;
+  }
+
+  .drag-text {
+    font-size: 16px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 14px;
+  }
+
+  .image-item,
+  .add-image {
+    width: 120px;
+    height: 120px;
+  }
+}
+.parcel-container {
+  font-family: "Poppins", sans-serif;
+  width: 100%;
+  margin: 30px auto;
+}
+
+.parcel-label {
+  display: block;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.parcel-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.parcel-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.parcel-option:hover {
+  background-color: #f9f9f9;
+}
+
+.parcel-text {
+  font-size: 16px;
+  color: #000;
+}
+
+.parcel-radio {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+
+.parcel-radio.checked::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: #000;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+}

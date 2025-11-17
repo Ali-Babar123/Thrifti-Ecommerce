@@ -1,0 +1,91 @@
+.bundle-container {
+
+  background: #fff;
+  color: #111;
+}
+
+.bundle-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.bundle-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  padding: 16px 15px;
+  width: fit-content;
+  margin-bottom: 15px;
+  width: 550px;
+}
+
+.switch-label {
+  font-size: 0.95rem;
+  color: #111;
+}
+
+/* Switch Styling */
+.bundle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  margin-bottom: 0px;
+}
+
+.bundle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e6e6e6;
+  transition: 0.3s;
+  border-radius: 34px;
+}
+
+.slider::before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.bundle-switch input:checked + .slider {
+  background-color: #000;
+}
+
+.bundle-switch input:checked + .slider::before {
+  transform: translateX(18px);
+}
+
+/* Description text */
+.bundle-desc {
+  font-size: 0.85rem;
+  color: #666;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+.help-link {
+  color: #000;
+  text-decoration: underline;
+  cursor: pointer;
+}

@@ -1,0 +1,218 @@
+.postage-container {
+  width: 100%;
+  max-width: 700px;
+}
+
+.postage-container h2 {
+  font-size: 28px;
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+label {
+  font-size: 15px;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Address Input Row */
+.postage-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid #dcdcdc;
+  border-radius: 10px;
+  padding: 2px 14px;
+  margin-bottom: 8px;
+}
+
+.postage-input-wrapper input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 15px;
+}
+
+.postage-add-btn {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.postage-subtext {
+  font-size: 13px;
+  color: #6c6c6c;
+  margin-bottom: 25px;
+}
+
+/* Info Box */
+.postage-info-box {
+  display: flex;
+  gap: 12px;
+  background: #f4f4f4;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 35px;
+  font-size: 14px;
+}
+
+.postage-info-box a {
+  color: #000;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+/* Shipping Cards */
+.postage-card {
+  border: 1px solid #dcdcdc;
+  border-radius: 12px;
+  padding: 15px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.postage-card h5 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.postage-card span {
+  font-size: 13px;
+  color: #6c6c6c;
+}
+
+.postage-dropdown-btn {
+ width: 22px;
+  height: 22px;
+  cursor: pointer;
+  transition: transform 0.3s;
+  color: #000; /* Adjust if needed */
+
+}
+.postage-dropdown-btn.rotate {
+  transform: rotate(180deg);
+}
+
+
+/* Notes + Link */
+.postage-small-note {
+  font-size: 13px;
+  color: #6c6c6c;
+  margin-top: 15px;
+}
+
+.postage-link {
+  font-size: 13px;
+  color: #000;
+  text-decoration: underline;
+  display: block;
+  margin: 6px 0 30px 0;
+}
+
+/* Buttons */
+.postage-btn-group {
+  display: flex;
+  gap: 12px;
+}
+
+.postage-save-btn {
+  background: #000;
+  color: #fff;
+  padding: 10px 22px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.postage-cancel-btn {
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  padding: 10px 22px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+/* Dropdown container */
+.postage-options {
+  border: 1px solid #dcdcdc;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 15px 18px;
+  background: #fff;
+  margin-bottom: 15px;
+}
+
+/* Each shipping option row */
+.postage-option-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.postage-option-row:last-child {
+  border-bottom: none;
+}
+
+.option-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.option-desc {
+  font-size: 13px;
+  color: #6c6c6c;
+}
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  display: inline-block;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  background: #ccc;
+  border-radius: 22px;
+  cursor: pointer;
+  top: 0; bottom: 0; left: 0; right: 0;
+  transition: 0.3s;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  top: 2px;
+  left: 2px;
+  transition: 0.3s;
+}
+
+/* Active Toggle */
+.switch input:checked + .slider {
+  background: #000;
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+/* Rotate dropdown arrow */
+.postage-dropdown-btn.rotate {
+  transform: rotate(180deg);
+  transition: 0.3s;
+}

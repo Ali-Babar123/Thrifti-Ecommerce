@@ -1,0 +1,135 @@
+
+
+.addpayment-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.addpayment-subtitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.addpayment-box {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  width: 650px;
+  margin-bottom: 24px;
+}
+
+.addpayment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.addpayment-item:last-child {
+  border-bottom: none;
+}
+
+.addpayment-item:hover {
+  background: #fafafa;
+}
+
+.addpayment-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.addpayment-arrow {
+  color: #777;
+}
+
+/* Popup Card Style */
+.popup-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  width: 650px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.popup-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.popup-header p{
+  width: 100%;            /* ensures it takes a full line */
+  margin-top: 6px;        /* adds a little spacing */
+  font-size: 0.85rem;     /* optional: smaller font */
+  color: #666;            /* optional: softer text color */
+}
+.close-icon {
+  cursor: pointer;
+  color: #666;
+}
+
+/* Payment Logos */
+.payment-icons img {
+  height: 22px;
+  margin-right: 8px;
+}
+
+/* Form */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form input,
+.form select {
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.form-row {
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+button.cancel {
+  background: #ddd;
+  color: #000;
+}
+
+/* HMRC Empty State */
+.hmrc-empty {
+  text-align: center;
+  padding: 40px 10px;
+  color: #555;
+}
+
+.hmrc-empty img {
+  width: 60px;
+  opacity: 0.6;
+  margin-bottom: 10px;
+}

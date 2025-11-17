@@ -1,0 +1,204 @@
+/* Main Container */
+.selling-acc-container {
+  display: flex;
+  background: #fff;
+}
+
+.selling-acc-content {
+  width: 100%;
+}
+
+/* Title */
+.selling-acc-content h3 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 30px;
+  color: #000;
+}
+
+/* Labels */
+form label {
+  display: block;
+  font-size: 14px;
+  margin: 12px 0 5px;
+  color: #333;
+}
+
+/* Inputs */
+.selling-acc-input,
+.selling-acc-content select,
+.selling-acc-content input[type="date"],
+.selling-acc-content input[readonly] {
+  width: 100%;
+  max-width: 500px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  outline: none;
+  background: #fafafa;
+  font-size: 14px;
+}
+
+/* Input Group */
+.selling-acc-input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 500px;
+}
+
+/* Small Buttons */
+.selling-acc-small-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #000;
+  font-size: 13px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.selling-acc-small-btn:hover {
+  background: #fff;
+  color: #000;
+}
+
+.selling-acc-small-btn.selling-acc-gray {
+  border-color: #ccc;
+}
+
+/* Toggle Row */
+.selling-acc-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 500px;
+  margin: 15px 0;
+}
+
+/* Linked Accounts */
+.selling-acc-linked-box {
+  display: flex;
+  justify-content: space-between;
+  max-width: 500px;
+  padding: 12px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 10px;
+  background: #fafafa;
+}
+
+.selling-acc-para{
+  max-width: 500px;
+  font-size: 14px;
+  padding: 12px 1px;
+}
+
+/* Change Password Text */
+.selling-acc-input-group span {
+  font-size: 14px;
+}
+
+.delete-button{
+   max-width: 500px;
+  padding: 12px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 10px;
+  background: #fafafa;
+
+}
+/* Delete Account Button */
+.selling-acc-delete-btn {
+
+  color: #000;
+  background: none;
+    border: 1px solid #dcdcdc;
+  border-radius: 6px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Save + Cancel Buttons */
+.selling-acc-bottom-buttons {
+  margin-top: 35px;
+  display: flex;
+  gap: 12px;
+}
+
+.selling-acc-save-btn,
+.selling-acc-cancel-btn {
+  padding: 10px 22px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.selling-acc-save-btn {
+  background: #000;
+  color: #fff;
+}
+/* Switch Toggle */
+.selling-acc-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.selling-acc-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.selling-acc-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.selling-acc-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.selling-acc-switch input:checked + .selling-acc-slider {
+  background-color: #000;
+}
+
+.selling-acc-switch input:checked + .selling-acc-slider:before {
+  transform: translateX(20px);
+}
+
+
+
+/* Responsive */
+@media (max-width: 900px) {
+  .selling-acc-content {
+    padding: 20px;
+  }
+
+  .selling-acc-input,
+  .selling-acc-content select,
+  .selling-acc-content input[type="date"],
+  .selling-acc-input-group,
+  .selling-acc-linked-box,
+  .selling-acc-toggle-row {
+    max-width: 100%;
+  }
+}
