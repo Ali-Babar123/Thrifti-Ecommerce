@@ -25,6 +25,8 @@ import ListingSingleProductPage from './components/ListingSingleProduct';
 import ReviewOrder from './components/ReviewOrder';
 import Sold from './components/Sold';
 import Reserved from './components/ReservedSold'
+import Donations from './components/Donations'
+import InviteFriends from './components/InviteFriends';
 
 const ProtectedRoute = ({ isLoggedIn, element }) => {
   return isLoggedIn ? element : <Navigate to="/" replace />;
@@ -35,14 +37,23 @@ const App = () => {
   const [user, setUser] = useState(null);  
 
 
-  useEffect(() => {
-    const loginStatus = localStorage.getItem("loggedIn") === "true";
-    const storedUser = localStorage.getItem("user");
+ useEffect(() => {
+  const loginStatus = localStorage.getItem("loggedIn") === "true";
+  const storedUser = localStorage.getItem("user");
 
+  setLoggedIn(loginStatus);
 
-    setLoggedIn(loginStatus);
-    if (storedUser) setUser(JSON.parse(storedUser)); // ✅ load saved user
-  }, []);
+  // Only parse valid JSON
+  if (storedUser && storedUser !== "undefined") {
+    try {
+      setUser(JSON.parse(storedUser));
+    } catch (err) {
+      console.error("Failed to parse user from localStorage:", err);
+      localStorage.removeItem("user"); // optional cleanup
+    }
+  }
+}, []);
+
 
   // When user logs in successfully
   const handleLoginSuccess = (userData) => {
@@ -138,8 +149,19 @@ const App = () => {
           path="/reserved"
           element={<ProtectedRoute isLoggedIn={loggedIn} element={<Reserved/>} />}
         />
-      </Routes>
 
+        
+       <Route
+          path="/settings/donations"
+          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Donations/>} />}
+        />
+
+         <Route
+          path="/referrals"
+          element={<ProtectedRoute isLoggedIn={loggedIn} element={<InviteFriends/>} />}
+        />
+
+      </Routes>
 
 
       

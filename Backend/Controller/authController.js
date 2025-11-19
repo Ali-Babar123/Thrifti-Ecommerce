@@ -2,7 +2,9 @@ const User = require("../Models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET);
+const generateToken = (_id) =>
+  jwt.sign({ _id }, process.env.JWT_SECRET);
+
 
 exports.registerUser = async (req, res) => {
   try {
@@ -16,12 +18,13 @@ exports.registerUser = async (req, res) => {
 
     const user = await User.create({ username, email, password: hashedPassword });
 
-    res.status(201).json({
-      _id: user.id,
-      username: user.username,
-      email: user.email,
-      token: generateToken(user.id),
-    });
+   res.status(201).json({
+  _id: user._id,
+  username: user.username,
+  email: user.email,
+  token: generateToken(user._id),
+});
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -38,12 +41,13 @@ exports.loginUser = async (req, res) => {
     if (!isMatch)
       return res.status(401).json({ message: "Invalid password" });
 
-    res.json({
-      _id: user.id,
-      username: user.username,
-      email: user.email,
-      token: generateToken(user.id),
-    });
+   res.json({
+  _id: user._id,
+  username: user.username,
+  email: user.email,
+  token: generateToken(user._id),
+});
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

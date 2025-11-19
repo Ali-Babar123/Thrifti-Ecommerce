@@ -5,6 +5,7 @@ import "./Navbar.css";
 import { Bell, Heart, MessageSquare, ChevronRight, Grip } from "lucide-react";
 import Logo from "../assets/logo.png";
 import Buttons from "../assets/buttons.png";
+import mobileloc from "../assets/mobileloc.png";
 import LoginModal from "./LoginModal";
 import Globe from "../assets/globe.png";
 import Like from "../assets/Like.png";
@@ -17,12 +18,32 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
   const [activeMenu, setActiveMenu] = useState(null);
   const [activeMainCat, setActiveMainCat] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth <= 900);
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
 
 
   const handleLogout = () => {
     onLogout(); // ✅ defined in App.jsx
     setShowDropdown(false);
   };
+
+
+  const handleLinkClick = () => {
+  setMenuOpen(false); // closes mobile menu
+  setActiveMenu(null); // reset mega menu if needed
+  setActiveMainCat(null);
+
+
+  setTimeout(() => {
+    setMenuOpen(false); // close menu after 150ms
+  }, 350);
+};
 
   const handleLoginSuccess = (userData) => {
     setShowLogin(false);
@@ -133,8 +154,11 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
       <Link to='/my-orders'>
       <p className="user-dropdown-item">My orders</p>
       </Link>
-      <p className="user-dropdown-item">Donations</p>
+      <Link to='/settings/donations'>
+      <p className="user-dropdown-item">Donations</p></Link>
+      <Link to='/referrals'>
       <p className="user-dropdown-item">Invite friends</p>
+      </Link>
       <p className="user-dropdown-item" onClick={handleLogout}>
         Logout
       </p>
@@ -248,13 +272,14 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
 
           <div className="navbar-icons">
             <div className="location">
-              <img
-                src={Buttons}
-                alt="Location"
-                style={{ width: "40px", height: "40px" }}
-              />
-              <span>Rio, Brazil</span>
-            </div>
+  {isMobile ? (
+    <img src={mobileloc} alt="Location" style={{ width: "20px", height: "20px" }} />
+  ) : (
+    <img src={Buttons} alt="Location" style={{ width: "40px", height: "40px" }} />
+  )}
+  <span>Rio, Brazil</span>
+</div>
+
             <button className="icon-btn">
               <img src={Globe} alt="Globe" className="icon-img" />
             </button>
@@ -269,7 +294,52 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
           <div className="search-container mobile-only">
             <img src={SearchIcon} alt="Search" className="search-icon-img" />
             <input type="text" placeholder="Search" className="search-input" />
+            
           </div>
+          
+          <div className="navbar-right mobile-only">
+  {!loggedIn ? (
+    <>
+      <button className="signin-btn" onClick={() => setShowLogin(true)}>
+        Sign in →
+      </button>
+      <button className="sell-btn" onClick={handleStartSelling}>
+        Start Selling
+      </button>
+    </>
+  ) : (
+    <div className="navbar-right-loggedin-mobile">
+      <Link to='/notifications'>
+        <button className="icon-btn">
+          <Bell size={18} color="black" strokeWidth={2} />
+        </button>
+      </Link>
+      <button className="icon-btn">
+        <Heart size={18} color="black" strokeWidth={2} />
+      </button>
+      <Link to='/inbox'>
+        <button className="icon-btn">
+          <MessageSquare size={18} color="black" strokeWidth={2} />
+        </button>
+      </Link>
+
+      {/* Profile dropdown for mobile */}
+      <div className="user-profile-wrapper">
+        <img
+          src={user?.profileImage || Profile}
+          alt="Profile"
+          className="user-avatar"
+          onClick={() => setShowDropdown(!showDropdown)}
+        />
+       
+      </div>
+
+      <Link to='/items/new'>
+        <button className="sell-now-btn">Sell Now</button>
+      </Link>
+    </div>
+  )}
+</div>
 
           <ul className="nav-links mobile-only">
             {[
@@ -284,16 +354,61 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
               "ourplatform",
             ].map((link) => (
               <li key={link}>
-                <Link to={`/${link.toLowerCase()}`}>{link}</Link>
+                <Link to={`/${link.toLowerCase()}`}
+                onClick={handleLinkClick}>{link}</Link>
+                
               </li>
             ))}
           </ul>
 
+          {/* --- Mobile User Links After Categories --- */}
+{loggedIn && (
+  <div className="mobile-user-links">
+
+    <hr className="mobile-divider" />
+
+    <Link to="/profile" onClick={handleLinkClick}>
+      <p className="mobile-user-item">My Profile</p>
+    </Link>
+
+    <Link to="/settings/profile" onClick={handleLinkClick}>
+      <p className="mobile-user-item">Settings</p>
+    </Link>
+
+    <Link to="/personalization" onClick={handleLinkClick}>
+      <p className="mobile-user-item">Personalizations</p>
+    </Link>
+
+    <Link to="/my-orders" onClick={handleLinkClick}>
+      <p className="mobile-user-item">My Orders</p>
+    </Link>
+
+    <Link to="/settings/donations" onClick={handleLinkClick}>
+      <p className="mobile-user-item">Donations</p>
+    </Link>
+
+    <Link to="/referrals" onClick={handleLinkClick}>
+      <p className="mobile-user-item">Invite Friends</p>
+    </Link>
+
+    <p className="mobile-user-item" onClick={handleLogout}>Logout</p>
+
+    <hr className="mobile-divider" />
+
+  </div>
+)}
+
+
           <div className="navbar-icons mobile-only">
             <div className="location">
-              <img src={Buttons} alt="Location" className="icon-img" />
-              <span>Rio, Brazil</span>
-            </div>
+  {isMobile ? (
+    <img src={mobileloc} alt="Location" style={{ width: "20px", height: "20px" }} />
+  ) : (
+    <img src={Buttons} alt="Location" style={{ width: "40px", height: "40px" }} />
+  )}
+  <span>Rio, Brazil</span>
+</div>
+
             <button className="icon-btn">
               <img src={Globe} alt="Globe" className="icon-img" />
             </button>
@@ -302,14 +417,7 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
             </button>
           </div>
 
-          <div className="navbar-right mobile-only">
-            <button className="signin-btn" onClick={() => setShowLogin(true)}>
-              Sign in →
-            </button>
-            <button className="sell-btn" onClick={handleStartSelling}>
-              Start Selling
-            </button>
-          </div>
+
         </div>
       </nav>
 

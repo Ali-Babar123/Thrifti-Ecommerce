@@ -1,0 +1,338 @@
+.recurring-donations-container {
+  text-align: center;
+  padding: 100px 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.recurring-donations-title {
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.recurring-donations-text {
+  font-size: 16px;
+  color: #6c8e8e;
+  margin-bottom: 60px;
+}
+
+.recurring-donations-link {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.recurring-donations-button {
+  background: black;
+  color: white;
+  padding: 12px 80px;
+  border-radius: 6px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.recurring-donations-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.recurring-donations-modal-box {
+  width: 90%;
+  max-width: 600px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.recurring-donations-modal-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  font-size: 18px;
+}
+.recurring-donations-modal-header h3{
+  font-weight: 500;
+}
+
+.recurring-donations-close-icon {
+  cursor: pointer;
+}
+
+.recurring-donations-modal-label {
+  margin-top: 15px;
+  font-size: 15px;
+}
+
+.recurring-donations-charity-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.recurring-donations-charity-img {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.recurring-donations-charity-info h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.recurring-donations-charity-info p {
+  color: #888;
+  font-size: 14px;
+}
+
+.recurring-donations-arrow-right {
+  margin-left: auto;
+}
+
+.recurring-donations-dropdown-sec {
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+}
+
+.recurring-donations-modal-note {
+  font-size: 13px;
+  color: #666;
+  margin-top: 6px;
+}
+
+.recurring-donations-start-btn {
+  width: 100%;
+  background: black;
+  color: white;
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 15px;
+  margin-top: 15px;
+}
+
+.recurring-donations-active-box {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 18px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.recurring-donations-active-left {
+  display: flex;
+  gap: 12px;
+}
+
+.recurring-donations-active-icon {
+  color: #28a745;
+}
+
+.recurring-donations-active-title {
+  font-size: 18px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.recurring-donations-active-desc {
+  font-size: 13px;
+  color: #555;
+  text-align: left;
+}
+
+.manage-btn{
+  position: relative;
+  top: 10px;
+}
+
+.recurring-donations-manage-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.recurring-donations-total-box {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 18px;
+  margin-top: 16px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.recurring-donations-charity-large {
+  display: flex;
+}
+
+.recurring-donations-charity-img-large {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+}
+
+.recurring-donations-black-btn {
+  width: 100%;
+  background: black;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-size: 15px;
+  margin: 18px 0 18px;
+}
+
+.recurring-donations-rate-select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.recurring-donations-stop-btn {
+  width: 100%;
+  background: black;
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 25px;
+  font-size: 15px;
+}
+
+.recurring-donations-save-btn {
+  width: 100%;
+  background: white;
+  color: black;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 15px;
+}
+
+/* -------------------------------------------------------------- */
+/* --------------------------- RESPONSIVE ----------------------- */
+/* -------------------------------------------------------------- */
+
+/* Tablets */
+@media (max-width: 992px) {
+
+  .recurring-donations-container {
+    padding: 70px 20px;
+  }
+
+  .recurring-donations-title {
+    font-size: 28px;
+  }
+
+  .recurring-donations-modal-box {
+    max-width: 500px;
+  }
+
+  .recurring-donations-charity-img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .recurring-donations-charity-img-large {
+    width: 60px;
+    height: 60px;
+  }
+
+  .recurring-donations-active-title {
+    font-size: 16px;
+  }
+  .manage-btn{
+    position: unset;
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+
+  .recurring-donations-container {
+    padding: 40px 15px;
+  }
+
+  .recurring-donations-title {
+    font-size: 24px;
+  }
+
+  .recurring-donations-text {
+    font-size: 14px;
+    margin-bottom: 40px;
+  }
+
+  .recurring-donations-button {
+    padding: 10px 50px;
+    font-size: 15px;
+  }
+
+  .recurring-donations-modal-box {
+    width: 94%;
+    padding: 15px;
+  }
+
+  .recurring-donations-modal-header {
+    font-size: 16px;
+  }
+
+  .recurring-donations-charity-card {
+    padding: 10px;
+  }
+
+  .recurring-donations-charity-img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .recurring-donations-charity-info h4 {
+    font-size: 14px;
+  }
+
+  .recurring-donations-charity-info p {
+    font-size: 12px;
+  }
+
+  .recurring-donations-active-box,
+  .recurring-donations-total-box {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .recurring-donations-manage-btn {
+    padding: 6px 12px;
+  }
+
+  .recurring-donations-black-btn,
+  .recurring-donations-start-btn,
+  .recurring-donations-stop-btn,
+  .recurring-donations-save-btn {
+    font-size: 14px;
+    padding: 10px;
+  }
+}

@@ -169,7 +169,8 @@ const OurPlatform = () => {
             >
               <div
                 className="platform-top-pick-image"
-                style={{ backgroundImage: `url(${item.image})` }}
+                style={{
+                  backgroundImage: `url(${item.images && item.images.length > 0 ? item.images[0] : 'https://via.placeholder.com/150'})` }}
               >
                 <div className="platform-top-pick-like">
                   <FaHeart color="black" size={14} />
@@ -178,8 +179,8 @@ const OurPlatform = () => {
               </div>
               <div className="platform-top-pick-info">
                 <div>
-                  <h3>{item.name}</h3>
-                  <p className="platform-top-pick-condition">{item.condition}</p>
+                  <h3>{item.title}</h3>
+                  <p className="platform-top-pick-condition">{item.size} - {item.condition}</p>
                 </div>
                 <p className="platform-top-pick-price">{item.price}</p>
               </div>

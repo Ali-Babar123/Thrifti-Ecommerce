@@ -1,0 +1,340 @@
+.invite-wrapper {
+  width: 100%;
+  height: 500px;
+  display: flex;
+  overflow: hidden;
+  background: #f6f6f6;
+  position: relative;
+}
+
+/* Only this gets padding — NOT the whole wrapper */
+.card-holder {
+  padding-left: 60px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  z-index: 3;
+}
+
+/* White Card */
+.invite-card {
+  width: 480px;
+  background: #ffffff;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+/* TEXT STYLES */
+.invite-title {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+
+.invite-desc {
+  font-size: 15px;
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+
+.invite-terms {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.invite-terms a {
+  text-decoration: underline;
+  color: black;
+}
+
+.invite-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  margin-bottom: 12px;
+  font-size: 15px;
+}
+
+.copy-btn {
+  width: 100%;
+  padding: 12px;
+  background: black;
+  color: white;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.copy-btn:hover {
+  background: #222;
+}
+
+.your-referrals-row {
+  width: 100%;
+  padding: 14px 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.ref-left {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* IMAGE TAKES FULL RIGHT SIDE WITH NO PADDING! */
+.invite-image {
+  flex: 1;
+  background-image: url("../assets/referrals (2).png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: 45% 10%;
+}
+
+
+
+.referrals-heading{
+  font-size: 30px;
+  padding: 60px;
+  font-weight: 500;
+}
+.referral-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  padding: 20px 0px 80px;
+  flex-wrap: wrap;
+}
+
+.referral-box {
+  max-width: 380px;       /* 👈 your request */
+  display: flex;
+  flex-direction: column; /* 👈 use flex inside */
+  gap: 12px;
+}
+
+.referral-icon {
+  width: 100px;
+  height: 100px;
+}
+
+.referral-box h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.referral-box p {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .referral-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+
+  .referral-box {
+    text-align: center;
+  }
+}
+
+
+
+/* MODAL BACKDROP */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+/* MODAL BOX */
+.modal-box {
+  background: white;
+  width: 420px;
+  padding: 40px 30px;
+  border-radius: 12px;
+  text-align: center;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 22px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+.modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.modal-bold-text {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.modal-light-text {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+/* -----------------------------------------
+   RESPONSIVE — TABLETS (max-width: 1024px)
+------------------------------------------ */
+@media (max-width: 1024px) {
+
+  .invite-wrapper {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .card-holder {
+    padding: 40px 20px;
+    justify-content: center;
+  }
+
+  .invite-card {
+    width: 100%;
+    max-width: 480px;
+  }
+
+  .invite-image {
+    width: 100%;
+    height: 380px;
+    background-position: center top;
+  }
+}
+
+/* -----------------------------------------
+   RESPONSIVE — MOBILE (max-width: 768px)
+------------------------------------------ */
+@media (max-width: 768px) {
+
+  .card-holder {
+    padding: 30px 16px;
+    align-items: flex-start;
+  }
+
+  .invite-card {
+    width: 100%;
+    padding: 24px;
+  }
+
+  .invite-title {
+    font-size: 26px;
+    line-height: 1.3;
+  }
+
+  .invite-desc {
+    font-size: 14px;
+  }
+
+  .invite-input {
+    font-size: 14px;
+  }
+
+  .copy-btn {
+    font-size: 14px;
+  }
+
+  .your-referrals-row {
+    padding: 12px 10px;
+  }
+
+  .invite-image {
+    height: 300px;
+    background-position: center 20%;
+  }
+
+  .referrals-heading {
+    font-size: 24px;
+    padding: 40px 20px;
+  }
+
+  .referral-container {
+    padding: 10px 0 60px;
+    gap: 20px;
+  }
+
+  .referral-box {
+    max-width: 100%;
+    padding: 0 20px;
+    text-align: center;
+  }
+}
+
+/* -----------------------------------------
+   RESPONSIVE — SMALL MOBILE (max-width: 480px)
+------------------------------------------ */
+@media (max-width: 480px) {
+
+  .invite-title {
+    font-size: 22px;
+  }
+
+  .invite-card {
+    padding: 20px 18px;
+  }
+
+  .invite-image {
+    height: 240px;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .your-referrals-row {
+    font-size: 14px;
+  }
+
+  .referrals-heading {
+    font-size: 22px;
+    padding: 30px 16px;
+  }
+
+  .referral-icon {
+    width: 80px;
+    height: 80px;
+  }
+}

@@ -130,8 +130,8 @@
 
   .selling-profile-header {
     justify-content: flex-start;
-    flex-direction: column;
-    text-align: center;
+
+    text-align: left;
   }
 
   .selling-profile-content {
@@ -153,6 +153,7 @@
   .selling-profile-btn-group {
     flex-direction: column;
     width: 100%;
+    gap: 0px;
   }
 
   .selling-profile-btn,

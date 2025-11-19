@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
-const admin = require("../config/firebaseAdmin");
+const {admin} = require("../config/firebaseAdmin");
 const User = require("../Models/User");
 const jwt = require("jsonwebtoken");
 

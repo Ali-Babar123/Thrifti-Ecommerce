@@ -253,6 +253,13 @@
 .desktop-only {
   display: flex;
 }
+
+.navbar-right-loggedin-mobile {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  padding: 10px;
+}
 .user-profile-wrapper {
   position: relative;
   display: inline-block;
@@ -293,6 +300,55 @@
   border-radius: 50%;
   object-fit: cover;
   cursor: pointer;
+}
+.mobile-user-dropdown-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 10px;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.mobile-user-dropdown-list p {
+  padding: 12px 6px;
+  font-size: 16px;
+  color: #333;
+  border-bottom: 1px solid #eee;
+  margin: 0;
+}
+
+.mobile-user-dropdown-list p:hover {
+  background: #f7f7f7;
+}
+
+.logout-item {
+  color: red;
+  font-weight: 500;
+}
+
+.mobile-user-links {
+  margin-top: 15px;
+  display: flex;
+  cursor: pointer;
+  flex-direction: column;
+}
+
+.mobile-user-item {
+  padding: 12px 0;
+  font-size: 16px;
+  color: #333;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.mobile-user-item:last-child {
+  border-bottom: none;
+}
+
+.mobile-divider {
+  border: none;
+  border-top: 1px solid #dcdcdc;
+  margin: 10px 0;
 }
 
 /* ---------- Responsive ---------- */

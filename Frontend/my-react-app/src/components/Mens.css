@@ -165,7 +165,7 @@
 }
 
 .top-picks-path h2 {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 500;
   color: #333;
   margin: 0;
@@ -190,7 +190,7 @@
 .top-picks-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 25px;
+  gap: 30px;
 }
 
 .top-pick-card {
@@ -201,9 +201,7 @@
   cursor: pointer;
 }
 
-.top-pick-card:hover {
-  box-shadow: 12px 4px 12px rgba(0, 0, 0, 0.08);
-}
+
 
 .top-pick-image {
   width: 100%;
@@ -230,25 +228,24 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 20px 6px;
+  padding: 12px 6px;
   color: #333;
 }
 
 .top-pick-info h3 {
-  font-size: 1rem;
+  font-size: 0.9rem;
   margin: 0;
   font-weight: 500;
 }
 
 .top-pick-condition {
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   color: #999;
-  margin-top: 3px;
 }
 
 .top-pick-price {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   white-space: nowrap;
 }
 

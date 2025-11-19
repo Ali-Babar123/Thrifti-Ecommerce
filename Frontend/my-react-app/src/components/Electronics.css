@@ -171,7 +171,7 @@
 }
 
 .electronics-top-picks-path h2 {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 500;
   color: #333;
   margin: 0;
@@ -197,9 +197,6 @@
   cursor: pointer;
 }
 
-.electronics-top-pick-card:hover {
-  box-shadow: 12px 4px 12px rgba(0, 0, 0, 0.08);
-}
 
 .electronics-top-pick-image {
   width: 100%;
@@ -226,25 +223,24 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 20px 6px;
+  padding: 12px 6px;
   color: #333;
 }
 
 .electronics-top-pick-info h3 {
-  font-size: 1rem;
+  font-size: 0.9rem;
   margin: 0;
   font-weight: 500;
 }
 
 .electronics-top-pick-condition {
-  font-size: 0.92rem;
+  font-size: 0.8rem;
   color: #999;
-  margin-top: 3px;
 }
 
 .electronics-top-pick-price {
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   white-space: nowrap;
 }
 

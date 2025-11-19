@@ -57,58 +57,77 @@ const SellItem = () => {
     setImagePreviews(imagePreviews.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async () => {
-    if (!title || !description || !price || !selectedCategory) {
-      alert("Please fill all required fields!");
-      return;
+  // Convert a single file to base64
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
+
+const handleSubmit = async () => {
+  if (!title || !description || !price || !selectedCategory) {
+    alert("Please fill all required fields!");
+    return;
+  }
+
+  try {
+    setLoading(true);
+    setError("");
+
+    // Convert all images to base64
+    const base64Images = await Promise.all(images.map(fileToBase64));
+
+    // Prepare payload
+    const payload = {
+      title,
+      description,
+      category: selectedCategory[0] || "",
+      brand: selectedBrand[0] || "",
+      condition: selectedCondition[0] || "",
+      colors: JSON.stringify(selectedColors),
+      materials: JSON.stringify(selectedMaterials),
+      size: selectedSizes[0] || "",
+      price,
+      parcelSize: selectedSize,
+      images: base64Images, // send base64 array
+    };
+
+    const res = await API.post("/api/products/create", payload,
+      {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`
     }
+  }
+    );
 
-    try {
-      setLoading(true);
-      setError("");
+    alert("✅ Product uploaded successfully!");
+    addProduct(res.data.data);
 
-      const formData = new FormData();
-      images.forEach((file) => formData.append("images", file));
+    // Reset form
+    setImages([]);
+    setImagePreviews([]);
+    setTitle("");
+    setDescription("");
+    setSelectedCategory(null);
+    setSelectedBrand([]);
+    setSelectedCondition([]);
+    setSelectedColors([]);
+    setSelectedMaterials([]);
+    setSelectedSizes([]);
+    setPrice("");
+    setSelectedSize(parcelSizes[0]);
 
-      formData.append("userId", currentUser._id);
-      formData.append("title", title);
-      formData.append("description", description);
-      formData.append("category", selectedCategory);
-      formData.append("brand", selectedBrand[0] || "");
-      formData.append("condition", selectedCondition[0] || "");
-      formData.append("colors", JSON.stringify(selectedColors));
-      formData.append("materials", JSON.stringify(selectedMaterials));
-      formData.append("size", selectedSizes[0] || "");
-      formData.append("price", price);
-      formData.append("parcelSize", selectedSize);
+  } catch (err) {
+    console.error(err);
+    setError(err.response?.data?.message || "Upload failed. Try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-      const res = await API.post("/api/products/create", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      alert("✅ Product uploaded successfully!");
-      addProduct(res.data.data);
-
-      // Reset form
-      setImages([]);
-      setImagePreviews([]);
-      setTitle("");
-      setDescription("");
-      setSelectedCategory(null);
-      setSelectedBrand([]);
-      setSelectedCondition([]);
-      setSelectedColors([]);
-      setSelectedMaterials([]);
-      setSelectedSizes([]);
-      setPrice("");
-      setSelectedSize(parcelSizes[0]);
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || "Upload failed. Try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
   useEffect(() => {
   return () => {
     imagePreviews.forEach((url) => URL.revokeObjectURL(url));
