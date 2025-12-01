@@ -14,10 +14,10 @@ const CheckoutPage = () => {
 
   // ✅ Save to localStorage if product is passed via navigate()
   useEffect(() => {
-    if (location.state) {
-      localStorage.setItem("checkoutProduct", JSON.stringify(location.state));
-      setProduct(location.state);
-    }
+    if (location.state?.product) {
+  localStorage.setItem("checkoutProduct", JSON.stringify(location.state.product));
+  setProduct(location.state.product);
+}
   }, [location.state]);
 
   console.log("Checkout Product:", product);
@@ -29,16 +29,16 @@ const CheckoutPage = () => {
         <p className="checkout-path">
           Home / Men / All / {product.name || "Product"} / Checkout
         </p>
-        <h2 className="checkout-heading">Order of 1 item</h2>
+        <h2 className="checkout-heading">Order of {product.length || '1'} item</h2>
 
         <div className="product-card">
           <img
-            src={product.image}
+            src={product.images?.[0]}
             alt={product.name || "Product"}
             className="product-image"
           />
           <div className="product-info">
-            <p className="product-name">{product.name || "Product Name"}</p>
+            <p className="product-name">{product.title || "Product title"}</p>
             <p className="product-price">{product.price || "£0.00"}</p>
           </div>
         </div>
@@ -145,11 +145,7 @@ const CheckoutPage = () => {
           <div className="summary-row total">
             <span>Total</span>
             <span>
-              {product.price
-                ? `$${(
-                    parseFloat(product.price.replace(/[^0-9.]/g, "")) + 4
-                  ).toFixed(2)}`
-                : "$68.00"}
+              {product.price}
             </span>
           </div>
           <Link to='/payment'>

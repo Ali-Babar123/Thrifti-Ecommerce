@@ -8,7 +8,7 @@ const CategoryDropdown = ({ onSelectCategory }) => {
   const [selected, setSelected] = useState("Select Category");
 
   const handleCategorySelect = (category) => {
-    setSelected(category);
+    setSelected(category.sub);
     onSelectCategory(category);
     setOpen(false);
   };

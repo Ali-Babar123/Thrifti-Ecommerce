@@ -27,6 +27,7 @@ import Sold from './components/Sold';
 import Reserved from './components/ReservedSold'
 import Donations from './components/Donations'
 import InviteFriends from './components/InviteFriends';
+import { Toaster } from 'sonner';
 
 const ProtectedRoute = ({ isLoggedIn, element }) => {
   return isLoggedIn ? element : <Navigate to="/" replace />;
@@ -81,16 +82,18 @@ const App = () => {
         user={user} 
       />
 
+      <Toaster richColors position="top-right" />
+
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/men" element={<Mens />} />
-        <Route path="/women" element={<Women />} />
-        <Route path="/kids" element={<Kids />} />
-        <Route path="/electronics" element={<Electronics />} />
-        <Route path="/sports" element={<Sports />} />
-        <Route path="/entertainment" element={<Entertainment />} />
-        <Route path="/accessories" element={<Accessories />} />
+  <Route path="/men/:main?/:sub?" element={<Mens />} />
+  <Route path="/women/:main?/:sub?" element={<Women />} />
+  <Route path="/kids/:main?/:sub?" element={<Kids />} />
+  <Route path="/electronics/:main?/:sub?" element={<Electronics />} />
+  <Route path="/sports/:main?/:sub?" element={<Sports />} />
+  <Route path="/entertainment/:main?/:sub?" element={<Entertainment />} />
+  <Route path="/accessories/:main?/:sub?" element={<Accessories />} />
         <Route path="/ourplatform" element={<OurPlateform />} />
         <Route path="/singleproduct/:id" element={<SingleProduct />} />
         <Route path="/checkout" element={<CheckoutPage />} />

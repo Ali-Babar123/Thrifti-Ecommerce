@@ -110,3 +110,28 @@ exports.deleteProduct = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
+
+// FILTER PRODUCTS BY CATEGORY
+exports.filterProducts = async (req, res) => {
+  try {
+    const { parent, main, sub } = req.query;
+
+    let query = {};
+
+    if (parent) query["category.parent"] = parent;
+    if (main) query["category.main"] = main;
+    if (sub) query["category.sub"] = sub;
+
+    const products = await Product.find(query);
+
+    res.status(200).json({
+      success: true,
+      data: products,
+    });
+
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};

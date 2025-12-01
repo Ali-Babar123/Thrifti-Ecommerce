@@ -54,14 +54,14 @@
 /* Top Picks Section */
 .women-top-picks {
   width: 100%;
-  padding: 60px 5%;
+  padding: 50px 5%;
   box-sizing: border-box;
 }
 
 .women-top-picks-header {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 10px;
   margin-bottom: 25px;
 }
 
@@ -185,8 +185,8 @@
 
 .women-top-picks-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
 }
 
 .women-top-pick-card {

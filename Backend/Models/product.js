@@ -9,9 +9,15 @@ const productSchema = new mongoose.Schema(
     },
     title: { type: String, required: true },
     description: String,
-    category: String,
-    brand: String,
     condition: String,
+    brand: String,
+    // In the Mongoose productSchema:
+category: {
+  parent: { type: String, required: true }, // e.g., 'women'
+  main: { type: String },                  // e.g., 'clothing'
+  sub: { type: String },                   // e.g., 'dresses'
+},
+// ... rest of the schema
     colors: [String],
     materials: [String],
     size: String,

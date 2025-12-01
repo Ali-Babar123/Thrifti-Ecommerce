@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { createProduct, getProducts, updateProduct, deleteProduct } = require("../Controller/Product");
+const { createProduct, getProducts, updateProduct, deleteProduct, filterProducts } = require("../Controller/Product");
 const { verifyToken } = require("../middleware/authmiddleware");
 
 // Create product with multiple images
 router.post("/create", verifyToken, createProduct);
 
+
+router.get("/filter", filterProducts);
 // Optional: Get all products
 router.get("/getAll", getProducts);
 router.put("/update/:id", verifyToken, updateProduct);

@@ -1,13 +1,40 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import "./Entertainment.css";
+import { useParams } from "react-router-dom";
 import EntertainmentImg from "../assets/Desktop - 59.png"; // replace with entertainment banner if different
 import { FaChevronDown, FaChevronUp, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { ProductContext } from "../ProductContext/ProductContext";
 
 const Entertainment = () => {
-  const { products } = useContext(ProductContext);
+  const {parent, main, sub} = useParams();
+  const { products, filterByCategory, filtered, visibleCount,loadMoreProducts,loadingMore } = useContext(ProductContext);
+  
+
   const navigate = useNavigate();
+
+
+  useEffect(() => {
+         console.log("Filtering:", { parent: "entertainment", main, sub });
+       // Only call filter if products are loaded
+     const filterParams = { parent: "entertainment" };
+     
+       if (main) filterParams.main = main;
+       if (sub) filterParams.sub = sub;
+     
+       if (products.length > 0) {
+         filterByCategory(filterParams);
+       }
+     }, [main, sub, products]);
+   
+     
+   const displayProductsList = filtered.length > 0
+     ? filtered
+     : products.filter(p => p.category?.parent?.toLowerCase() === "entertainment");
+   
+   const visibleProducts = displayProductsList.slice(0, visibleCount);
+
+
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -150,16 +177,16 @@ const Entertainment = () => {
 
         <div className="entertainment-top-picks-path">
           <h2>Home / Entertainment / All</h2>
-          <p>{products.length} items</p>
+          <p>{visibleProducts.length} items</p>
         </div>
 
         <div className="entertainment-top-picks-grid">
-          {products.map((item) => (
+          {visibleProducts.map((item) => (
             <div
               className="entertainment-top-pick-card"
-              key={item.id}
+              key={item._id}
               onClick={() =>
-                navigate(`/singleproduct/${item.id}`, { state: item })
+                navigate(`/singleproduct/${item._id}`, { state: item })
               }
             >
               <div
@@ -186,7 +213,13 @@ const Entertainment = () => {
         </div>
 
         <div className="entertainment-top-picks-more">
-          <button>See More</button>
+           {loadingMore ? (
+  <div className="circle-loader"></div>
+) : (
+  visibleProducts.length < displayProductsList.length && (
+    <button onClick={loadMoreProducts}>See More</button>
+  )
+)}
         </div>
       </section>
     </>

@@ -1,44 +1,37 @@
 import React, { useState } from "react";
 import { ChevronRight, ChevronLeft, CheckSquare, Square } from "lucide-react";
 import { categoryData } from "./data/CategoryData";
-import "./CategorySelector.css";
+import "./SelectorFilter.css"; // updated file name
 
-const CategorySelector = ({ onSelectCategory }) => {
+const SelectorFilter = ({ onSelectCategory }) => {
   const [level, setLevel] = useState("main");
   const [currentCategory, setCurrentCategory] = useState(null);
   const [currentSubCategory, setCurrentSubCategory] = useState(null);
   const [selectedFinals, setSelectedFinals] = useState([]);
 
-  // Go deeper into selected main category
   const handleMainSelect = (key) => {
     setCurrentCategory(key);
     setLevel("sub");
   };
 
-  // Go to final subcategory list
   const handleSubSelect = (sub) => {
     setCurrentSubCategory(sub);
     setLevel("final");
   };
 
-  // Select/deselect final items
- // Select/deselect final items
-const handleFinalSelect = (item) => {
-  const updated = [item]; // single select for final item
-  setSelectedFinals(updated);
+  const handleFinalSelect = (item) => {
+    const updated = [item]; // single select
+    setSelectedFinals(updated);
 
-  // Prepare full category object
-  const fullCategory = {
-    parent: level === "final" ? currentCategory : "", // parent category key like "women"
-    main: currentSubCategory?.name || "",           // main category name like "Clothing"
-    sub: item                                        // selected final item
+    const fullCategory = {
+      parent: level === "final" ? currentCategory : "",
+      main: currentSubCategory?.name || "",
+      sub: item
+    };
+
+    onSelectCategory(fullCategory);
   };
 
-  onSelectCategory(fullCategory); // send full object to SellItem
-};
-
-
-  // Go back
   const handleBack = () => {
     if (level === "final") {
       setLevel("sub");
@@ -51,22 +44,21 @@ const handleFinalSelect = (item) => {
   };
 
   return (
-    <div className="category-selector">
+    <div className="sf-selector-filter">
       {/* Header */}
-      <div className="cat-header">
+      <div className="sf-cat-header">
         {level !== "main" && (
           <button
-  type="button"
-  className="back-btn"
-  onClick={(e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    handleBack();
-  }}
->
-  <ChevronLeft size={20} />
-</button>
-
+            type="button"
+            className="sf-back-btn"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleBack();
+            }}
+          >
+            <ChevronLeft size={20} />
+          </button>
         )}
         <h3>
           {level === "main"
@@ -79,16 +71,16 @@ const handleFinalSelect = (item) => {
 
       {/* Main Categories */}
       {level === "main" && (
-        <ul className="cat-list">
+        <ul className="sf-cat-list">
           {Object.entries(categoryData).map(([key, value]) => {
             const Icon = value.main[0].icon;
             return (
               <li key={key} onClick={() => handleMainSelect(key)}>
-                <div className="cat-item">
+                <div className="sf-cat-item">
                   <Icon size={20} />
                   <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
                 </div>
-                <ChevronRight size={18} className="arrow-right" />
+                <ChevronRight size={18} className="sf-arrow-right" />
               </li>
             );
           })}
@@ -97,28 +89,28 @@ const handleFinalSelect = (item) => {
 
       {/* Sub Categories */}
       {level === "sub" && (
-        <ul className="cat-list">
+        <ul className="sf-cat-list">
           {categoryData[currentCategory]?.main.map((sub, idx) => {
             const Icon = sub.icon;
             return (
               <li key={idx} onClick={() => handleSubSelect(sub)}>
-                <div className="cat-item">
+                <div className="sf-cat-item">
                   <Icon size={20} />
                   <span>{sub.name}</span>
                 </div>
-                <ChevronRight size={18} className="arrow-right" />
+                <ChevronRight size={18} className="sf-arrow-right" />
               </li>
             );
           })}
         </ul>
       )}
 
-      {/* Final Sub Items (Multi-select) */}
+      {/* Final Sub Items */}
       {level === "final" && (
-        <ul className="cat-list">
+        <ul className="sf-cat-list">
           {currentSubCategory.sub.map((item, idx) => (
             <li key={idx} onClick={() => handleFinalSelect(item)}>
-              <div className="cat-item">
+              <div className="sf-cat-item">
                 {selectedFinals.includes(item) ? (
                   <CheckSquare size={18} />
                 ) : (
@@ -134,4 +126,4 @@ const handleFinalSelect = (item) => {
   );
 };
 
-export default CategorySelector;
+export default SelectorFilter;

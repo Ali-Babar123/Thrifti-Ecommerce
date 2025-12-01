@@ -4,6 +4,7 @@ import { UploadCloud, Camera, Plus, X, ChevronDown } from "lucide-react";
 import CategoryDropdown from "./CategoryDropdown";
 import API from "../api/api";
 import { ProductContext } from "../ProductContext/ProductContext";
+import { toast } from 'sonner';
 
 const SellItem = () => {
   const { addProduct } = useContext(ProductContext);
@@ -27,9 +28,6 @@ const SellItem = () => {
   const [error, setError] = useState("");
 
   const parcelSizes = ["5kg", "10kg", "15kg"];
-
-  // Dummy user for now (replace with your auth context later)
-  const currentUser = { _id: "1234567890" };
 
   // Handle files
   const handleFiles = (files) => {
@@ -58,81 +56,112 @@ const SellItem = () => {
   };
 
   // Convert a single file to base64
-const fileToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
-};
+  const fileToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
 
-const handleSubmit = async () => {
-  if (!title || !description || !price || !selectedCategory) {
-    alert("Please fill all required fields!");
-    return;
-  }
+  const handleSubmit = async () => {
+  if (images.length === 0)
+    return toast.error("Please upload at least one image");
 
-  try {
-    setLoading(true);
-    setError("");
+  if (!title.trim())
+    return toast.error("Title is required");
 
-    // Convert all images to base64
-    const base64Images = await Promise.all(images.map(fileToBase64));
+  if (!description.trim())
+    return toast.error("Description is required");
 
-    // Prepare payload
-    const payload = {
-      title,
-      description,
-      category: selectedCategory[0] || "",
-      brand: selectedBrand[0] || "",
-      condition: selectedCondition[0] || "",
-      colors: JSON.stringify(selectedColors),
-      materials: JSON.stringify(selectedMaterials),
-      size: selectedSizes[0] || "",
-      price,
-      parcelSize: selectedSize,
-      images: base64Images, // send base64 array
-    };
+  if (!selectedCategory || selectedCategory.length === 0)
+    return toast.error("Please select a category");
 
-    const res = await API.post("/api/products/create", payload,
-      {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`
+  if (selectedBrand.length === 0)
+    return toast.error("Please select a brand");
+
+  if (selectedCondition.length === 0)
+    return toast.error("Please select a condition");
+
+  if (selectedColors.length === 0)
+    return toast.error("Please select at least one color");
+
+  if (selectedMaterials.length === 0)
+    return toast.error("Please select at least one material");
+
+  if (selectedSizes.length === 0)
+    return toast.error("Please select a size");
+
+  if (!price || price <= 0)
+    return toast.error("Please enter a valid price"); 
+
+    try {
+      setLoading(true);
+      setError("");
+
+      // Convert all images to base64
+      const base64Images = await Promise.all(images.map(fileToBase64));
+
+      // Prepare payload
+      const payload = {
+        title,
+        description,
+        brand: selectedBrand[0] || "",
+        condition: selectedCondition[0] || "",
+        category: {
+  parent: selectedCategory.parent || "",
+  main: selectedCategory.main || "",
+  sub: selectedCategory.sub || ""
+},
+        colors: JSON.stringify(selectedColors),
+        materials: JSON.stringify(selectedMaterials),
+        size: selectedSizes[0] || "",
+        price,
+        parcelSize: selectedSize,
+        images: base64Images, // send base64 array
+      };
+
+      const res = await API.post("/api/products/create", payload,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+          }
+        }
+      );
+
+      // Success
+      toast.success("Product added successfully");
+      addProduct(res.data.data);
+
+      // Reset form
+      setImages([]);
+      setImagePreviews([]);
+      setTitle("");
+      setDescription("");
+      setSelectedCategory(null);
+      setSelectedBrand([]);
+      setSelectedCondition([]);
+      setSelectedColors([]);
+      setSelectedMaterials([]);
+      setSelectedSizes([]);
+      setPrice("");
+      setSelectedSize(parcelSizes[0]);
+
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Upload failed. Try again.");
+
+    } finally {
+      setLoading(false);
     }
-  }
-    );
-
-    alert("✅ Product uploaded successfully!");
-    addProduct(res.data.data);
-
-    // Reset form
-    setImages([]);
-    setImagePreviews([]);
-    setTitle("");
-    setDescription("");
-    setSelectedCategory(null);
-    setSelectedBrand([]);
-    setSelectedCondition([]);
-    setSelectedColors([]);
-    setSelectedMaterials([]);
-    setSelectedSizes([]);
-    setPrice("");
-    setSelectedSize(parcelSizes[0]);
-
-  } catch (err) {
-    console.error(err);
-    setError(err.response?.data?.message || "Upload failed. Try again.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
-  return () => {
-    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
-  };
-}, [imagePreviews]);
+    return () => {
+      imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [imagePreviews]);
 
 
   // Options
@@ -157,7 +186,7 @@ const handleSubmit = async () => {
   const sizes = ["XXXS / 2", "XXX / 4", "XS / 6", "S /8", "M / 10", "L / 12", "XL / 14", "XXL / 16", "XXX / 16", "XXXL / 18", "4XL / 20", "5XL / 22", "6XL / 24", "7XL / 26", "8XL / 28", "9XL / 30", "One size", "Other"];
 
 
-  
+
 
 
 
@@ -199,12 +228,12 @@ const handleSubmit = async () => {
         </div>
       ) : (
         <div className="image-list">
-         {imagePreviews.map((preview, index) => (
-  <div key={index} className="image-item">
-    <img src={preview} alt={`upload-${index}`} className="image-preview" />
-    <X className="remove-icon" onClick={() => removeImage(index)} />
-  </div>
-))}
+          {imagePreviews.map((preview, index) => (
+            <div key={index} className="image-item">
+              <img src={preview} alt={`upload-${index}`} className="image-preview" />
+              <X className="remove-icon" onClick={() => removeImage(index)} />
+            </div>
+          ))}
 
 
           <div
@@ -246,14 +275,14 @@ const handleSubmit = async () => {
           <div className="form-group">
             <label>Title</label>
             <input type="text" placeholder="Tell Buyer’s what you are selling" value={title}
-            onChange={(e) => setTitle(e.target.value)}/>
+              onChange={(e) => setTitle(e.target.value)} />
           </div>
 
           <div className="form-group">
             <label>Describe your item</label>
-            <input type="text" placeholder="Tell Buyer’s more about it" 
-            value={description}
-  onChange={(e) => setDescription(e.target.value)} />
+            <input type="text" placeholder="Tell Buyer’s more about it"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)} />
           </div>
         </div>
 
@@ -265,13 +294,13 @@ const handleSubmit = async () => {
 
           <div className="form-group">
             <label>Price</label>
-            <input type="number" placeholder="€0.00" 
-             value={price}
-  onChange={(e) => setPrice(e.target.value)}/>
+            <input type="number" placeholder="€0.00"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)} />
           </div>
         </div>
 
-        {selectedCategory && selectedCategory.length > 0 && (
+        {selectedCategory && Object.keys(selectedCategory).length > 0 && (
           <>
             <div className="form-row">
               <MultiSelectDropdown
@@ -384,8 +413,8 @@ const MultiSelectDropdown = ({ label, options, selected, setSelected, singleSele
   const filteredOptions =
     label === "Brand"
       ? options.filter((option) =>
-          option.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        option.toLowerCase().includes(searchTerm.toLowerCase())
+      )
       : options;
 
   const colorMap = {
@@ -469,9 +498,8 @@ const MultiSelectDropdown = ({ label, options, selected, setSelected, singleSele
                 {option}
               </span>
               <div
-                className={`custom-checkbox ${
-                  selected.includes(option) ? "checked" : ""
-                }`}
+                className={`custom-checkbox ${selected.includes(option) ? "checked" : ""
+                  }`}
               />
             </div>
           ))}

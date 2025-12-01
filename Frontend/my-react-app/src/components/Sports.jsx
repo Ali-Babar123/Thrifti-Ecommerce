@@ -1,18 +1,42 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import "./Sports.css";
+import { useParams } from "react-router-dom";
 import SportsImg from "../assets/Desktop - 59.png"; // replace with sports banner if different
 import { FaChevronDown, FaChevronUp, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { ProductContext } from "../ProductContext/ProductContext";
 
 const Sports = () => {
-  const { products } = useContext(ProductContext);
+  
+    const { parent, main, sub } = useParams(); // Get URL params
+      const { products, filterByCategory, filtered, visibleCount,loadMoreProducts,loadingMore } = useContext(ProductContext);
+    
   const navigate = useNavigate();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [openSections, setOpenSections] = useState({});
   const [selected, setSelected] = useState({});
+
+  useEffect(() => {
+       console.log("Filtering:", { parent: "sports", main, sub });
+     // Only call filter if products are loaded
+   const filterParams = { parent: "sports" };
+   
+     if (main) filterParams.main = main;
+     if (sub) filterParams.sub = sub;
+   
+     if (products.length > 0) {
+       filterByCategory(filterParams);
+     }
+   }, [main, sub, products]);
+ 
+   
+ const displayProductsList = filtered.length > 0
+   ? filtered
+   : products.filter(p => p.category?.parent?.toLowerCase() === "sports");
+ 
+ const visibleProducts = displayProductsList.slice(0, visibleCount);
 
   const toggleSection = (key) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -151,16 +175,16 @@ const Sports = () => {
 
         <div className="sports-top-picks-path">
           <h2>Home / Sports / All</h2>
-          <p>{products.length} items</p>
+          <p>{visibleProducts.length} items</p>
         </div>
 
         <div className="sports-top-picks-grid">
-          {products.map((item) => (
+          {visibleProducts.map((item) => (
             <div
               className="sports-top-pick-card"
-              key={item.id}
+              key={item._id}
               onClick={() =>
-                navigate(`/singleproduct/${item.id}`, { state: item })
+                navigate(`/singleproduct/${item._id}`, { state: item })
               }
             >
               <div
@@ -185,7 +209,13 @@ const Sports = () => {
         </div>
 
         <div className="sports-top-picks-more">
-          <button>See More</button>
+                    {loadingMore ? (
+  <div className="circle-loader"></div>
+) : (
+  visibleProducts.length < displayProductsList.length && (
+    <button onClick={loadMoreProducts}>See More</button>
+  )
+)}
         </div>
       </section>
     </>

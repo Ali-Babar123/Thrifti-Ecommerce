@@ -60,13 +60,16 @@ const categories = [
 
 
 const Home = () => {
-  const { products } = useContext(ProductContext); // ✅ use products from context
+  const { products, visibleCount, loadMoreProducts, loadingMore } = useContext(ProductContext); // ✅ use products from context
     const navigate = useNavigate(); // ✅ for navigation
 
    const [dropdownOpen, setDropdownOpen] = useState(false);
         const [search, setSearch] = useState("");
         const [openSections, setOpenSections] = useState({});
         const [selected, setSelected] = useState({});
+
+        const visibleProducts = products.slice(0, visibleCount);
+
       
         const toggleSection = (key) => {
           setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -242,17 +245,17 @@ const Home = () => {
     </div>
          <div className="top-picks-path">
     <h2>Home / Men / All</h2>
-    <p>1200 items</p>
+    <p>{products.length} items</p>
   </div>
   
   
     {/* Product Grid */}
     <div className="top-picks-grid">
-      {products.map((item) => (
+      {visibleProducts.map((item) => (
        <div
   className="top-pick-card"
-  key={item.id}
-  onClick={() => navigate(`/singleproduct/${item.id}`, { state: item })} // ✅ navigate like Men’s page
+  key={item._id}
+  onClick={() => navigate(`/singleproduct/${item._id}`, { state: item })} // ✅ navigate like Men’s page
   style={{ cursor: "pointer" }}
 >
 
@@ -281,7 +284,13 @@ const Home = () => {
     </div>
   
     <div className="top-picks-more">
-      <button>See More</button>
+     {loadingMore ? (
+  <div className="circle-loader"></div>
+) : (
+  <button onClick={loadMoreProducts}>See More</button>
+)}
+
+
     </div>
   </section>
 <section className="section-four">

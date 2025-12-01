@@ -1,18 +1,38 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import "./OurPlateform.css";
+import { useParams } from "react-router-dom";
 import PlatformImg from "../assets/Desktop - 59.png"; // Replace with your actual platform banner
 import { FaChevronDown, FaChevronUp, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { ProductContext } from "../ProductContext/ProductContext";
 
 const OurPlatform = () => {
-  const { products } = useContext(ProductContext);
+  
+  const { products, filterByCategory, filtered } = useContext(ProductContext);
+  const { parent, main, sub } = useParams(); // Get URL params
   const navigate = useNavigate();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [openSections, setOpenSections] = useState({});
   const [selected, setSelected] = useState({});
+
+   useEffect(() => {
+             console.log("Filtering:", { parent: "plateform", main, sub });
+           // Only call filter if products are loaded
+         const filterParams = { parent: "plateform" };
+         
+           if (main) filterParams.main = main;
+           if (sub) filterParams.sub = sub;
+         
+           if (products.length > 0) {
+             filterByCategory(filterParams);
+           }
+         }, [main, sub, products]);
+      
+      const displayProducts = filtered.length > 0 
+      ? filtered 
+      : products.filter(p => p.category?.parent?.toLowerCase() === "plateform");
 
   const toggleSection = (key) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -155,16 +175,16 @@ const OurPlatform = () => {
 
         <div className="platform-top-picks-path">
           <h2>Home / Our Platform / All</h2>
-          <p>{products.length} items</p>
+          <p>{displayProducts.length} items</p>
         </div>
 
         <div className="platform-top-picks-grid">
-          {products.map((item) => (
+          {displayProducts.map((item) => (
             <div
               className="platform-top-pick-card"
-              key={item.id}
+              key={item._id}
               onClick={() =>
-                navigate(`/singleproduct/${item.id}`, { state: item })
+                navigate(`/singleproduct/${item._id}`, { state: item })
               }
             >
               <div

@@ -28,7 +28,7 @@
   display: flex;
   gap: 10px;
   flex: 1;
-  min-width: 320px;
+  min-width: 650px;
 }
 
 .thumbnail-list {
@@ -59,7 +59,7 @@
   position: relative;
   flex: 1;
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   overflow: hidden; /* keeps child elements inside */
   border-radius: 8px;
 }
@@ -95,6 +95,9 @@
 /* ---------- RIGHT SIDE ---------- */
 .details-section {
   flex: 1;
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  padding: 20px;
   min-width: 320px;
 }
 
@@ -271,7 +274,7 @@
 
   .details-section {
     width: 100%;
-    text-align: center;
+    text-align: left;
   }
 
   .product-info p {
@@ -341,7 +344,6 @@
 
   .bundle-actions {
     flex-direction: row;
-    align-items: flex-start;
   }
 
   .items-grid {
@@ -410,6 +412,8 @@
 @media (max-width: 768px) {
   .product-container {
     flex-direction: column;
+    gap: 0px;
+    padding: 10px;
   }
 
   .image-section {
@@ -460,8 +464,7 @@
   margin-bottom: 1rem;
 }
 .bundle-actions {
-  display: flex
-;
+  display: flex;
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 1.5rem;
@@ -516,6 +519,7 @@
 
 .item-card img {
   width: 100%;
+  height: 80%;
   border-radius: 8px;
 }
 .product-content{
@@ -663,6 +667,81 @@
   display: flex;
 }
 }
+/* Mobile Responsive — small screens (max-width: 600px) */
+@media (max-width: 600px) {
+
+  .member-section {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.2rem;
+  }
+
+  .member-left h2 {
+    font-size: 1.4rem;
+    text-align: left;
+  }
+
+  .bundle-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .create-btn {
+    width: 100%;
+    text-align: center;
+    padding: 0.9rem;
+  }
+
+  .items-grid {
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .item-card {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .product-content {
+    flex-direction: column;
+    text-align: left;
+    gap: 5px;
+  }
+
+  .member-right {
+    padding-left: 0;
+    width: 100%;
+  }
+
+  .seller-card {
+    width: 100%;
+  }
+
+  .seller-header {
+    gap: 0.6rem;
+  }
+
+  .buyer-notice p,
+  .buyer-protection p {
+    font-size: 0.85rem;
+  }
+
+  .follow-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .see-more-btn {
+    width: 100%;
+    text-align: center;
+    padding: 0.7rem;
+    margin: 1rem 0;
+  }
+}
+
 
 
 .rec-section {
