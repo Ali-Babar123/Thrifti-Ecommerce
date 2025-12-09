@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { ChevronRight, ChevronLeft, CheckSquare, Square } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import { categoryData } from "./data/CategoryData";
-import "./SelectorFilter.css"; // updated file name
+import "./SelectorFilter.css";
 
 const SelectorFilter = ({ onSelectCategory }) => {
   const [level, setLevel] = useState("main");
@@ -24,7 +24,7 @@ const SelectorFilter = ({ onSelectCategory }) => {
     setSelectedFinals(updated);
 
     const fullCategory = {
-      parent: level === "final" ? currentCategory : "",
+      parent: currentCategory,
       main: currentSubCategory?.name || "",
       sub: item
     };
@@ -35,7 +35,6 @@ const SelectorFilter = ({ onSelectCategory }) => {
   const handleBack = () => {
     if (level === "final") {
       setLevel("sub");
-      setCurrentSubCategory(null);
       setSelectedFinals([]);
     } else if (level === "sub") {
       setLevel("main");
@@ -45,28 +44,30 @@ const SelectorFilter = ({ onSelectCategory }) => {
 
   return (
     <div className="sf-selector-filter">
+      
       {/* Header */}
       <div className="sf-cat-header">
         {level !== "main" && (
-          <button
-            type="button"
-            className="sf-back-btn"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleBack();
-            }}
-          >
-            <ChevronLeft size={20} />
-          </button>
+          <>
+            <button
+              type="button"
+              className="sf-back-btn"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleBack();
+              }}
+            >
+              <ChevronLeft size={20} />
+            </button>
+
+            <h3>
+              {level === "sub"
+                ? currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)
+                : currentSubCategory?.name}
+            </h3>
+          </>
         )}
-        <h3>
-          {level === "main"
-            ? "Find a Category"
-            : level === "sub"
-            ? currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1)
-            : currentSubCategory?.name}
-        </h3>
       </div>
 
       {/* Main Categories */}
@@ -77,7 +78,7 @@ const SelectorFilter = ({ onSelectCategory }) => {
             return (
               <li key={key} onClick={() => handleMainSelect(key)}>
                 <div className="sf-cat-item">
-                  <Icon size={20} />
+                  <Icon size={26} />
                   <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
                 </div>
                 <ChevronRight size={18} className="sf-arrow-right" />
@@ -105,17 +106,13 @@ const SelectorFilter = ({ onSelectCategory }) => {
         </ul>
       )}
 
-      {/* Final Sub Items */}
+      {/* Final Items with Custom Checkbox */}
       {level === "final" && (
         <ul className="sf-cat-list">
           {currentSubCategory.sub.map((item, idx) => (
             <li key={idx} onClick={() => handleFinalSelect(item)}>
-              <div className="sf-cat-item">
-                {selectedFinals.includes(item) ? (
-                  <CheckSquare size={18} />
-                ) : (
-                  <Square size={18} />
-                )}
+              <div className="sf-check-box">
+                <span className={selectedFinals.includes(item) ? "sf-check checked" : "sf-check"}></span>
                 <span>{item}</span>
               </div>
             </li>

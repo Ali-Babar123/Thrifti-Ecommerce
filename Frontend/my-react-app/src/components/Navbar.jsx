@@ -22,7 +22,7 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
   const navigate = useNavigate()
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
 
-  const { filterByCategory } = useContext(ProductContext);
+  const { applyFilters } = useContext(ProductContext);
 
 
   const slugify = (str) =>
@@ -206,7 +206,7 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
               >
                 <Link
                   to={`/${item}`}
-                  onClick={() => filterByCategory({ parent: item })}
+                  onClick={() => applyFilters({ parent: item })}
                 >
                   {item === "ourplatform"
                     ? "Our Platform"
@@ -245,7 +245,7 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
                           onMouseEnter={() => setActiveMainCat(main.name)}
 
                         onClick={() => {
-    filterByCategory({ parent: item, main: main.name });
+    applyFilters({ parent: item, main: main.name });
      navigate(`/${item}/${slugify(main.name)}`);
   }}
                         >
@@ -276,7 +276,7 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
           className="mega-sub-item"
           onClick={() => {
             setActiveMainCat(null);
-            filterByCategory({
+            applyFilters({
               parent: item,
               main: activeMainCat, // ✅ include main
               sub: sub,

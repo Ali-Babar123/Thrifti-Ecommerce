@@ -35,25 +35,25 @@ const ProtectedRoute = ({ isLoggedIn, element }) => {
 
 const App = () => {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);  
+  const [user, setUser] = useState(null);
 
 
- useEffect(() => {
-  const loginStatus = localStorage.getItem("loggedIn") === "true";
-  const storedUser = localStorage.getItem("user");
+  useEffect(() => {
+    const loginStatus = localStorage.getItem("loggedIn") === "true";
+    const storedUser = localStorage.getItem("user");
 
-  setLoggedIn(loginStatus);
+    setLoggedIn(loginStatus);
 
-  // Only parse valid JSON
-  if (storedUser && storedUser !== "undefined") {
-    try {
-      setUser(JSON.parse(storedUser));
-    } catch (err) {
-      console.error("Failed to parse user from localStorage:", err);
-      localStorage.removeItem("user"); // optional cleanup
+    // Only parse valid JSON
+    if (storedUser && storedUser !== "undefined") {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (err) {
+        console.error("Failed to parse user from localStorage:", err);
+        localStorage.removeItem("user"); // optional cleanup
+      }
     }
-  }
-}, []);
+  }, []);
 
 
   // When user logs in successfully
@@ -61,7 +61,7 @@ const App = () => {
     localStorage.setItem("loggedIn", "true");
     localStorage.setItem("user", JSON.stringify(userData));
     setLoggedIn(true);
-     setUser(userData);
+    setUser(userData);
   };
 
   // When user logs out
@@ -79,7 +79,7 @@ const App = () => {
         loggedIn={loggedIn}
         onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
-        user={user} 
+        user={user}
       />
 
       <Toaster richColors position="top-right" />
@@ -87,13 +87,13 @@ const App = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
-  <Route path="/men/:main?/:sub?" element={<Mens />} />
-  <Route path="/women/:main?/:sub?" element={<Women />} />
-  <Route path="/kids/:main?/:sub?" element={<Kids />} />
-  <Route path="/electronics/:main?/:sub?" element={<Electronics />} />
-  <Route path="/sports/:main?/:sub?" element={<Sports />} />
-  <Route path="/entertainment/:main?/:sub?" element={<Entertainment />} />
-  <Route path="/accessories/:main?/:sub?" element={<Accessories />} />
+        <Route path="/men/:main?/:sub?" element={<Mens />} />
+        <Route path="/women/:main?/:sub?" element={<Women />} />
+        <Route path="/kids/:main?/:sub?" element={<Kids />} />
+        <Route path="/electronics/:main?/:sub?" element={<Electronics />} />
+        <Route path="/sports/:main?/:sub?" element={<Sports />} />
+        <Route path="/entertainment/:main?/:sub?" element={<Entertainment />} />
+        <Route path="/accessories/:main?/:sub?" element={<Accessories />} />
         <Route path="/ourplatform" element={<OurPlateform />} />
         <Route path="/singleproduct/:id" element={<SingleProduct />} />
         <Route path="/checkout" element={<CheckoutPage />} />
@@ -124,50 +124,50 @@ const App = () => {
         />
         <Route
           path="/settings/profile"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Settings/>} />}
+          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Settings />} />}
         />
         <Route
           path="/profile"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<ProfilePage/>} />}
+          element={<ProtectedRoute isLoggedIn={loggedIn} element={<ProfilePage />} />}
         />
 
         <Route
           path="/check-progress"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<ListingSingleProductPage/>} />}
+          element={<ProtectedRoute isLoggedIn={loggedIn} element={<ListingSingleProductPage />} />}
         />
 
 
         <Route
           path="/review-checkout"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<ReviewOrder/>} />}
+          element={<ProtectedRoute isLoggedIn={loggedIn} element={<ReviewOrder />} />}
         />
 
-         <Route
+        <Route
           path="/sold"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Sold/>} />}
+          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Sold />} />}
         />
 
 
         <Route
           path="/reserved"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Reserved/>} />}
+          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Reserved />} />}
         />
 
-        
-       <Route
+
+        <Route
           path="/settings/donations"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Donations/>} />}
+          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Donations />} />}
         />
 
-         <Route
+        <Route
           path="/referrals"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<InviteFriends/>} />}
+          element={<ProtectedRoute isLoggedIn={loggedIn} element={<InviteFriends />} />}
         />
 
       </Routes>
 
 
-      
+
       <Footer />
     </>
   );

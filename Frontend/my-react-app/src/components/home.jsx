@@ -168,83 +168,8 @@ const Home = () => {
 
 
    <section className="top-picks">
-    <div className="top-picks-header">
-      <div className="top-picks-filters">
-        <button className="filter-btn active">All</button>
-  
-        {/* Dropdown */}
-        <div className="filter-dropdown">
-          <button className="filter-toggle" onClick={() => setDropdownOpen(!dropdownOpen)}>
-            Category{" "}
-            <span>{dropdownOpen ? <FaChevronUp /> : <FaChevronDown />}</span>
-          </button>
-  
-          {dropdownOpen && (
-            <div className="filter-menu">
-              <input
-                type="text"
-                placeholder="Search"
-                className="filter-search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                />
-  
-              {categoryOptions.map((cat) => {
-                const filteredSub = cat.sub.filter((s) =>
-                  s.toLowerCase().includes(search.toLowerCase())
-                );
-  
-                return (
-                  <div key={cat.title} className="filter-category">
-                    <div
-                      className="filter-category-title"
-                      onClick={() => toggleSection(cat.title)}
-                      >
-                      {cat.title}
-                      <span>
-                        {cat.sub.length > 0 ? (
-                            openSections[cat.title] ? (
-                                <FaChevronUp />
-                              ) : (
-                                  <FaChevronDown />
-                          )
-                        ) : (
-                            <FaChevronDown style={{ opacity: 0.4 }} />
-                          )}
-                      </span>
-                    </div>
-  
-                    {openSections[cat.title] && filteredSub.length > 0 && (
-                        <div className="filter-subcategories">
-                        {filteredSub.map((item) => (
-                          <label key={item}>
-                            <input
-                              type="checkbox"
-                              checked={!!selected[item]}
-                              onChange={() => handleCheckbox(item)}
-                            />
-                            {item}
-                          </label>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-  
-        <select><option>Price</option></select>
-        <select><option>Size</option></select>
-        <select><option>Sort By</option></select>
-        
-  
-  
-      </div>
-    </div>
          <div className="top-picks-path">
-    <h2>Home / Men / All</h2>
+    <h2>Home / All</h2>
     <p>{products.length} items</p>
   </div>
   

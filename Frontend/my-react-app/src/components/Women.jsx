@@ -3,78 +3,166 @@ import "./Women.css";
 import WomenImg from "../assets/Desktop - 59.png";
 import { useParams } from "react-router-dom";
 import CategoryFilter from "./CategoryFilter";
+import { Filter, Sliders } from "lucide-react";
 import { FaChevronDown, FaChevronUp, FaHeart } from "react-icons/fa";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, X, ChevronRight, ChevronLeft, CheckSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ProductContext } from "../ProductContext/ProductContext";
 
 const Women = () => {
   const { parent, main, sub } = useParams(); // Get URL params
-  const { products, filterByCategory, filtered, visibleCount,loadMoreProducts,loadingMore } = useContext(ProductContext);
+   const { products, applyFilters, filtered, visibleCount,loadMoreProducts,loadingMore } = useContext(ProductContext);
+
   const navigate = useNavigate();
-  const [selectedCategory, setSelectedCategory] = useState([]);
+
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [openSections, setOpenSections] = useState({});
   const [selected, setSelected] = useState({});
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const [isFilterOpen, setIsFilterOpen] = useState(false);
+     const [mobileFilterLevel, setMobileFilterLevel] = useState("main");
+      // main = sab filters list
+      // category = category filter open
+      // brand, size, price, color ... etc
+      const [mobileFilterTitle, setMobileFilterTitle] = useState("Filter");
+  
 
 
-      const  [selectedBrand, setSelectedBrand] = useState([]);
-      const [selectedPrice, setSelectedPrice] = useState([]);
-      const [selectedCondition, setSelectedCondition] = useState([]);
-      const [selectedColors, setSelectedColors] = useState([]);
-      const [selectedMaterials, setSelectedMaterials] = useState([]);
-      const [selectedSizes, setSelectedSizes] = useState([]);
-      const [selectedSort, setSelectedSort] = useState([]);
+  const [selectedBrand, setSelectedBrand] = useState([]);
+  const [selectedPrice, setSelectedPrice] = useState([]);
+  const [selectedCondition, setSelectedCondition] = useState([]);
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [selectedMaterials, setSelectedMaterials] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
+  const [selectedSort, setSelectedSort] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState([]);
 
+
+  
+
+
+   useEffect(() => {
+    if (products.length === 0) return;
+  
+    // BUILD FILTER OBJECT TO SEND TO CONTEXT
+    let filterParams = {
+      parent: parent || "women",
+      main,
+      sub,
+      brand: selectedBrand,
+      condition: selectedCondition,
+      colors: selectedColors,
+      materials: selectedMaterials,
+      sizes: selectedSizes,
+      priceRange: selectedPrice,
+      sort: selectedSort[0] || ""
+    };
+  
+    // If CategoryFilter selected something
+    if (selectedCategory.length > 0) {
+      const cat = selectedCategory[0];
+  
+      filterParams.parent = cat.parent || filterParams.parent;
+      filterParams.main = cat.main || filterParams.main;
+      filterParams.sub = cat.sub || filterParams.sub;
+    }
+  
+    applyFilters(filterParams);
+  
+  }, [
+    products,
+    parent,
+    main,
+    sub,
+    selectedCategory,
+    selectedBrand,
+    selectedCondition,
+    selectedColors,
+    selectedMaterials,
+    selectedSizes,
+    selectedPrice,
+    selectedSort
+  ]);
+  
+  
+  
+  const displayProductsList = filtered;
+
+  const visibleProducts = displayProductsList.slice(0, visibleCount);
+
+
+  const filteredByDropdown = displayProductsList.filter((item) => {
+    const brandMatch = selectedBrand.length === 0 || selectedBrand.includes(item.brand);
+    const conditionMatch = selectedCondition.length === 0 || selectedCondition.includes(item.condition);
+    const colorMatch = selectedColors.length === 0 || selectedColors.some(c => item.color?.includes(c));
+    const materialMatch = selectedMaterials.length === 0 || selectedMaterials.some(m => item.material?.includes(m));
+    const sizeMatch = selectedSizes.length === 0 || selectedSizes.includes(item.size);
+
+    return brandMatch && conditionMatch && colorMatch && materialMatch && sizeMatch;
+  });
+
+
+ const filterCount =
+   selectedCategory.length +
+   selectedPrice.length +
+   selectedBrand.length +
+   selectedCondition.length +
+   selectedColors.length +
+   selectedMaterials.length +
+   selectedSizes.length +
+   (selectedSort ? 0 : 1);
+ 
+   const clearAllFilters = () => {
+     setSelectedCategory([]);
+     setSelectedPrice([]);
+     setSelectedBrand([]);
+     setSelectedCondition([]);
+     setSelectedColors([]);
+     setSelectedMaterials([]);
+     setSelectedSizes([]);
+     setSelectedSort([]);
+   };
+ 
+ 
+ 
    
-    useEffect(() => {
-     if (products.length === 0) return;
-   
-     let filterParams = { parent: parent || "women" }; // URL param parent
-   
-     if (main) filterParams.main = main;
-     if (sub) filterParams.sub = sub;
-   
-     // Merge dropdown-selected category if exists
-     if (selectedCategory) {
-       filterParams = {
-         ...filterParams,
-         ...selectedCategory
-       };
-     }
-   
-     filterByCategory(filterParams);
-   }, [products, parent, main, sub, selectedCategory]);
-   
-   
-     
-   const displayProductsList = filtered.length > 0
-     ? filtered
-     : products.filter(p => p.category?.parent?.toLowerCase() === "women");
-   
-   const visibleProducts = displayProductsList.slice(0, visibleCount);
-
-
-   const filteredByDropdown = displayProductsList.filter((item) => {
-  const brandMatch = selectedBrand.length === 0 || selectedBrand.includes(item.brand);
-  const conditionMatch = selectedCondition.length === 0 || selectedCondition.includes(item.condition);
-  const colorMatch = selectedColors.length === 0 || selectedColors.some(c => item.color?.includes(c));
-  const materialMatch = selectedMaterials.length === 0 || selectedMaterials.some(m => item.material?.includes(m));
-  const sizeMatch = selectedSizes.length === 0 || selectedSizes.includes(item.size);
-
-  return brandMatch && conditionMatch && colorMatch && materialMatch && sizeMatch;
-});
-
-
-  const toggleSection = (key) => {
-    setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const handleCheckbox = (key) => {
-    setSelected((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
+ 
+ 
+ useEffect(() => {
+   const handleResize = () => setIsMobile(window.innerWidth <= 768);
+   window.addEventListener("resize", handleResize);
+   return () => window.removeEventListener("resize", handleResize);
+ }, []);
+ 
+ 
+   const applyMobileFilters = () => {
+   setIsFilterOpen(false);
+ 
+   let filterParams = {
+     parent: parent || "women",
+     main,
+     sub,
+     brand: selectedBrand,
+     condition: selectedCondition,
+     colors: selectedColors,
+     materials: selectedMaterials,
+     sizes: selectedSizes,
+     priceRange: selectedPrice,
+     sort: selectedSort[0] || ""
+   };
+ 
+   if (selectedCategory.length > 0) {
+     const cat = selectedCategory[0];
+     filterParams.parent = cat.parent || filterParams.parent;
+     filterParams.main = cat.main || filterParams.main;
+     filterParams.sub = cat.sub || filterParams.sub;
+   }
+ 
+   applyFilters(filterParams);
+ };
+ 
 
 
 
@@ -90,7 +178,7 @@ const Women = () => {
     "Purple", "Pink", "Orange", "Beige", "Cream", "Burgundy", "Navy", "Olive",
     "Teal", "Maroon", "Gold", "Silver", "Coral", "Mint", "Lavender", "Charcoal"
   ];
-  
+
   const materials = [
     "Acrylic", "Alpaca", "Bamboo", "Cardboard", "Cashmere", "Ceramic", "Chiffon", "Corduroy", "Cotton", "Denim", "Down",
     "Elastane", "Faz Faur", "Faux leather", "Felt", "Flannel", "Fleece", "Glass", "Gold", "Jute", "Lace", "Latex", "Leather",
@@ -99,11 +187,11 @@ const Women = () => {
     "Valvet", "Velour", "Wood", "Wool"
   ];
   const sizes = ["XXXS / 2", "XXX / 4", "XS / 6", "S /8", "M / 10", "L / 12", "XL / 14", "XXL / 16", "XXX / 16", "XXXL / 18", "4XL / 20", "5XL / 22", "6XL / 24", "7XL / 26", "8XL / 28", "9XL / 30", "One size", "Other"];
-  
+
   const sort = ["Newest", "Oldest", "Price Low to High", "Price High to Low"];
 
-  
-  
+
+
 
   return (
     <>
@@ -120,198 +208,316 @@ const Women = () => {
         <div className="women-top-picks-header">
           <div className="women-top-picks-filters-row">
             <div className="women-top-picks-filters">
-              
 
-              
-              <div className="all-dropdown-row">
-
-
- <CategoryFilter
-  selectedCategories={selectedCategory}
-  setSelectedCategories={setSelectedCategory}
-  onSelectCategory={(selected) => {
-    setSelectedCategory(Array.isArray(selected) ? selected : [selected]);
-  }}
-/>
-
-  <MultiSelectDropdown
-  label="Price"
-  options={[]}     // 👈 EMPTY OPTIONS — stops dropdown options from showing
-  selected={selectedPrice}
-  setSelected={setSelectedPrice}
-  isPriceRange     // 👈 custom flag for clarity (optional)
- />
-
-
-
-  <MultiSelectDropdown
-    label="Brand"
-    options={brands}
-    selected={selectedBrand}
-    setSelected={setSelectedBrand}
-    singleSelect
-  />
-
-  <MultiSelectDropdown
-    label="Condition"
-    options={conditions}
-    selected={selectedCondition}
-    setSelected={setSelectedCondition}
-    singleSelect
-  />
-
-  <MultiSelectDropdown
-    label="Color"
-    options={colors}
-    selected={selectedColors}
-    setSelected={setSelectedColors}
-    maxSelect={3}
-  />
-
-  <MultiSelectDropdown
-    label="Material"
-    options={materials}
-    selected={selectedMaterials}
-    setSelected={setSelectedMaterials}
-    maxSelect={3}
-  />
-
-  <MultiSelectDropdown
-    label="Size"
-    options={sizes}
-    selected={selectedSizes}
-    setSelected={setSelectedSizes}
-    singleSelect
-  />
-
-  <MultiSelectDropdown
-    label="Sort By"
-    options={sort}
-    selected={selectedSort} // create separate state e.g., selectedSort
-    setSelected={setSelectedSort} // change to setSelectedSort
-    singleSelect
-  />
+     <div className="mobile-filter-btn" onClick={() => setIsFilterOpen(true)}>
+    <Sliders size={18} />
+    <span>Filter</span>
+    <span className="filter-count">{filterCount}</span>
   </div>
 
-              
+    <div className="all-dropdown-row desktop-only">
 
-              
+    <CategoryFilter
+      selectedCategories={selectedCategory}
+      setSelectedCategories={setSelectedCategory}
+      onSelectCategory={(selected) =>
+        setSelectedCategory(Array.isArray(selected) ? selected : [selected])
+      }
+    />
+
+    <MultiSelectDropdown
+      label="Price"
+      options={[]}
+      selected={selectedPrice}
+      setSelected={setSelectedPrice}
+      isMobile={isMobile}
+    />
+
+    <MultiSelectDropdown
+      label="Brand"
+      options={brands}
+      selected={selectedBrand}
+      setSelected={setSelectedBrand}
+      isMobile={isMobile}
+    />
+
+    <MultiSelectDropdown
+      label="Condition"
+      options={conditions}
+      selected={selectedCondition}
+      setSelected={setSelectedCondition}
+      isMobile={isMobile}
+    />
+
+    <MultiSelectDropdown
+      label="Color"
+      options={colors}
+      selected={selectedColors}
+      setSelected={setSelectedColors}
+      isMobile={isMobile}
+    />
+
+    <MultiSelectDropdown
+      label="Material"
+      options={materials}
+      selected={selectedMaterials}
+      setSelected={setSelectedMaterials}
+      isMobile={isMobile}
+    />
+
+    <MultiSelectDropdown
+      label="Size"
+      options={sizes}
+      selected={selectedSizes}
+      setSelected={setSelectedSizes}
+      isMobile={isMobile}
+    />
+
+    <MultiSelectDropdown
+      label="Sort By"
+      options={sort}
+      selected={selectedSort}
+      setSelected={setSelectedSort}
+      isMobile={isMobile}
+    />
+  </div>
+
+
+
+
             </div>
 
+    {isFilterOpen && isMobile && (
+              <div className="mobile-filter-panel">
+
+                {/* HEADER */}
+                <div className="mobile-filter-header">
+                  <span className="close-btn" onClick={() => setIsFilterOpen(false)}>✕</span>
+                  <h3>Filter</h3>
+                  <span className="clear-btn" onClick={clearAllFilters}>Clear All</span>
+                </div>
+
+                {/* BODY */}
+                <div className="mobile-filter-body">
+
+                  <CategoryFilter
+                    selectedCategories={selectedCategory}
+                    setSelectedCategories={setSelectedCategory}
+                    
+                    applyFilters={applyMobileFilters} // pass from Mens
+                    onSelectCategory={(s) =>
+                      setSelectedCategory(Array.isArray(s) ? s : [s])
+                    }
+                  />
+
+                  <MultiSelectDropdown
+                    label="Price"
+                    options={[]}
+                    selected={selectedPrice}
+                    setSelected={setSelectedPrice}
+                    isMobile={isMobile}
+                    setIsFilterOpen={setIsFilterOpen} // allow dropdown to close the panel
+
+                    applyFilters={applyMobileFilters} // pass from Mens
+                  />
+
+                  <MultiSelectDropdown
+                    label="Brand"
+                    options={brands}
+                    selected={selectedBrand}
+                    setSelected={setSelectedBrand}
+                    isMobile={isMobile}
+                    setIsFilterOpen={setIsFilterOpen} // allow dropdown to close the panel
+
+                   applyFilters={applyMobileFilters} // pass from Mens
+                  />
+
+                  <MultiSelectDropdown
+                    label="Condition"
+                    options={conditions}
+                    selected={selectedCondition}
+                    setSelected={setSelectedCondition}
+                    isMobile={isMobile}
+                    setIsFilterOpen={setIsFilterOpen} // allow dropdown to close the panel
+
+                   applyFilters={applyMobileFilters} // pass from Mens
+                  />
+
+                  <MultiSelectDropdown
+                    label="Color"
+                    options={colors}
+                    selected={selectedColors}
+                    setSelected={setSelectedColors}
+                    isMobile={isMobile}
+                    setIsFilterOpen={setIsFilterOpen} // allow dropdown to close the panel
+
+                    applyFilters={applyMobileFilters} // pass from Mens
+                  />
+
+                  <MultiSelectDropdown
+                    label="Material"
+                    options={materials}
+                    selected={selectedMaterials}
+                    setSelected={setSelectedMaterials}
+                    isMobile={isMobile}
+                    setIsFilterOpen={setIsFilterOpen} // allow dropdown to close the panel
+
+                   applyFilters={applyMobileFilters} // pass from Mens
+                  />
+
+                  <MultiSelectDropdown
+                    label="Size"
+                    options={sizes}
+                    selected={selectedSizes}
+                    setSelected={setSelectedSizes}
+                    isMobile={isMobile}
+                    setIsFilterOpen={setIsFilterOpen} // allow dropdown to close the panel
+
+                  applyFilters={applyMobileFilters} // pass from Mens
+                  />
+
+                  <MultiSelectDropdown
+                    label="Sort By"
+                    options={sort}
+                    selected={selectedSort}
+                    setSelected={setSelectedSort}
+                    isMobile={isMobile}
+                    setIsFilterOpen={setIsFilterOpen} // allow dropdown to close the panel
+                    applyFilters={applyMobileFilters} // pass from Mens
+                  />
+                </div>
+
+                {/* SHOW RESULTS BUTTON */}
+                <button className="show-results-btn" onClick={applyMobileFilters}>
+                  Show results
+                </button>
+
+              </div>
+            )}
+
+
+
+          </div>
+          {!isMobile && (
+                    <div className="selected-tags">
+                  
+          {selectedCategory.map((item, idx) => (
+            <div key={`category-${idx}`} className="selected-tag">
+              {typeof item === "object"
+                ? item.sub 
+                : item
+              }
+              <X
+                size={20}
+                className="tag-close"
+                onClick={() => setSelectedCategory(selectedCategory.filter(i => i !== item))}
+              />
+            </div>
+          ))}
+          
+          
+            {selectedBrand.map((item, idx) => (
+              <div key={`brand-${idx}`} className="selected-tag">
+                {item}
+                <X
+                  size={20}
+                  className="tag-close"
+                  onClick={() => setSelectedBrand(selectedBrand.filter(i => i !== item))}
+                />
+              </div>
+            ))}
+          
+            {selectedColors.map((item, idx) => (
+              <div key={`color-${idx}`} className="selected-tag">
+                {item}
+                <X
+                  size={20}
+                  className="tag-close"
+                  onClick={() => setSelectedColors(selectedColors.filter(i => i !== item))}
+                />
+              </div>
+            ))}
+          
+            {selectedMaterials.map((item, idx) => (
+              <div key={`material-${idx}`} className="selected-tag">
+                {item}
+                <X
+                  size={20}
+                  className="tag-close"
+                  onClick={() => setSelectedMaterials(selectedMaterials.filter(i => i !== item))}
+                />
+              </div>
+            ))}
+          
+            {selectedSizes.map((item, idx) => (
+              <div key={`size-${idx}`} className="selected-tag">
+                {item}
+                <X
+                  size={20}
+                  className="tag-close"
+                  onClick={() => setSelectedSizes(selectedSizes.filter(i => i !== item))}
+                />
+              </div>
+            ))}
+          
+            
+          
+            {selectedCondition.map((item, idx) => (
+              <div key={`condition-${idx}`} className="selected-tag">
+                {item}
+                <X
+                  size={20}
+                  className="tag-close"
+                  onClick={() => setSelectedCondition(selectedCondition.filter(i => i !== item))}
+                />
+              </div>
+            ))}
+          
+            {selectedSort.map((item, idx) => (
+            <div key={`sort-${idx}`} className="selected-tag">
+              {item}
+              <X
+                size={20}
+                className="tag-close"
+                onClick={() => setSelectedSort(selectedSort.filter(i => i !== item))}
+              />
+            </div>
+          ))}
+          {/* FROM Price Tag */}
+          {selectedPrice[0] && (
+            <div className="selected-tag">
+              From £{selectedPrice[0]}
+              <X
+                size={20}
+                className="tag-close"
+                onClick={() => setSelectedPrice(["", selectedPrice[1] || ""])}
+              />
+            </div>
+          )}
+          
+          {/* TO Price Tag */}
+          {selectedPrice[1] && (
+            <div className="selected-tag">
+              To £{selectedPrice[1]}
+              <X
+                size={20}
+                className="tag-close"
+                onClick={() => setSelectedPrice([selectedPrice[0] || "", ""])}
+              />
+            </div>
+          )}
+          
+          
+          
            
           
+          
+          
+          
+          
+          
           </div>
-              <div className="selected-tags">
-        
-{selectedCategory.map((item, idx) => (
-  <div key={`category-${idx}`} className="selected-tag">
-    {typeof item === "object"
-      ? item.sub 
-      : item
-    }
-    <X
-      size={20}
-      className="tag-close"
-      onClick={() => setSelectedCategory(selectedCategory.filter(i => i !== item))}
-    />
-  </div>
-))}
-
-
-  {selectedBrand.map((item, idx) => (
-    <div key={`brand-${idx}`} className="selected-tag">
-      {item}
-      <X
-        size={20}
-        className="tag-close"
-        onClick={() => setSelectedBrand(selectedBrand.filter(i => i !== item))}
-      />
-    </div>
-  ))}
-
-  {selectedColors.map((item, idx) => (
-    <div key={`color-${idx}`} className="selected-tag">
-      {item}
-      <X
-        size={20}
-        className="tag-close"
-        onClick={() => setSelectedColors(selectedColors.filter(i => i !== item))}
-      />
-    </div>
-  ))}
-
-  {selectedMaterials.map((item, idx) => (
-    <div key={`material-${idx}`} className="selected-tag">
-      {item}
-      <X
-        size={20}
-        className="tag-close"
-        onClick={() => setSelectedMaterials(selectedMaterials.filter(i => i !== item))}
-      />
-    </div>
-  ))}
-
-  {selectedSizes.map((item, idx) => (
-    <div key={`size-${idx}`} className="selected-tag">
-      {item}
-      <X
-        size={20}
-        className="tag-close"
-        onClick={() => setSelectedSizes(selectedSizes.filter(i => i !== item))}
-      />
-    </div>
-  ))}
-
-  
-
-  {selectedCondition.map((item, idx) => (
-    <div key={`condition-${idx}`} className="selected-tag">
-      {item}
-      <X
-        size={20}
-        className="tag-close"
-        onClick={() => setSelectedCondition(selectedCondition.filter(i => i !== item))}
-      />
-    </div>
-  ))}
-
-  {selectedSort.map((item, idx) => (
-  <div key={`sort-${idx}`} className="selected-tag">
-    {item}
-    <X
-      size={20}
-      className="tag-close"
-      onClick={() => setSelectedSort(selectedSort.filter(i => i !== item))}
-    />
-  </div>
-))}
-{/* FROM Price Tag */}
-{selectedPrice[0] && (
-  <div className="selected-tag">
-    From £{selectedPrice[0]}
-    <X
-      size={20}
-      className="tag-close"
-      onClick={() => setSelectedPrice(["", selectedPrice[1] || ""])}
-    />
-  </div>
-)}
-
-{/* TO Price Tag */}
-{selectedPrice[1] && (
-  <div className="selected-tag">
-    To £{selectedPrice[1]}
-    <X
-      size={20}
-      className="tag-close"
-      onClick={() => setSelectedPrice([selectedPrice[0] || "", ""])}
-    />
-  </div>
-)}
-
-
-
-</div>
+                  )}
         </div>
 
         <div className="women-top-picks-path">
@@ -330,8 +536,9 @@ const Women = () => {
             >
               <div
                 className="women-top-pick-image"
-                   style={{ 
-    backgroundImage: `url(${item.images && item.images.length > 0 ? item.images[0] : 'https://via.placeholder.com/150'})` }}
+                style={{
+                  backgroundImage: `url(${item.images && item.images.length > 0 ? item.images[0] : 'https://via.placeholder.com/150'})`
+                }}
               >
                 <div className="women-top-pick-like">
                   <FaHeart color="black" size={14} />
@@ -350,13 +557,13 @@ const Women = () => {
         </div>
 
         <div className="women-top-picks-more">
-                    {loadingMore ? (
-  <div className="circle-loader"></div>
-) : (
-  visibleProducts.length < displayProductsList.length && (
-    <button onClick={loadMoreProducts}>See More</button>
-  )
-)}
+          {loadingMore ? (
+            <div className="circle-loader"></div>
+          ) : (
+            visibleProducts.length < displayProductsList.length && (
+              <button onClick={loadMoreProducts}>See More</button>
+            )
+          )}
         </div>
       </section>
     </>
@@ -372,24 +579,39 @@ const capitalize = (str) => {
 };
 
 
-const MultiSelectDropdown = ({ label, options, selected, setSelected, singleSelect = false, maxSelect }) => {
+const MultiSelectDropdown = ({
+  label,
+  options,
+  selected,
+  setSelected,
+  singleSelect = false,
+  maxSelect,
+  isMobile,
+  applyFilters,
+  setIsFilterOpen
+}) => {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef(null);
 
+  const [level, setLevel] = useState("main");
+  const [selectedFilter, setSelectedFilter] = useState(null);
+
   const handleToggle = (option) => {
     if (singleSelect) {
       setSelected([option]);
-      setOpen(false);
       return;
     }
 
     if (selected.includes(option)) {
-      setSelected(selected.filter((item) => item !== option));
+      setSelected(selected.filter((i) => i !== option));
     } else if (!maxSelect || selected.length < maxSelect) {
       setSelected([...selected, option]);
     }
   };
+
+
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -403,53 +625,136 @@ const MultiSelectDropdown = ({ label, options, selected, setSelected, singleSele
 
   const filteredOptions =
     label === "Brand"
-      ? options.filter((option) =>
-          option.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+      ? options.filter((o) =>
+        o.toLowerCase().includes(searchTerm.toLowerCase())
+      )
       : options;
 
-  const colorMap = {
-    Black: "#000000",
-    White: "#ffffff",
-    Red: "#ff0000",
-    Blue: "#0000ff",
-    Green: "#008000",
-    Yellow: "#ffff00",
-    Gray: "#808080",
-    Brown: "#8b4513",
-    Purple: "#800080",
-    Pink: "#ffc0cb",
-    Orange: "#ffa500",
-    Beige: "#f5f5dc",
-    Cream: "#fffdd0",
-    Burgundy: "#800020",
-    Navy: "#000080",
-    Olive: "#808000",
-    Teal: "#008080",
-    Maroon: "#800000",
-    Gold: "#ffd700",
-    Silver: "#c0c0c0",
-    Coral: "#ff7f50",
-    Mint: "#98ff98",
-    Lavender: "#e6e6fa",
-    Charcoal: "#36454f",
-  };
+  const capitalize = (str) =>
+    str.charAt(0).toUpperCase() + str.slice(1);
+
+
+  
+
+const handleShowResults = () => {
+  if (applyFilters) applyFilters(); // apply filters passed from parent
+  if (setIsFilterOpen) setIsFilterOpen(false); // close the mobile filter panel
+  setOpen(false); // close the dropdown itself
+  setLevel("main"); // reset level
+  setSelectedFilter(null); // reset selected filter
+};
+
+
 
   return (
-    <div className="msd-container" ref={dropdownRef} style={{ position: "relative" }}>
-      {/* Dropdown header */}
-      <div className="msd-wrapper" onClick={() => setOpen(!open)}>
+    <div className="msd-container" ref={dropdownRef}>
+      {/* HEADER */}
+      <div
+        className="msd-wrapper"
+        onClick={() => {
+          if (isMobile) {
+            setSelectedFilter(label);
+            setLevel("sub");
+            setIsFilterOpen(true);
+          } else {
+            setOpen(!open);
+          }
+        }}
+      >
         <div className="msd-display">
-  {capitalize(label)} {/* Always show label, ignore selected here */}
-  <ChevronDown size={18} className={`msd-arrow ${open ? "open" : ""}`} />
-</div>
+          {capitalize(label)}
 
+          {isMobile ? (
+            <ChevronRight size={18} />
+          ) : (
+            <ChevronDown size={18} className={`msd-arrow ${open ? "open" : ""}`} />
+          )}
+        </div>
       </div>
 
-      {/* Dropdown menu */}
-      {open && (
+      {/* ********************* */}
+      {/* 📱 MOBILE SUB PANEL */}
+      {/* ********************* */}
+      {isMobile && level === "sub" && (
+        <div className="msd-mobile-panel">
+          <div className="msd-mobile-header">
+            <span
+              className="msd-back"
+              onClick={() => {
+                setLevel("main");
+                setSelectedFilter(null);
+              }}
+            >
+              <ChevronLeft size={20} />
+            </span>
+
+            <h3 style={{ margin: "auto", fontWeight: 600 }}>
+              {capitalize(selectedFilter)}
+            </h3>
+          </div>
+
+          {/* OPTIONS */}
+          <div className="msd-mobile-options">
+            {selectedFilter === "Price" ? (
+              <div className="price-range-row">
+                {/* Min Price */}
+                <div className="price-box">
+                  <label className="price-label">From</label>
+                  <input
+                    type="number"
+                    className="price-input-field"
+                    value={selected[0] || ""}
+                    onChange={(e) =>
+                      setSelected([e.target.value, selected[1] || ""])
+                    }
+                  />
+                </div>
+
+                {/* Max Price */}
+                <div className="price-box">
+                  <label className="price-label">To</label>
+                  <input
+                    type="number"
+                    className="price-input-field"
+                    value={selected[1] || ""}
+                    onChange={(e) =>
+                      setSelected([selected[0] || "", e.target.value])
+                    }
+                  />
+                </div>
+              </div>
+            ) : (
+              filteredOptions?.map((opt) => {
+                const isSelected = selected.includes(opt);
+                return (
+                  <div
+                    key={opt}
+                    className="msd-mobile-option"
+                    onClick={() => handleToggle(opt)}
+                  >
+                    <span>{opt}</span>
+                    <div className={`msd-checkbox ${isSelected ? "msd-checked" : ""}`} />
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          <button
+            className="msd-show-results-btn"
+            onClick={handleShowResults}
+          >
+            Show results
+          </button>
+        </div>
+      )}
+
+      {/* ********************* */}
+      {/* 🖥 DESKTOP DROPDOWN */}
+      {/* ********************* */}
+      {open && !isMobile && (
         <div className="msd-menu">
-          {/* Search row for Brand only */}
+          {/* BRAND SEARCH */}
           {label === "Brand" && (
             <div style={{ padding: "5px 10px" }}>
               <input
@@ -463,68 +768,58 @@ const MultiSelectDropdown = ({ label, options, selected, setSelected, singleSele
             </div>
           )}
 
-          {/* Options list */}
-         {label === "Price" ? (
-  <div className="price-range-row" onClick={(e) => e.stopPropagation()}>
-    
-    {/* Min Price */}
-    <div className="price-box">
-      <label className="price-label">From</label>
-      <input
-        type="number"
-        className="price-input-field"
-        value={selected[0] || ""}
-        onChange={(e) => {
-          const updated = [e.target.value, selected[1] || ""];
-          setSelected(updated);
-        }}
-      />
-    </div>
+          {/* OPTIONS */}
+          {label === "Price" ? (
+            <div className="price-range-row" onClick={(e) => e.stopPropagation()}>
+              {/* Min Price */}
+              <div className="price-box">
+                <label className="price-label">From</label>
+                <input
+                  type="number"
+                  className="price-input-field"
+                  value={selected[0] || ""}
+                  onChange={(e) =>
+                    setSelected([e.target.value, selected[1] || ""])
+                  }
+                />
+              </div>
 
-    {/* Max Price */}
-    <div className="price-box">
-      <label className="price-label">To</label>
-      <input
-        type="number"
-        className="price-input-field"
-        value={selected[1] || ""}
-        onChange={(e) => {
-          const updated = [selected[0] || "", e.target.value];
-          setSelected(updated);
-        }}
-      />
-    </div>
-
-  </div>
-) : (
-  filteredOptions.map((option) => (
-    <div
-      key={option}
-      className="msd-option"
-      onClick={(e) => { e.stopPropagation(); handleToggle(option); }}
-    >
-      <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        {label === "Color" && (
-          <span
-            style={{
-              width: "18px",
-              height: "18px",
-              borderRadius: "50%",
-              backgroundColor: colorMap[option] || "#ccc",
-              border: "1px solid #aaa"
-            }}
-          ></span>
-        )}
-        {option}
-      </span>
-      <div className={`msd-checkbox ${selected.includes(option) ? "msd-checked" : ""}`} />
-    </div>
-  ))
-)}
-
+              {/* Max Price */}
+              <div className="price-box">
+                <label className="price-label">To</label>
+                <input
+                  type="number"
+                  className="price-input-field"
+                  value={selected[1] || ""}
+                  onChange={(e) =>
+                    setSelected([selected[0] || "", e.target.value])
+                  }
+                />
+              </div>
+            </div>
+          ) : (
+            filteredOptions.map((opt) => {
+              const isSelected = selected.includes(opt);
+              return (
+                <div
+                  key={opt}
+                  className="msd-option"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggle(opt);
+                  }}
+                >
+                  <span>{opt}</span>
+                  <div className={`msd-checkbox ${isSelected ? "msd-checked" : ""}`} />
+                </div>
+              );
+            })
+          )}
         </div>
       )}
     </div>
   );
 };
+
+
 export default Women;

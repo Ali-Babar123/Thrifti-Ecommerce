@@ -256,6 +256,7 @@
   .image-section {
     flex-direction: column;
     align-items: center;
+    min-width: 0px;
   }
 
   .thumbnail-list {

@@ -262,6 +262,7 @@
 
   .image-section {
     flex-direction: column;
+    min-width: 0px;
     align-items: center;
   }
 
@@ -858,6 +859,42 @@
   background: #000;
   color: #fff;
 }
+/* Existing styles remain the same */
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .rec-grid {
+    gap: 15px; /* Slightly smaller gap on mobile */
+  }
+
+  .rec-card {
+    flex: 1 1 calc(50% - 15px); /* 2 cards per row with gap considered */
+    max-width: calc(54% - 15px);
+  }
+
+  .rec-img-box {
+    height: 220px; /* Slightly smaller image for mobile */
+  }
+
+  .rec-title {
+    font-size: 20px;
+  }
+
+  .rec-name,
+  .rec-price {
+    font-size: 14px;
+  }
+
+  .rec-condition {
+    font-size: 12px;
+  }
+
+  .rec-likes {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+}
+
 /* Background Overlay */
 /* Transparent Overlay (only dim around image) */
 .lightbox-overlay {

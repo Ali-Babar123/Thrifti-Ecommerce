@@ -68,7 +68,6 @@
 .top-picks-header {
   display: flex;
   flex-direction: column;
-  margin-bottom: 25px;
   gap: 15px;
 }
 
@@ -315,11 +314,130 @@
   }
 }
 
+
+/* Hide on desktop */
+.mobile-filter-btn {
+  display: none;
+}
+
+/* ---------- MOBILE ONLY ---------- */
+@media (max-width: 768px) {
+  .top-picks-header{
+    gap: 0px;
+  }
+  .mobile-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 10px 24px;
+    border-radius: 50px;
+    width: fit-content;
+    font-size: 15px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .filter-count {
+    position: absolute;
+    right: -6px;
+    top: -6px;
+    background: black;
+    color: #fff;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+}
+
+.mobile-filter-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-filter-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  position: relative;
+}
+
+.mobile-filter-header .back-btn {
+  position: absolute;
+  left: 16px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.mobile-filter-header .close-btn {
+  position: absolute;
+  left: 16px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.mobile-filter-header h3 {
+  text-align: center;
+  font-weight: 500;
+  font-size: 18px;
+}
+
+.mobile-filter-header .clear-btn {
+  position: absolute;
+  right: 16px;
+  font-size: 14px;
+  color: black;
+  cursor: pointer;
+}
+
+.mobile-filter-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.show-results-btn {
+  background: black;
+  color: #fff;
+  padding: 14px;
+  font-size: 16px;
+  border: none;
+  width: 100%;
+}
+.msd-show-results-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  background: #000;
+  color: #fff;
+  border-radius: 8px;
+  margin-top: 20px;
+  border: none;
+}
+
+
+
 /* Optional: Responsive tweaks */
 @media (max-width: 768px) {
   .top-picks-filters-row {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
   }
 
   .sort-by-dropdown {
@@ -388,12 +506,13 @@
 /* Brand search input (no outer border) */
 .msd-brand-input {
  width: 100%;
-  padding: 6px 8px;
-  margin-bottom: 8px;
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  font-size: 14px;
-  outline: none;
+padding: 6px 8px;
+margin-bottom: 8px;
+border: none;              /* remove all borders */
+border-bottom: 1px solid #ccc;  /* only underline */
+font-size: 18px;
+outline: none;             /* no blue outline */
+background: transparent;    /* clean look */
 }
 
 .msd-brand-input:focus {
@@ -491,6 +610,57 @@
   border-radius: 3px;
 }
 
+.msd-mobile-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  z-index: 9999;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.msd-show-results-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 0;
+  position: fixed;
+  bottom: 0;
+}
+.msd-mobile-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.msd-back {
+  cursor: pointer;
+}
+.msd-back h3{
+margin: auto;
+}
+.msd-mobile-option {
+  padding: 14px 10px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
 /* Responsive design */
 @media (max-width: 1024px) {
   .msd-display {
@@ -505,14 +675,42 @@
   .msd-container {
     margin-bottom: 15px;
   }
+  .msd-wrapper{
+     margin-left: -1rem;
+  margin-right: -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-bottom: 1px solid #eee;
+  }
   .msd-display {
     font-size: 14px;
+    border: none;
     padding: 10px 12px;
   }
   .msd-menu {
     max-height: 160px;
   }
+  .msd-display {
+    pointer-events: none;
+    font-size: 15px;        /* prevent opening on label click */
+  }
+
+  .msd-arrow-trigger {
+    pointer-events: all;         /* allow opening ONLY from chevron */
+  }
 }
+
+/* Chevron rotation for mobile (right arrow rotates to down arrow look) */
+@media (max-width: 768px) {
+  .msd-arrow {
+    transition: transform 0.25s ease;
+  }
+
+  .msd-arrow.open {
+    transform: rotate(90deg); /* right → down */
+  }
+}
+
 
 @media (max-width: 480px) {
   .msd-display {

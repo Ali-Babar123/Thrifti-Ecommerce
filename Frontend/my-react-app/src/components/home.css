@@ -118,7 +118,7 @@
 /* Section wrapper */
 .home-featured__section {
   width: 100%;
-  padding: 50px 5%;
+  padding: 50px 5% 0px;
   font-family: "Plus Jakarta Sans", sans-serif;
   box-sizing: border-box;
 }
