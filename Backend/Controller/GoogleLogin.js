@@ -55,7 +55,7 @@ const googleLogin = async (req, res) => {
         try {
           const imgResponse = await axios.get(picture, { responseType: "arraybuffer" });
           fs.writeFileSync(savePath, imgResponse.data);
-          localImagePath = `${process.env.BASE_URL || "http://localhost:9000"}/uploads/users/${fileName}`;
+          localImagePath = `${process.env.BASE_URL || "https://thrifti-backend.vercel.app"}/uploads/users/${fileName}`;
 
           user.profileImage = localImagePath;
           await user.save();
