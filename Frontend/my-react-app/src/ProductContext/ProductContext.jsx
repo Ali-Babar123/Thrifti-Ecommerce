@@ -120,11 +120,14 @@ if (sub)
     setFiltered(result);
   };
 
+  const addProduct = (product) => setProducts(prev => [...prev, product]);
+
   return (
     <ProductContext.Provider
       value={{
         products,
         filtered,
+        addProduct,
         applyFilters,
         loading,
         error,
