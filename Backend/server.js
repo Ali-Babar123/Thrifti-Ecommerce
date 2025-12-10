@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
 
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://accounts.google.com"],
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://accounts.google.com", "https://thrifti.temp2027.com"],
   credentials: true
 }));
 app.use(express.json());
