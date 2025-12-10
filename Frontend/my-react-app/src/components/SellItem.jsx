@@ -6,6 +6,137 @@ import API from "../api/api";
 import { ProductContext } from "../ProductContext/ProductContext";
 import { toast } from 'sonner';
 
+
+/* ✅ Fixed MultiSelectDropdown */
+const MultiSelectDropdown = ({ label, options, selected, setSelected, singleSelect = false, maxSelect }) => {
+  const [open, setOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const dropdownRef = useRef(null);
+
+  const handleToggle = (option) => {
+    if (singleSelect) {
+      setSelected([option]);
+      setSearchTerm(option); // ✅ show selected brand name in input
+      setOpen(false);
+      return;
+    }
+
+    if (selected.includes(option)) {
+      setSelected(selected.filter((item) => item !== option));
+    } else if (!maxSelect || selected.length < maxSelect) {
+      setSelected([...selected, option]);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions =
+    label === "Brand"
+      ? options.filter((option) =>
+        option.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+      : options;
+
+  const colorMap = {
+    Black: "#000000",
+    White: "#ffffff",
+    Red: "#ff0000",
+    Blue: "#0000ff",
+    Green: "#008000",
+    Yellow: "#ffff00",
+    Gray: "#808080",
+    Brown: "#8b4513",
+    Purple: "#800080",
+    Pink: "#ffc0cb",
+    Orange: "#ffa500",
+    Beige: "#f5f5dc",
+    Cream: "#fffdd0",
+    Burgundy: "#800020",
+    Navy: "#000080",
+    Olive: "#808000",
+    Teal: "#008080",
+    Maroon: "#800000",
+    Gold: "#ffd700",
+    Silver: "#c0c0c0",
+    Coral: "#ff7f50",
+    Mint: "#98ff98",
+    Lavender: "#e6e6fa",
+    Charcoal: "#36454f",
+  };
+
+  return (
+    <div className="form-group multi-select" ref={dropdownRef} style={{ position: "relative" }}>
+      <label>{label}</label>
+      <div className="dropdown-wrapper" onClick={() => setOpen(!open)}>
+        <div className="dropdown-display">
+          {label === "Brand" ? (
+            <input
+              type="text"
+              placeholder="Search brand..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setOpen(true);
+              }}
+              className="brand-input-fix"
+            />
+          ) : (
+            <>
+              {selected.length > 0
+                ? selected.join(", ")
+                : `Select ${label.toLowerCase()}`}
+              <ChevronDown size={18} />
+            </>
+          )}
+        </div>
+      </div>
+
+      {open && (
+        <div className="dropdown-menu">
+          {filteredOptions.map((option) => (
+            <div
+              key={option}
+              className="dropdown-option"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggle(option);
+              }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                {label === "Color" && (
+                  <span
+                    style={{
+                      width: "18px",
+                      height: "18px",
+                      borderRadius: "50%",
+                      backgroundColor: colorMap[option] || "#ccc",
+                      border: "1px solid #aaa",
+                    }}
+                  ></span>
+                )}
+                {option}
+              </span>
+              <div
+                className={`custom-checkbox ${selected.includes(option) ? "checked" : ""
+                  }`}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const SellItem = () => {
   const { addProduct } = useContext(ProductContext);
 
@@ -379,134 +510,5 @@ const SellItem = () => {
   );
 };
 
-/* ✅ Fixed MultiSelectDropdown */
-const MultiSelectDropdown = ({ label, options, selected, setSelected, singleSelect = false, maxSelect }) => {
-  const [open, setOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const dropdownRef = useRef(null);
-
-  const handleToggle = (option) => {
-    if (singleSelect) {
-      setSelected([option]);
-      setSearchTerm(option); // ✅ show selected brand name in input
-      setOpen(false);
-      return;
-    }
-
-    if (selected.includes(option)) {
-      setSelected(selected.filter((item) => item !== option));
-    } else if (!maxSelect || selected.length < maxSelect) {
-      setSelected([...selected, option]);
-    }
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const filteredOptions =
-    label === "Brand"
-      ? options.filter((option) =>
-        option.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      : options;
-
-  const colorMap = {
-    Black: "#000000",
-    White: "#ffffff",
-    Red: "#ff0000",
-    Blue: "#0000ff",
-    Green: "#008000",
-    Yellow: "#ffff00",
-    Gray: "#808080",
-    Brown: "#8b4513",
-    Purple: "#800080",
-    Pink: "#ffc0cb",
-    Orange: "#ffa500",
-    Beige: "#f5f5dc",
-    Cream: "#fffdd0",
-    Burgundy: "#800020",
-    Navy: "#000080",
-    Olive: "#808000",
-    Teal: "#008080",
-    Maroon: "#800000",
-    Gold: "#ffd700",
-    Silver: "#c0c0c0",
-    Coral: "#ff7f50",
-    Mint: "#98ff98",
-    Lavender: "#e6e6fa",
-    Charcoal: "#36454f",
-  };
-
-  return (
-    <div className="form-group multi-select" ref={dropdownRef} style={{ position: "relative" }}>
-      <label>{label}</label>
-      <div className="dropdown-wrapper" onClick={() => setOpen(!open)}>
-        <div className="dropdown-display">
-          {label === "Brand" ? (
-            <input
-              type="text"
-              placeholder="Search brand..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpen(true);
-              }}
-              className="brand-input-fix"
-            />
-          ) : (
-            <>
-              {selected.length > 0
-                ? selected.join(", ")
-                : `Select ${label.toLowerCase()}`}
-              <ChevronDown size={18} />
-            </>
-          )}
-        </div>
-      </div>
-
-      {open && (
-        <div className="dropdown-menu">
-          {filteredOptions.map((option) => (
-            <div
-              key={option}
-              className="dropdown-option"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggle(option);
-              }}
-            >
-              <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                {label === "Color" && (
-                  <span
-                    style={{
-                      width: "18px",
-                      height: "18px",
-                      borderRadius: "50%",
-                      backgroundColor: colorMap[option] || "#ccc",
-                      border: "1px solid #aaa",
-                    }}
-                  ></span>
-                )}
-                {option}
-              </span>
-              <div
-                className={`custom-checkbox ${selected.includes(option) ? "checked" : ""
-                  }`}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
 export default SellItem;
