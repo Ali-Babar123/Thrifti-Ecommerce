@@ -6,10 +6,11 @@
   color: #222;
 }
 
-.breadcrumb {
+.breadcrumb a{
   color: #777;
   font-size: 16px;
   margin-bottom: 20px;
+  text-decoration: none;
 }
 
 .breadcrumb span {
@@ -738,6 +739,7 @@
 
 .rec-details {
   display: flex;
+  text-align: left;
   flex-direction: column;
 }
 

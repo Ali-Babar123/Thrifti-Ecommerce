@@ -1,36 +1,23 @@
-// src/pages/Mens.jsx
-import React, { useState, useContext, useRef, useEffect } from "react";
-import "./Mens.css";
-import { useParams } from "react-router-dom";
+
+
+
+
+import {useEffect,useState, useContext, useRef} from 'react'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
+import API from '../api/api'
+import { ChevronDown, X, ChevronRight, ChevronLeft, CheckSquare } from "lucide-react";
+import { FaHeart } from "react-icons/fa";
 import { Filter, Sliders } from "lucide-react";
 import CategoryFilter from "./CategoryFilter";
+import kidsImg from "../assets/KidsMain.png"; 
 import MenImg from "../assets/Desktop - 59.png";
-import { FaChevronDown, FaChevronUp, FaHeart } from "react-icons/fa";
-import { ChevronDown, X, ChevronRight, ChevronLeft, CheckSquare } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { ProductContext } from "../ProductContext/ProductContext";
 
-const Mens = () => {
-  const { parent, main, sub } = useParams(); // Get URL params
-  const navigate = useNavigate();
 
-  const { products, applyFilters, filtered, visibleCount, loadMoreProducts, loadingMore } = useContext(ProductContext);
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [openSections, setOpenSections] = useState({});
+const Category = () => {
+    
   const [selectedCategory, setSelectedCategory] = useState([]);
-  const [selected, setSelected] = useState({});
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [mobileFilterLevel, setMobileFilterLevel] = useState("main");
-  // main = sab filters list
-  // category = category filter open
-  // brand, size, price, color ... etc
-  const [mobileFilterTitle, setMobileFilterTitle] = useState("Filter");
-
-
-
-
   const [selectedBrand, setSelectedBrand] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState([]);
   const [selectedCondition, setSelectedCondition] = useState([]);
@@ -39,74 +26,32 @@ const Mens = () => {
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedSort, setSelectedSort] = useState([]);
   const [selectorLevel, setSelectorLevel] = useState("main");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const location = useLocation();
+    const params =  new URLSearchParams(location.search);
+    
+    const navigate = useNavigate();
+
+    const handleCategoryChange = (category) => {
+  const searchParams = new URLSearchParams(location.search);
+
+  if (category.parent) searchParams.set("parent", category.parent);
+  if (category.main) searchParams.set("main", category.main);
+  if (category.sub) searchParams.set("sub", category.sub);
+
+  navigate(`/category?${searchParams.toString()}`);
+};
 
 
-
-  useEffect(() => {
-    if (products.length === 0) return;
-
-    // BUILD FILTER OBJECT TO SEND TO CONTEXT
-    let filterParams = {
-      parent: parent || "men",
-      main,
-      sub,
-      brand: selectedBrand,
-      condition: selectedCondition,
-      colors: selectedColors,
-      materials: selectedMaterials,
-      sizes: selectedSizes,
-      priceRange: selectedPrice,
-      sort: selectedSort[0] || ""
-    };
-
-    // If CategoryFilter selected something
-    if (selectedCategory.length > 0) {
-      const cat = selectedCategory[0];
-
-      filterParams.parent = cat.parent || filterParams.parent;
-      filterParams.main = cat.main || filterParams.main;
-      filterParams.sub = cat.sub || filterParams.sub;
-    }
-
-    applyFilters(filterParams);
-
-  }, [
-    products,
-    parent,
-    main,
-    sub,
-    selectedCategory,
-    selectedBrand,
-    selectedCondition,
-    selectedColors,
-    selectedMaterials,
-    selectedSizes,
-    selectedPrice,
-    selectedSort
-  ]);
-
-
+  const { products, applyFilters, filtered, visibleCount, loadMoreProducts, loadingMore } = useContext(ProductContext);
+   
   const displayProductsList = filtered;
-
 
   const visibleProducts = displayProductsList.slice(0, visibleCount);
 
-
-  const filteredByDropdown = displayProductsList.filter((item) => {
-    const brandMatch = selectedBrand.length === 0 || selectedBrand.includes(item.brand);
-    const conditionMatch = selectedCondition.length === 0 || selectedCondition.includes(item.condition);
-    const colorMatch = selectedColors.length === 0 || selectedColors.some(c => item.color?.includes(c));
-    const materialMatch = selectedMaterials.length === 0 || selectedMaterials.some(m => item.material?.includes(m));
-    const sizeMatch = selectedSizes.length === 0 || selectedSizes.includes(item.size);
-
-    return brandMatch && conditionMatch && colorMatch && materialMatch && sizeMatch;
-  });
-
-
-
-
-  const filterCount =
+    const filterCount =
     selectedCategory.length +
     selectedPrice.length +
     selectedBrand.length +
@@ -126,49 +71,46 @@ const Mens = () => {
     setSelectedSizes([]);
     setSelectedSort([]);
   };
+    const query = {
+       parent: params.get("parent") || null,
+       main: params.get("main") || null,
+       sub: params.get("sub") || null
 
-
-
-
-
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-
-  const applyMobileFilters = () => {
-    setIsFilterOpen(false);
-
-    let filterParams = {
-      parent: parent || "men",
-      main,
-      sub,
-      brand: selectedBrand,
-      condition: selectedCondition,
-      colors: selectedColors,
-      materials: selectedMaterials,
-      sizes: selectedSizes,
-      priceRange: selectedPrice,
-      sort: selectedSort[0] || ""
-    };
-
-    if (selectedCategory.length > 0) {
-      const cat = selectedCategory[0];
-      filterParams.parent = cat.parent || filterParams.parent;
-      filterParams.main = cat.main || filterParams.main;
-      filterParams.sub = cat.sub || filterParams.sub;
     }
+    useEffect(() => {
+  applyFilters({
+    parent: query.parent,
+    main: query.main,
+    sub: query.sub,
+    brand: selectedBrand,
+    colors: selectedColors,
+    materials: selectedMaterials,
+    sizes: selectedSizes,
+    condition: selectedCondition,
+    priceRange: selectedPrice,
+    sort: selectedSort[0] || "",
+  });
+}, [
+  location.search,
+  selectedBrand,
+  selectedColors,
+  selectedMaterials,
+  selectedSizes,
+  selectedCondition,
+  selectedPrice,
+  selectedSort
+]);
+ 
 
-    applyFilters(filterParams);
-  };
+
+   
+
+const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenImg : query.parent === 'kids' ?
+  kidsImg: query.parent === 'electronics' ? MenImg : query.parent === 'sports' ? MenImg : query.parent === 'entertainment'
+  ? MenImg : query.parent === "accessories" ? MenImg : query.parent === "platform" ? MenImg : null
 
 
-
-
-  // Options
+   // Options
   const brands = [
     "Nike", "Next", "George", "Kaibi", "addidas", "PrettyLittleThing", "H&M", "Shein", "Stradivarius", "Mango", "Marks & Spencer",
     "Breshka", "Matalan", "Only", "Topshop", "River Island", "ASOS", "Atomosphere", "Adidas", "Puma", "Primark", "No Label",
@@ -190,23 +132,23 @@ const Mens = () => {
   ];
   const sizes = ["XXXS / 2", "XXX / 4", "XS / 6", "S /8", "M / 10", "L / 12", "XL / 14", "XXL / 16", "XXX / 16", "XXXL / 18", "4XL / 20", "5XL / 22", "6XL / 24", "7XL / 26", "8XL / 28", "9XL / 30", "One size", "Other"];
 
-  const sort = ["Newest", "Oldest", "Price Low to High", "Price High to Low"];
+  const sort = ["Newest", "Oldest", "Price Low to High", "Price High to Low"]
 
-  const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenImg : query.parent === 'kids' ?
-  MenImg: query.parent === 'electronics' ? MenImg : query.parent === 'sports' ? MenImg : query.parent === 'entertainment'
-  ? MenImg : query.parent === 'accessories' ? MenImg : query.parent === 'platform'
+    
   return (
+
     <>
       <section
         className="mens-banner"
         style={{ backgroundImage: `url(${image})` }}
       >
         <div className="mens-banner-content">
-          <h1>Men's Collection</h1>
+          <h1>{query.parent && query.parent[0].toUpperCase() + query.parent.slice(1)} Collection</h1>
         </div>
       </section>
+    
 
-      <section className="top-picks">
+     <section className="top-picks">
         <div className="top-picks-header">
           <div className="top-picks-filters-row">
 
@@ -226,9 +168,10 @@ const Mens = () => {
                   selectedCategories={selectedCategory}
                   setSelectedCategories={setSelectedCategory}
                  
-                  onSelectCategory={(selected) =>
-                    setSelectedCategory(Array.isArray(selected) ? selected : [selected])
-                  }
+                  onSelectCategory={(cat) => {
+    setSelectedCategory([cat]);
+    handleCategoryChange(cat);
+  }}
                 />
 
                 <MultiSelectDropdown
@@ -522,9 +465,41 @@ const Mens = () => {
         </div>
 
 
-        <div className="top-picks-path">
-          <h2>Home / Men / All</h2>
-          <p>{visibleProducts.length} items</p>
+        <div className="top-picks-path">       
+            <h2 className='breadcrumb'>
+  <Link to="/">Home</Link>
+
+  {query.parent && (
+    <>
+      {" "} /{" "}
+      <Link to={`/category?parent=${query.parent}`}>
+        {query.parent[0].toUpperCase() + query.parent.slice(1)}
+      </Link>
+    </>
+  )}
+
+  {query.main && (
+    <>
+      {" "} /{" "}
+      <Link to={`/category?parent=${query.parent}&main=${query.main}`}>
+        {query.main}
+      </Link>
+    </>
+  )}
+
+  {query.sub && (
+    <>
+      {" "} /{" "}
+      <Link
+        to={`/category?parent=${query.parent}&main=${query.main}&sub=${query.sub}`}
+      >
+        {query.sub}
+      </Link>
+    </>
+  )}
+</h2>
+
+          <p>{filtered.length} items</p>
         </div>
 
         {/* ✅ Product Grid */}
@@ -533,7 +508,7 @@ const Mens = () => {
             <div
               className="top-pick-card"
               key={item._id}
-              onClick={() => navigate(`/singleproduct/${item._id}`, { state: item })}
+              onClick={() => navigate(`/data/${item._id}`, { state: item })}
             >
               <div
                 className="top-pick-image"
@@ -570,11 +545,9 @@ const Mens = () => {
 
 
       </section>
-
     </>
-
-  );
-};
+  )
+}
 
 
 const capitalize = (str) => {
@@ -638,6 +611,8 @@ const MultiSelectDropdown = ({
 
   const capitalize = (str) =>
     str.charAt(0).toUpperCase() + str.slice(1);
+
+  
 
 
   
@@ -828,4 +803,5 @@ const handleShowResults = () => {
 };
 
 
-export default Mens;
+
+export default Category

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./LoginModal.css";
 import API from "../api/api";
 import { auth, provider } from "./firebase"; 
@@ -11,92 +11,210 @@ import { FaApple, FaFacebook } from "react-icons/fa";
 
 
 const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
-  const [isSignUp, setIsSignUp] = useState(false); // default to login
-  const [useEmailForm, setUseEmailForm] = useState(false); // email form view
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [useEmailForm, setUseEmailForm] = useState(false);
+
+  const [location, setLocation] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const [formData, setFormData] = useState({
-  username: "",
-  email: "",
-  password: "",
-});
-const [loading, setLoading] = useState(false);
-const [error, setError] = useState("");
+    username: "",
+    email: "",
+    password: "",
+    city: null,
+    country: null,
+  });
 
+  // ================= GET BROWSER LOCATION =================
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setError("Geolocation not supported");
+      return;
+    }
 
-const handleChange = (e) => {
-  setFormData({ ...formData, [e.target.name]: e.target.value });
-};
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation({
+          lat: pos.coords.latitude,
+          lon: pos.coords.longitude,
+        });
+      },
+      () => setError("Location permission denied")
+    );
+  }, []);
 
-const handleSignup = async () => {
-  try {
-    setLoading(true);
-    setError("");
-    const res = await API.post("/api/auth/signup", formData);
-    console.log("Signup success:", res.data);
-    // alert("Account created successfully!");
-    setFormData({ username: "", email: "", password: "" });
+  // ================= CONVERT LAT/LON → CITY/COUNTRY =================
+  useEffect(() => {
+    if (!location) return;
+
+    const fetchAddress = async () => {
+      try {
+        const res = await fetch(
+          `https://api.allorigins.win/get?url=${encodeURIComponent(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${location.lat}&lon=${location.lon}`
+          )}`
+        );
+
+        const data = await res.json();
+        const result = JSON.parse(data.contents);
+        const address = result.address || {};
+
+        setFormData((prev) => ({
+          ...prev,
+          country: address.country || null,
+          city:
+            address.city ||
+            address.state ||
+            address.village ||
+            address.municipality ||
+            address.suburb ||
+            null,
+        }));
+      } catch (err) {
+        console.error("Location fetch error:", err);
+      }
+    };
+
+    fetchAddress();
+  }, [location]);
+
+  // ================= INPUT HANDLER =================
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // ================= SIGNUP =================
+  const handleSignup = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      if (!formData.city || !formData.country) {
+        setError("Detecting your location, please wait...");
+        setLoading(false);
+        return;
+      }
+
+      const res = await API.post("/api/auth/signup", formData);
+
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("loggedIn", "true");
-      if (onLoginSuccess) onLoginSuccess();
-  } catch (err) {
-    console.error("Signup failed:", err.response?.data || err.message);
-    setError(err.response?.data?.message || "Signup failed. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
-   
 
+      if (onLoginSuccess) onLoginSuccess();
+      onClose();
+
+      setFormData({
+        username: "",
+        email: "",
+        password: "",
+        city: null,
+        country: null,
+      });
+    } catch (err) {
+      setError(err.response?.data?.message || "Signup failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ================= LOGIN =================
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await API.post("/api/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("loggedIn", "true");
+
+      if (onLoginSuccess) onLoginSuccess();
+      onClose();
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ================= GOOGLE LOGIN =================
 const handleGoogleLogin = async () => {
   try {
-    // Step 1: Sign in with Google Popup
-    const result = await signInWithPopup(auth, provider);
-
-    // Step 2: Get Firebase Google Token (ID Token)
-    const token = await result.user.getIdToken();
-    console.log("✅ Firebase Token:", token);
-    const picture = result.user.photoURL;
-    // Step 3: Send token to backend
-    const res = await API.post("/api/auth/google", { token , picture});
-
-    // Step 4: Store your backend JWT
-    localStorage.setItem("token", res.data.token);
-     localStorage.setItem("user", JSON.stringify(res.data.user));
-    localStorage.setItem("loggedIn", "true");
-
-    if (onLoginSuccess) onLoginSuccess(res.data.user);
-    onClose();
-  } catch (err) {
-    console.error("❌ Google login failed:", err);
-    setError("Google login failed, try again.");
-  }
-};
-
-const handleLogin = async () => {
-  try {
+    console.log("Google login started");
     setLoading(true);
     setError("");
 
-    // Send login request
-    const res = await API.post("/api/auth/login", {
-      email: formData.email,
-      password: formData.password,
+    let city = null;
+    let country = null;
+
+    // 1️⃣ Get user position
+    try {
+      console.log("Requesting geolocation...");
+      const pos = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      });
+      console.log("Geolocation success:", pos);
+
+      // 2️⃣ Reverse geocode to get city & country
+      const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`;
+      console.log("Fetching reverse geocode from:", geoUrl);
+
+      const res = await fetch(geoUrl);
+      const data = await res.json();
+      console.log("Reverse geocode data:", data);
+
+      const address = data.address || {};
+      console.log("Parsed address:", address);
+
+      city = address.city || address.town || address.village || address.state || null;
+      country = address.country || null;
+      console.log("Resolved city & country:", { city, country });
+
+      // Update formData for display or debugging
+      setFormData(prev => ({ ...prev, city, country }));
+    } catch (err) {
+      console.error("Could not fetch location:", err);
+      setError("Could not fetch location for Google login");
+      return; // stop login if location is mandatory
+    }
+
+    // 3️⃣ Perform Google login
+    console.log("Opening Google login popup...");
+    const result = await signInWithPopup(auth, provider);
+    console.log("Google login result:", result);
+
+    const token = await result.user.getIdToken();
+    const picture = result.user.photoURL;
+    console.log("Google token & picture:", { token, picture });
+
+    // 4️⃣ Send to backend
+    console.log("Sending data to backend...", { token, picture, city, country });
+    const backendRes = await API.post("/api/auth/google", {
+      token,
+      picture,
+      city,
+      country,
     });
+    console.log("Backend response:", backendRes.data);
 
-    console.log("Login success:", res.data);
-    // alert("Login successful!");
+    localStorage.setItem("token", backendRes.data.token);
+    localStorage.setItem("loggedIn", "true");
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("loggedIn", "true");
-      if (onLoginSuccess) onLoginSuccess();
-
-    setFormData({ username: "", email: "", password: "" });
+    if (onLoginSuccess) onLoginSuccess(backendRes.data.user);
+    console.log("Login successful, closing modal");
+    onClose();
   } catch (err) {
-    console.error("Login failed:", err.response?.data || err.message);
-    setError(err.response?.data?.message || "Login failed. Please try again.");
+    console.error("Google login failed:", err);
+    setError("Google login failed");
   } finally {
     setLoading(false);
   }
 };
+
 
 
   if (!isOpen) return null;
@@ -286,4 +404,4 @@ const handleLogin = async () => {
   );
 };
 
-export default LoginModal;
+export default LoginModal; 

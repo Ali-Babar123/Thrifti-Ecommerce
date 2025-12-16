@@ -1,13 +1,13 @@
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
-const {admin} = require("../config/firebaseAdmin");
+const { admin } = require("../config/firebaseAdmin");
 const User = require("../Models/User");
 const jwt = require("jsonwebtoken");
 
 const googleLogin = async (req, res) => {
   try {
-    const { token, picture } = req.body;
+    const { token, picture, country, city } = req.body;
     const decoded = await admin.auth().verifyIdToken(token);
     const { email, name, uid } = decoded;
 
@@ -31,40 +31,58 @@ const googleLogin = async (req, res) => {
         try {
           const imgResponse = await axios.get(picture, { responseType: "arraybuffer" });
           fs.writeFileSync(savePath, imgResponse.data);
-          localImagePath = `${process.env.BASE_URL || "https://thrifti-backend.vercel.app"}/uploads/users/${fileName}`;
+          localImagePath = `${process.env.BASE_URL || "http://localhost:9000"}/uploads/users/${fileName}`;
         } catch (err) {
           console.log("⚠️ Failed to save Google image locally:", err.message);
         }
       }
 
+      // Create new user
       user = await User.create({
         fullName: name || "Google User",
+        username: name?.replace(/\s+/g, "").toLowerCase() || `user${Date.now()}`,
         email,
         profileImage: localImagePath,
+        location:{
+        city: city,
+        country:country
+      },
         googleId: uid,
         isVerified: true,
       });
-
     } else {
-      // Existing user
-      // Check if image already exists locally
+      // Existing user, update if necessary
+      let updated = false;
+
+      if (!user.city && city) {
+        user.city = city;
+        updated = true;
+      }
+
+      if (!user.country && country) {
+        user.country = country;
+        updated = true;
+      }
+
       if (!user.profileImage && picture) {
-        // Download only if no image is stored
         const fileName = `${Date.now()}-${uid}.jpg`;
         const savePath = path.join(uploadDir, fileName);
         try {
           const imgResponse = await axios.get(picture, { responseType: "arraybuffer" });
           fs.writeFileSync(savePath, imgResponse.data);
-          localImagePath = `${process.env.BASE_URL || "https://thrifti-backend.vercel.app"}/uploads/users/${fileName}`;
-
-          user.profileImage = localImagePath;
-          await user.save();
+          user.profileImage = `${process.env.BASE_URL || "http://localhost:9000"}/uploads/users/${fileName}`;
+          updated = true;
         } catch (err) {
           console.log("⚠️ Failed to save Google image locally:", err.message);
         }
       }
+
+      if (updated) {
+        await user.save();
+      }
     }
 
+    // Generate JWT
     const myToken = jwt.sign({ _id: user._id, email: user.email }, process.env.JWT_SECRET);
     return res.json({
       success: true,
@@ -72,7 +90,6 @@ const googleLogin = async (req, res) => {
       token: myToken,
       user,
     });
-
   } catch (error) {
     console.error("❌ Google login error:", error);
     return res.status(400).json({ success: false, message: "Invalid Google login" });

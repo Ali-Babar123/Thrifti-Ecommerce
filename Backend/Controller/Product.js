@@ -4,6 +4,7 @@ const { uploadImages } = require("../middleware/uploadToCloudinary");
 // Create new product
 exports.createProduct = async (req, res) => {
   try {
+    // return console.log(req.body);
     const base64Images = Array.isArray(req.body.images)
       ? req.body.images
       : [req.body.images];
@@ -14,7 +15,11 @@ exports.createProduct = async (req, res) => {
       user: req.user._id,
       title: req.body.title,
       description: req.body.description,
-      category: req.body.category,
+      category: {
+        parent: req.body.category.parent,
+        main: req.body.category.main,
+        sub: req.body.category.sub
+      },
       brand: req.body.brand,
       condition: req.body.condition,
       colors: JSON.parse(req.body.colors || "[]"),
@@ -26,12 +31,87 @@ exports.createProduct = async (req, res) => {
     });
 
     await product.save();
-    res.status(201).json({ success: true, data: product });
+    console.log(product)
+    return res.status(201).json({ success: true, data: product });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
+exports.getProductByCategories = async (req, res) => {
+  // return console.log(req.query)
+  try {
+    const { parent, main, sub } = req.query;
+
+    if (!parent) {
+      return res.status(400).json({
+        success: false,
+        message: "Parent category is required",
+      });
+    }
+
+    let matchCondition = {
+      "category.parent": { $regex: `^${parent}$`, $options: "i" },
+    };
+
+    if (main) {
+      matchCondition["category.main"] = { $regex: `^${main}$`, $options: "i" };
+    }
+
+    if (sub && main) {
+      matchCondition["category.sub"] = { $regex: `^${sub}$`, $options: "i" };
+    }
+
+    const products = await Product.aggregate([
+      { $match: matchCondition },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      {
+        $addFields: {
+          user: { $first: "$user" },
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          images: 1,
+          price: 1,
+          brand: 1,
+          size: 1,
+          colors: 1,
+          condition: 1,
+          parcelSize: 1,
+          materials: 1,
+          user: { _id: 1, name: 1, email: 1 },
+        },
+      },
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      count: products.length,
+      products,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+
+
 
 // Get all products
 exports.getProducts = async (req, res) => {
@@ -135,3 +215,36 @@ exports.filterProducts = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+// Get products by a specific user
+exports.getUserProducts = async (req, res) => {
+  try {
+    const userId = req.params.userId; // get user id from params
+    const products = await Product.find({ user: userId });
+    res.status(200).json({ success: true, data: products });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+exports.getSingleProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id)
+      .populate("user", "username email profileImage lastSeen location");
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    res.status(200).json({ success: true, data: product });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+

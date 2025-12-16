@@ -205,7 +205,7 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
                 }}
               >
                 <Link
-                  to={`/${item}`}
+                  to={`/category?parent=${item}`}
                   onClick={() => applyFilters({ parent: item })}
                 >
                   {item === "ourplatform"
@@ -225,7 +225,7 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
                     {/* LEFT SIDE */}
                     <div className="mega-left">
                       <Link
-                        to={`/${item}`}
+                        to={`/category?parent=${item}`}
                         className="see-all-link"
                         onMouseEnter={() => setActiveMainCat(null)}
                       >
@@ -246,7 +246,7 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
 
                         onClick={() => {
     applyFilters({ parent: item, main: main.name });
-     navigate(`/${item}/${slugify(main.name)}`);
+     navigate(`/category?parent=${item}&main=${main.name}`);
   }}
                         >
                           <div className="main-item-content">
@@ -272,7 +272,7 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
       ?.sub.map((sub) => (
         <Link
           key={sub}
-          to={`/${item}/${slugify(activeMainCat)}/${slugify(sub)}`} // ✅ include main and sub in URL
+          to={`/category?parent=${item}&main=${activeMainCat}&sub=${sub}`} // ✅ include main and sub in URL
           className="mega-sub-item"
           onClick={() => {
             setActiveMainCat(null);
@@ -371,7 +371,6 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
               "Women",
               "Men",
               "Kids",
-
               "Electronics",
               "Sports",
               "Entertainment",

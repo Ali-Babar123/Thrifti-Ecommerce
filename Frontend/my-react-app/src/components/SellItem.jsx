@@ -5,6 +5,7 @@ import CategoryDropdown from "./CategoryDropdown";
 import API from "../api/api";
 import { ProductContext } from "../ProductContext/ProductContext";
 import { toast } from 'sonner';
+import { useNavigate } from "react-router-dom";
 
 
 /* ✅ Fixed MultiSelectDropdown */
@@ -156,6 +157,7 @@ const SellItem = () => {
   const [selectedSizes, setSelectedSizes] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate('');
   const [error, setError] = useState("");
 
   const parcelSizes = ["5kg", "10kg", "15kg"];
@@ -197,6 +199,7 @@ const SellItem = () => {
   };
 
   const handleSubmit = async () => {
+   
   if (images.length === 0)
     return toast.error("Please upload at least one image");
 
@@ -264,6 +267,7 @@ const SellItem = () => {
       // Success
       toast.success("Product added successfully");
       addProduct(res.data.data);
+      navigate('/');
 
       // Reset form
       setImages([]);

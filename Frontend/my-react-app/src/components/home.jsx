@@ -63,7 +63,7 @@ const Home = () => {
   const { products, visibleCount, loadMoreProducts, loadingMore } = useContext(ProductContext); // ✅ use products from context
     const navigate = useNavigate(); // ✅ for navigation
 
-   const [dropdownOpen, setDropdownOpen] = useState(false);
+        const [dropdownOpen, setDropdownOpen] = useState(false);
         const [search, setSearch] = useState("");
         const [openSections, setOpenSections] = useState({});
         const [selected, setSelected] = useState({});
@@ -79,25 +79,7 @@ const Home = () => {
           setSelected((prev) => ({ ...prev, [key]: !prev[key] }));
         };
       
-        const categoryOptions = [
-          {
-            title: "Men's Clothing",
-            sub: [
-              "T-shirts & Shirts",
-              "Jeans & Trousers",
-              "Jackets & Coats",
-              "Hoodies & Sweatshirts",
-              "Activewear",
-              "Swimwear",
-            ],
-          },
-          { title: "Women's Clothing", sub: [] },
-          { title: "Shoes", sub: [] },
-          { title: "Accessories", sub: [] },
-          { title: "Kids & Baby", sub: [] },
-          { title: "Vintage", sub: [] },
-        ];
-        
+
   
   
 
@@ -168,12 +150,6 @@ const Home = () => {
 
 
    <section className="top-picks">
-         <div className="top-picks-path">
-    <h2>Home / All</h2>
-    <p>{products.length} items</p>
-  </div>
-  
-  
     {/* Product Grid */}
     <div className="top-picks-grid">
       {visibleProducts.map((item) => (

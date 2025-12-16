@@ -17,6 +17,7 @@ category: {
   main: { type: String },                  // e.g., 'clothing'
   sub: { type: String },                   // e.g., 'dresses'
 },
+
 // ... rest of the schema
     colors: [String],
     materials: [String],
@@ -25,6 +26,7 @@ category: {
     parcelSize: String,
     images: [String], // URLs from Firebase
   },
+  
   { timestamps: true }
 );
 

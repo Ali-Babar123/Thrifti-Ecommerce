@@ -7,21 +7,72 @@ import { ProductContext } from "../ProductContext/ProductContext";
 import NewWomen from "../assets/newwomen.svg";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Loading from './loader'
+import API from '../api/api'
 
 function ProductPage() {
   const { id } = useParams();
-  const { products, loading } = useContext(ProductContext);
-  
-  
+  const { products, loading, visibleCount, loadingMore, loadMoreProducts } = useContext(ProductContext);
+  const [singleProduct, setSingleProduct] = useState(null);
+  const [sellerProducts, setSellerProducts] = useState([]);
+  const visibleProducts = products.slice(0, visibleCount);
+
+  useEffect(() => {
+    fetchSingleProduct();
+  }, [id]);
+
+
+ 
+  const fetchSingleProduct = async () => {
+  try {
+    const res = await API.get(`/api/products/single/${id}`);
+
+    // If product not found
+    if (!res.data.success || !res.data.data) {
+      console.log("Product not found");
+      setSingleProduct(null);
+      setSellerProducts([]);
+      return;
+    }
+
+    // Set product in state
+    setSingleProduct(res.data.data);
+
+    // Check if user exists BEFORE fetching seller products
+    if (res.data.data.user && res.data.data.user._id) {
+      fetchSellerProducts(res.data.data.user._id);
+    } else {
+      setSellerProducts([]);
+    }
+
+  } catch (err) {
+    console.log("Single product error:", err);
+    setSingleProduct(null);
+    setSellerProducts([]);
+  }
+};
+
+
+
+
+  const fetchSellerProducts = async (userId) => {
+    try {
+      const res = await API.get(`/api/products/${userId}`);
+      setSellerProducts(res.data.data);
+    } catch (err) {
+      console.log("Seller products error:", err);
+    }
+  };
+
+
   if (loading) {
     return <p>Loading...</p>; // later replace with your Loader component
   }
-  
+
   const product = products.find((p) => p._id === id);
 
   // 2️⃣ If no product after loading
   if (!product) {
-    return <Loading/>
+    return <Loading />
   }
   const navigate = useNavigate();
 
@@ -36,44 +87,49 @@ function ProductPage() {
 
 
   useEffect(() => {
-  if (product?.images?.[0]) {
-    setMainImage(product.images[0]);
-  }
-}, [product]);
-   
+    if (product?.images?.[0]) {
+      setMainImage(product.images[0]);
+    }
+  }, [product]);
+
+  
 
 
-// You can put this inside your ProductPage.js or in a separate utils file
-const timeAgo = (dateString) => {
-  const now = new Date();
-  const date = new Date(dateString);
-  const seconds = Math.floor((now - date) / 1000);
 
-  let interval = Math.floor(seconds / 31536000);
-  if (interval >= 1) return `${interval} year${interval > 1 ? "s" : ""} ago`;
+  // You can put this inside your ProductPage.js or in a separate utils file
+  const timeAgo = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const seconds = Math.floor((now - date) / 1000);
 
-  interval = Math.floor(seconds / 2592000);
-  if (interval >= 1) return `${interval} month${interval > 1 ? "s" : ""} ago`;
+    let interval = Math.floor(seconds / 31536000);
+    if (interval >= 1) return `${interval} year${interval > 1 ? "s" : ""} ago`;
 
-  interval = Math.floor(seconds / 86400);
-  if (interval >= 1) return `${interval} day${interval > 1 ? "s" : ""} ago`;
+    interval = Math.floor(seconds / 2592000);
+    if (interval >= 1) return `${interval} month${interval > 1 ? "s" : ""} ago`;
 
-  interval = Math.floor(seconds / 3600);
-  if (interval >= 1) return `${interval} hour${interval > 1 ? "s" : ""} ago`;
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) return `${interval} day${interval > 1 ? "s" : ""} ago`;
 
-  interval = Math.floor(seconds / 60);
-  if (interval >= 1) return `${interval} minute${interval > 1 ? "s" : ""} ago`;
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) return `${interval} hour${interval > 1 ? "s" : ""} ago`;
 
-  return "Just now";
-};
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) return `${interval} minute${interval > 1 ? "s" : ""} ago`;
 
+    return "Just now";
+  };
 
+ useEffect(() => {
+  console.log("Single product data:", singleProduct);
+  console.log("Seller data:", singleProduct?.user);
+}, [singleProduct]);
 
   return (
     <>
       <div className="product-page">
         <p className="breadcrumb">
-          Home / Men / All / <span>{product.name}</span>
+          <Link to='/'>Home</Link> / <Link to={`/category?parent=${singleProduct?.category?.parent}`}>{singleProduct?.category?.parent} </Link> / <Link to={`/category?parent=${singleProduct?.category?.parent}&main=${singleProduct?.category?.main}`}> {singleProduct?.category?.main} </Link>/  <Link to={`/category?parent=${singleProduct?.category?.parent}&main=${singleProduct?.category?.main}&sub=${singleProduct?.category?.sub}`}>{singleProduct?.category?.sub} </Link> <span>{product.name}</span>
         </p>
 
         <div className="product-container">
@@ -85,9 +141,8 @@ const timeAgo = (dateString) => {
                   key={img}
                   src={img}
                   alt={`thumbnail-${img}`}
-                  className={`thumbnail ${
-                    mainImage === img ? "active-thumbnail" : ""
-                  }`}
+                  className={`thumbnail ${mainImage === img ? "active-thumbnail" : ""
+                    }`}
                   onClick={() => setMainImage(img)}
                 />
               ))}
@@ -108,7 +163,7 @@ const timeAgo = (dateString) => {
           <div className="details-section">
             <h2>{product.title}</h2>
             <p className="subtext">{product.condition} - {product.brand}</p>
-            
+
 
             <div className="price">
               <span className="old-price">$70.00</span>
@@ -163,7 +218,7 @@ const timeAgo = (dateString) => {
       {/* Member Items */}
       <section className="member-section">
         <div className="member-left">
-          <h2>Member's items ({product.images.length})</h2>
+          <h2>Member's items ({sellerProducts.length})</h2>
 
           <div className="bundle-actions">
             <div className="left-actions">
@@ -174,18 +229,20 @@ const timeAgo = (dateString) => {
           </div>
 
           <div className="items-grid">
-            {product.images.slice(0, 2).map((img) => (
-              <div className="item-card" key={img}>
-                <img src={img} alt={`gallery-${img}`} />
-                <div className="product-content">
-                  <div className="name-des">
-                    <p className="item-title">{product.title}</p>
-                    <p className="item-condition">{product.size} - {product.condition}</p>
-                  </div>
-                  <p className="item-price">{product.price}</p>
+            {sellerProducts.slice(0, 20).map((item) => (
+              <div className="item-card" key={item._id}>
+                <img src={item.images[0]} alt="seller item" />
+                
+                               <div className="rec-info">
+                <div className="rec-details">
+                  <p className="rec-name">{item.title}</p>
+                  <p className="rec-condition">{item.size} - {item.condition}</p>
                 </div>
+                <p className="rec-price">{item.price}</p>
+              </div>
               </div>
             ))}
+
           </div>
 
           <button className="see-more-btn">See More</button>
@@ -201,31 +258,32 @@ const timeAgo = (dateString) => {
             </p>
           </div>
 
-          <div className="seller-card">
-            <div className="seller-header">
-              <img src={NewWomen} alt="seller" className="seller-img" />
-              <div>
-                <p className="seller-name">@fashion store</p>
-                <p className="seller-rating">⭐⭐⭐⭐⭐</p>
-              </div>
-            </div>
 
-            <div className="seller-body">
-              <hr className="seller-divider" />
-              <p className="speedy">🚚 Speedy Shipping</p>
-              <p>Sends items promptly — usually within 24 hours.</p>
-              <hr className="seller-divider" />
-              <p>📍 Manchester, United Kingdom</p>
-              <p>🕒 Last seen 8 hours ago</p>
-              <hr className="seller-divider" />
-              <p className="follow-btn">Follow</p>
-            </div>
-          </div>
+          {singleProduct ? (
+  <div className="seller-card">
+    <div className="seller-header">
+      <img 
+        src={singleProduct.user?.profileImage || NewWomen}
+        alt="seller"
+        className="seller-img"
+      />
+      <div>
+        <p className="seller-name">@{singleProduct.user?.username}</p>
+        <p className="seller-rating">⭐⭐⭐⭐⭐</p>
+      </div>
+    </div>
+    <div className="seller-body"> <hr className="seller-divider" /> <p className="speedy">🚚 Speedy Shipping</p> <p>Sends items promptly — usually within 24 hours.</p> <hr className="seller-divider" /> <p>📍{singleProduct.user?.location?.city}, {singleProduct.user?.location?.country}</p> <p>🕒 {timeAgo(singleProduct.user?.lastSeen)} </p> <hr className="seller-divider" /> <p className="follow-btn">Follow</p> </div> 
+
+  </div>
+) : (
+  <p>Product not found</p>
+)}
+
+
 
           <div className="buyer-notice">
             <p>
-              Consumer protection laws do not apply to purchases from other
-              consumers.
+              Consumer protection laws do not apply to your purchases from other consumers. More specifically, the right to cancel (section 29(1) of the Consumer Contracts (Information, Cancellation and Additional Charges) Regulations 2013) and the right to reject (section 20 of the Consumer Rights Act) does not apply. Buyer’s rights are significantly reduced when a sale is carried out between two individuals. More specifically, the following sections of the Consumer Rights Act 2015 do not apply: goods to be of satisfactory quality (section 9 of the Consumer Rights Act) and fit for a particular purpose (section 10 of the Consumer Rights Act). Goods from private sellers do not have to be fault-free and if defects or marks were clearly mentioned by the seller or are visible in the seller’s photograph, then you do not have a case against the seller. However, if the seller’s goods do not match the description, you have the right to ask for a refund or compensation. Every purchase you make using the ‘Buy now’ button is covered by our Buyer Protection service.
             </p>
             <p>
               Every purchase using the “Buy now” button is covered by our{" "}
@@ -245,7 +303,7 @@ const timeAgo = (dateString) => {
         </div>
 
         <div className="rec-grid">
-          {products.map((p) => (
+          {visibleProducts.map((p) => (
             <div key={p._id} className="rec-card">
               <div className="rec-img-box">
                 {p.images.slice(0, 4).map((img) => (
@@ -268,7 +326,13 @@ const timeAgo = (dateString) => {
           ))}
         </div>
 
-        <button className="rec-button">See More</button>
+        <div className="top-picks-more">
+          {loadingMore ? (
+            <div className="circle-loader"></div>
+          ) : (
+            <button onClick={loadMoreProducts}>See More</button>
+          )}
+        </div>
       </div>
 
       {/* Lightbox */}

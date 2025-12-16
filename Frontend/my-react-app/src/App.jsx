@@ -28,6 +28,7 @@ import Reserved from './components/ReservedSold'
 import Donations from './components/Donations'
 import InviteFriends from './components/InviteFriends';
 import { Toaster } from 'sonner';
+import Category from './components/Category';
 
 const ProtectedRoute = ({ isLoggedIn, element }) => {
   return isLoggedIn ? element : <Navigate to="/" replace />;
@@ -87,14 +88,15 @@ const App = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/men/:main?/:sub?" element={<Mens />} />
+        <Route path='/category' element={<Category/>}  />
+        {/* <Route path="/men/:main?/:sub?" element={<Mens />} />
         <Route path="/women/:main?/:sub?" element={<Women />} />
         <Route path="/kids/:main?/:sub?" element={<Kids />} />
         <Route path="/electronics/:main?/:sub?" element={<Electronics />} />
         <Route path="/sports/:main?/:sub?" element={<Sports />} />
         <Route path="/entertainment/:main?/:sub?" element={<Entertainment />} />
         <Route path="/accessories/:main?/:sub?" element={<Accessories />} />
-        <Route path="/ourplatform" element={<OurPlateform />} />
+        <Route path="/ourplatform" element={<OurPlateform />} /> */}
         <Route path="/singleproduct/:id" element={<SingleProduct />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/payment" element={<Payment />} />

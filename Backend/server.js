@@ -17,6 +17,10 @@ app.get("/", (req, res) => {
 
 
 
+app.set('trust proxy', true);
+
+
+
 // Middleware
 app.use(cors({
   origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://accounts.google.com", "https://thrifti.temp2027.com"],
@@ -27,6 +31,8 @@ app.use("/uploads", express.static("uploads"));
 
 // Connect to database
 connectDB(); 
+
+
 
 // Routes
 app.use("/api/auth", authRoutes);
