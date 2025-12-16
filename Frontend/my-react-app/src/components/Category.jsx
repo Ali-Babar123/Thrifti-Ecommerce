@@ -134,6 +134,23 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
 
   const sort = ["Newest", "Oldest", "Price Low to High", "Price High to Low"]
 
+  const applyMobileFilters = () => {
+  applyFilters({
+    parent: query.parent,
+    main: query.main,
+    sub: query.sub,
+    brand: selectedBrand,
+    colors: selectedColors,
+    materials: selectedMaterials,
+    sizes: selectedSizes,
+    condition: selectedCondition,
+    priceRange: selectedPrice,
+    sort: selectedSort[0] || "",
+  });
+  setIsFilterOpen(false); // close the mobile panel
+};
+
+
     
   return (
 

@@ -367,23 +367,27 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
           </div>
 
           <ul className="nav-links mobile-only">
-            {[
-              "Women",
-              "Men",
-              "Kids",
-              "Electronics",
-              "Sports",
-              "Entertainment",
-              "Accessories",
-              "ourplatform",
-            ].map((link) => (
-              <li key={link}>
-                <Link to={`/${link.toLowerCase()}`}
-                  onClick={handleLinkClick}>{link}</Link>
+  {[
+    "Women",
+    "Men",
+    "Kids",
+    "Electronics",
+    "Sports",
+    "Entertainment",
+    "Accessories",
+    "ourplatform",
+  ].map((link) => (
+    <li key={link}>
+      <Link
+        to={`/category?parent=${link.toLowerCase()}`}
+        onClick={handleLinkClick}
+      >
+        {link}
+      </Link>
+    </li>
+  ))}
+</ul>
 
-              </li>
-            ))}
-          </ul>
 
           {/* --- Mobile User Links After Categories --- */}
           {loggedIn && (
