@@ -2,21 +2,21 @@
 
 
 
-import {useEffect,useState, useContext, useRef} from 'react'
+import { useEffect, useState, useContext, useRef } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import API from '../api/api'
 import { ChevronDown, X, ChevronRight, ChevronLeft, CheckSquare } from "lucide-react";
 import { FaHeart } from "react-icons/fa";
 import { Filter, Sliders } from "lucide-react";
 import CategoryFilter from "./CategoryFilter";
-import kidsImg from "../assets/KidsMain.png"; 
+import kidsImg from "../assets/KidsMain.png";
 import MenImg from "../assets/Desktop - 59.png";
 import { ProductContext } from "../ProductContext/ProductContext";
 
 
 
 const Category = () => {
-    
+  
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState([]);
@@ -27,31 +27,37 @@ const Category = () => {
   const [selectedSort, setSelectedSort] = useState([]);
   const [selectorLevel, setSelectorLevel] = useState("main");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-
+  const [categoryProducts, setCategoryProducts] = useState([]);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-    const location = useLocation();
-    const params =  new URLSearchParams(location.search);
-    
-    const navigate = useNavigate();
+  const location = useLocation();
+  const [visibleProducts, setVisibleProducts] = useState([]);
+  const params = new URLSearchParams(location.search);
 
-    const handleCategoryChange = (category) => {
-  const searchParams = new URLSearchParams(location.search);
+  const navigate = useNavigate();
 
-  if (category.parent) searchParams.set("parent", category.parent);
-  if (category.main) searchParams.set("main", category.main);
-  if (category.sub) searchParams.set("sub", category.sub);
+  const handleCategoryChange = (category) => {
+    const searchParams = new URLSearchParams(location.search);
 
-  navigate(`/category?${searchParams.toString()}`);
-};
+    if (category.parent) searchParams.set("parent", category.parent);
+    if (category.main) searchParams.set("main", category.main);
+    if (category.sub) searchParams.set("sub", category.sub);
+
+    navigate(`/category?${searchParams.toString()}`);
+  };
 
 
   const { products, applyFilters, filtered, visibleCount, loadMoreProducts, loadingMore } = useContext(ProductContext);
-   
+
   const displayProductsList = filtered;
 
-  const visibleProducts = displayProductsList.slice(0, visibleCount);
+  useEffect(()=>{
 
-    const filterCount =
+    setVisibleProducts(displayProductsList.slice(0, visibleCount))
+  }, [displayProductsList])
+
+  
+
+  const filterCount =
     selectedCategory.length +
     selectedPrice.length +
     selectedBrand.length +
@@ -70,47 +76,91 @@ const Category = () => {
     setSelectedMaterials([]);
     setSelectedSizes([]);
     setSelectedSort([]);
+
+    const fetchProducts = async () => {
+        try {
+          const res = await API.get("/api/products/getAll");
+          setVisibleProducts(res.data.data);
+        } catch (err) {
+          console.log("Fetch error:", err);
+          setError("Failed to fetch products");
+        }
+      };
+    
+     setTimeout(
+      fetchProducts,
+      1500
+     )
+
+    applyFilters({
+      parent: null,
+      main: null,
+      sub: null,
+      brand: [],
+      colors: [],
+      materials: [],
+      sizes: [],
+      condition: [],
+      priceRange: [],
+      sort: "",
+    })
+
+    const removeQueryParam = (param) => {
+  const searchParams = new URLSearchParams(location.search);
+
+  // Delete the specific query param
+  searchParams.delete(param);
+
+  // Update the URL without reloading
+  navigate({
+    pathname: location.pathname,
+    search: searchParams.toString(),
+  }, { replace: true });
+};
+
+  setIsFilterOpen(false);
+
   };
-    const query = {
-       parent: params.get("parent") || null,
-       main: params.get("main") || null,
-       sub: params.get("sub") || null
+  const query = {
+    parent: params.get("parent") || null,
+    main: params.get("main") || null,
+    sub: params.get("sub") || null
 
-    }
-    useEffect(() => {
-  applyFilters({
-    parent: query.parent,
-    main: query.main,
-    sub: query.sub,
-    brand: selectedBrand,
-    colors: selectedColors,
-    materials: selectedMaterials,
-    sizes: selectedSizes,
-    condition: selectedCondition,
-    priceRange: selectedPrice,
-    sort: selectedSort[0] || "",
-  });
-}, [
-  location.search,
-  selectedBrand,
-  selectedColors,
-  selectedMaterials,
-  selectedSizes,
-  selectedCondition,
-  selectedPrice,
-  selectedSort
-]);
- 
-
-
-   
-
-const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenImg : query.parent === 'kids' ?
-  kidsImg: query.parent === 'electronics' ? MenImg : query.parent === 'sports' ? MenImg : query.parent === 'entertainment'
-  ? MenImg : query.parent === "accessories" ? MenImg : query.parent === "platform" ? MenImg : null
+  }
+  useEffect(() => {
+    applyFilters({
+      parent: query.parent,
+      main: query.main,
+      sub: query.sub,
+      brand: selectedBrand,
+      colors: selectedColors,
+      materials: selectedMaterials,
+      sizes: selectedSizes,
+      condition: selectedCondition,
+      priceRange: selectedPrice,
+      sort: selectedSort[0] || "",
+    });
+  }, [
+    location.search,
+    selectedBrand,
+    selectedColors,
+    selectedMaterials,
+    selectedSizes,
+    selectedCondition,
+    selectedPrice,
+    selectedSort
+  ]);
 
 
-   // Options
+
+
+
+  const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenImg : query.parent === 'kids' ?
+    kidsImg : query.parent === 'electronics' ? MenImg : query.parent === 'sports' ? MenImg : query.parent === 'entertainment'
+      ? MenImg : query.parent === "accessories" ? MenImg : query.parent === "platform" ? MenImg : null
+
+
+  // Options
   const brands = [
     "Nike", "Next", "George", "Kaibi", "addidas", "PrettyLittleThing", "H&M", "Shein", "Stradivarius", "Mango", "Marks & Spencer",
     "Breshka", "Matalan", "Only", "Topshop", "River Island", "ASOS", "Atomosphere", "Adidas", "Puma", "Primark", "No Label",
@@ -135,23 +185,23 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
   const sort = ["Newest", "Oldest", "Price Low to High", "Price High to Low"]
 
   const applyMobileFilters = () => {
-  applyFilters({
-    parent: query.parent,
-    main: query.main,
-    sub: query.sub,
-    brand: selectedBrand,
-    colors: selectedColors,
-    materials: selectedMaterials,
-    sizes: selectedSizes,
-    condition: selectedCondition,
-    priceRange: selectedPrice,
-    sort: selectedSort[0] || "",
-  });
-  setIsFilterOpen(false); // close the mobile panel
-};
+    applyFilters({
+      parent: query.parent,
+      main: query.main,
+      sub: query.sub,
+      brand: selectedBrand,
+      colors: selectedColors,
+      materials: selectedMaterials,
+      sizes: selectedSizes,
+      condition: selectedCondition,
+      priceRange: selectedPrice,
+      sort: selectedSort[0] || "",
+    });
+    setIsFilterOpen(false); // close the mobile panel
+  };
 
 
-    
+
   return (
 
     <>
@@ -163,9 +213,9 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
           <h1>{query.parent && query.parent[0].toUpperCase() + query.parent.slice(1)} Collection</h1>
         </div>
       </section>
-    
 
-     <section className="top-picks">
+
+      <section className="top-picks">
         <div className="top-picks-header">
           <div className="top-picks-filters-row">
 
@@ -184,11 +234,11 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
                 <CategoryFilter
                   selectedCategories={selectedCategory}
                   setSelectedCategories={setSelectedCategory}
-                 
+
                   onSelectCategory={(cat) => {
-    setSelectedCategory([cat]);
-    handleCategoryChange(cat);
-  }}
+                    setSelectedCategory([cat]);
+                    handleCategoryChange(cat);
+                  }}
                 />
 
                 <MultiSelectDropdown
@@ -265,14 +315,15 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
                   <CategoryFilter
                     selectedCategories={selectedCategory}
                     setSelectedCategories={setSelectedCategory}
-                    
-                    applyFilters={applyMobileFilters} // pass from Mens
-                   
 
-                     
-                  onSelectCategory={(cat) => {
-    setSelectedCategory([cat]);
-    handleCategoryChange(cat);}}
+                    applyFilters={applyMobileFilters} // pass from Mens
+
+
+
+                    onSelectCategory={(cat) => {
+                      setSelectedCategory([cat]);
+                      handleCategoryChange(cat);
+                    }}
                   />
 
                   <MultiSelectDropdown
@@ -294,7 +345,7 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
                     isMobile={isMobile}
                     setIsFilterOpen={setIsFilterOpen} // allow dropdown to close the panel
 
-                   applyFilters={applyMobileFilters} // pass from Mens
+                    applyFilters={applyMobileFilters} // pass from Mens
                   />
 
                   <MultiSelectDropdown
@@ -305,7 +356,7 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
                     isMobile={isMobile}
                     setIsFilterOpen={setIsFilterOpen} // allow dropdown to close the panel
 
-                   applyFilters={applyMobileFilters} // pass from Mens
+                    applyFilters={applyMobileFilters} // pass from Mens
                   />
 
                   <MultiSelectDropdown
@@ -327,7 +378,7 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
                     isMobile={isMobile}
                     setIsFilterOpen={setIsFilterOpen} // allow dropdown to close the panel
 
-                   applyFilters={applyMobileFilters} // pass from Mens
+                    applyFilters={applyMobileFilters} // pass from Mens
                   />
 
                   <MultiSelectDropdown
@@ -338,7 +389,7 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
                     isMobile={isMobile}
                     setIsFilterOpen={setIsFilterOpen} // allow dropdown to close the panel
 
-                  applyFilters={applyMobileFilters} // pass from Mens
+                    applyFilters={applyMobileFilters} // pass from Mens
                   />
 
                   <MultiSelectDropdown
@@ -443,7 +494,9 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
                   <X
                     size={20}
                     className="tag-close"
-                    onClick={() => setSelectedSort(selectedSort.filter(i => i !== item))}
+                    onClick={() => setSelectedSort(selectedSort.filter(i => i !== item))
+                      
+                    }
                   />
                 </div>
               ))}
@@ -485,46 +538,46 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
         </div>
 
 
-        <div className="top-picks-path">       
-            <h2 className='breadcrumb'>
-  <Link to="/">Home</Link>
+        <div className="top-picks-path">
+          <h2 className='breadcrumb'>
+            <Link to="/">Home</Link>
 
-  {query.parent && (
-    <>
-      {" "} /{" "}
-      <Link to={`/category?parent=${query.parent}`}>
-        {query.parent[0].toUpperCase() + query.parent.slice(1)}
-      </Link>
-    </>
-  )}
+            {query.parent && (
+              <>
+                {" "} /{" "}
+                <Link to={`/category?parent=${query.parent}`}>
+                  {query.parent[0].toUpperCase() + query.parent.slice(1)}
+                </Link>
+              </>
+            )}
 
-  {query.main && (
-    <>
-      {" "} /{" "}
-      <Link to={`/category?parent=${query.parent}&main=${query.main}`}>
-        {query.main}
-      </Link>
-    </>
-  )}
+            {query.main && (
+              <>
+                {" "} /{" "}
+                <Link to={`/category?parent=${query.parent}&main=${query.main}`}>
+                  {query.main}
+                </Link>
+              </>
+            )}
 
-  {query.sub && (
-    <>
-      {" "} /{" "}
-      <Link
-        to={`/category?parent=${query.parent}&main=${query.main}&sub=${query.sub}`}
-      >
-        {query.sub}
-      </Link>
-    </>
-  )}
-</h2>
+            {query.sub && (
+              <>
+                {" "} /{" "}
+                <Link
+                  to={`/category?parent=${query.parent}&main=${query.main}&sub=${query.sub}`}
+                >
+                  {query.sub}
+                </Link>
+              </>
+            )}
+          </h2>
 
           <p>{filtered.length} items</p>
         </div>
 
         {/* ✅ Product Grid */}
         <div className="top-picks-grid">
-          {visibleProducts.map((item) => (
+          {visibleProducts.length > 0 && visibleProducts.map((item) => (
             <div
               className="top-pick-card"
               key={item._id}
@@ -632,18 +685,18 @@ const MultiSelectDropdown = ({
   const capitalize = (str) =>
     str.charAt(0).toUpperCase() + str.slice(1);
 
-  
 
 
-  
 
-const handleShowResults = () => {
-  if (applyFilters) applyFilters(); // apply filters passed from parent
-  if (setIsFilterOpen) setIsFilterOpen(false); // close the mobile filter panel
-  setOpen(false); // close the dropdown itself
-  setLevel("main"); // reset level
-  setSelectedFilter(null); // reset selected filter
-};
+
+
+  const handleShowResults = () => {
+    if (applyFilters) applyFilters(); // apply filters passed from parent
+    if (setIsFilterOpen) setIsFilterOpen(false); // close the mobile filter panel
+    setOpen(false); // close the dropdown itself
+    setLevel("main"); // reset level
+    setSelectedFilter(null); // reset selected filter
+  };
 
 
 

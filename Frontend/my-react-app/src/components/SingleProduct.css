@@ -595,9 +595,15 @@
   height: 60px;
   object-fit: cover;
 }
+ a.seller-Link{
+  text-decoration: none;
+  color: inherit;
+ }
 
-.seller-name {
+.seller-name a{
   font-weight: 600;
+  text-decoration: none;
+  color: inherit;
 }
 
 .seller-rating {

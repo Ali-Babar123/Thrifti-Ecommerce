@@ -116,7 +116,7 @@ exports.getProductByCategories = async (req, res) => {
 // Get all products
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().sort({createdAt: -1});
     res.status(200).json({ success: true, data: products });
   } catch (err) {
     console.error(err);

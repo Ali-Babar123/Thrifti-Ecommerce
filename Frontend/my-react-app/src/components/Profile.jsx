@@ -16,6 +16,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import API from "../api/api";
+import Loader from "./loader";
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("listing"); // 👈 Controls which section to show
@@ -101,7 +102,7 @@ const timeAgo = (date) => {
     { title: "Vintage", sub: [] },
   ];
   
-  if (!profile) return <div>Loading profile...</div>;
+  if (!profile) return <div><Loader/></div>;
 
   return (
     <div className="profile-page">
@@ -232,7 +233,7 @@ const timeAgo = (date) => {
           </div>
 
           {/* Listing Section */}
-            <h3 >{profile.products.count} item{profile.count !== 1 ? "s" : ""}</h3>
+            <h3 className="product-length">{profile.products.length} item{profile.length !== 1 ? "s" : ""}</h3>
           <div className="listing-section">
              {profile.products.map((product) => (
               <div key={product._id} className="item-card">

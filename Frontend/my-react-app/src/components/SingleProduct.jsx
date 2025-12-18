@@ -262,13 +262,17 @@ function ProductPage() {
           {singleProduct ? (
   <div className="seller-card">
     <div className="seller-header">
+    <Link   className="seller-Link" to={`/member/${singleProduct.user?._id}`}>
       <img 
         src={singleProduct.user?.profileImage || NewWomen}
         alt="seller"
         className="seller-img"
       />
+      </Link>
       <div>
+        <Link to={`/member/${singleProduct.user?._id}`} className="seller-Link">
         <p className="seller-name">@{singleProduct.user?.username}</p>
+        </Link>
         <p className="seller-rating">⭐⭐⭐⭐⭐</p>
       </div>
     </div>
