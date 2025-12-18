@@ -25,9 +25,10 @@
 
 /* Slightly shrink padding for tighter look */
 .search-input {
-  width: 400px; /* smaller width to fit nicely beside logo */
+  width: 800px; /* smaller width to fit nicely beside logo */
   padding: 10px 12px;
   border-radius: 10px;
+  font-size: 18px;
   border: 1px solid #ccc;
   outline: none;
 }

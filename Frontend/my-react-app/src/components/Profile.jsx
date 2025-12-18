@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
+
 import "./Profile.css";
 import ProfileImage from "../assets/settingsimage.svg";
 import JacketImage from "../assets/Modern.svg";
-import { Link } from "react-router-dom";
+import { useParams,Link } from "react-router-dom";
 import {
   MapPin,
   Clock,
@@ -13,6 +15,7 @@ import {
   Zap,
   ShieldCheck,
 } from "lucide-react";
+import API from "../api/api";
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("listing"); // 👈 Controls which section to show
@@ -20,7 +23,31 @@ const ProfilePage = () => {
   const [search, setSearch] = useState("");
   const [openSections, setOpenSections] = useState({});
   const [selected, setSelected] = useState({});
+   const [profile, setProfile] = useState(null);
 
+ const {userId} = useParams();
+//  console.log(userId)
+
+  useEffect(()=>{
+    if (!userId) return;
+
+    const fetchProfile = async() =>{
+      const res = await API.get(`/api/auth/member?userId=${userId}` );
+      try { if (res.data.success){
+        setProfile(res.data.profile);
+      }
+      else{
+        console.log(res.data.message);
+      }
+    }
+      catch(err){
+        console.error("Error fetching profile:", err);
+  }
+};
+      fetchProfile();
+    }, [userId])
+    
+    
   const toggleSection = (key) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -28,6 +55,32 @@ const ProfilePage = () => {
   const handleCheckbox = (key) => {
     setSelected((prev) => ({ ...prev, [key]: !prev[key] }));
   };
+
+  // Helper function to get relative time
+const timeAgo = (date) => {
+  if (!date) return "N/A";
+
+  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+
+  let interval = Math.floor(seconds / 31536000);
+  if (interval >= 1) return interval + " year" + (interval > 1 ? "s" : "") + " ago";
+
+  interval = Math.floor(seconds / 2592000);
+  if (interval >= 1) return interval + " month" + (interval > 1 ? "s" : "") + " ago";
+
+  interval = Math.floor(seconds / 86400);
+  if (interval >= 1) return interval + " day" + (interval > 1 ? "s" : "") + " ago";
+
+  interval = Math.floor(seconds / 3600);
+  if (interval >= 1) return interval + " hour" + (interval > 1 ? "s" : "") + " ago";
+
+  interval = Math.floor(seconds / 60);
+  if (interval >= 1) return interval + " minute" + (interval > 1 ? "s" : "") + " ago";
+
+  return Math.floor(seconds) + " second" + (seconds > 1 ? "s" : "") + " ago";
+};
+
+
 
   const categoryOptions = [
     {
@@ -47,24 +100,28 @@ const ProfilePage = () => {
     { title: "Kids & Baby", sub: [] },
     { title: "Vintage", sub: [] },
   ];
+  
+  if (!profile) return <div>Loading profile...</div>;
 
   return (
     <div className="profile-page">
       {/* Header Section */}
       <div className="profile-header">
         <div className="profile-info">
-          <img src={ProfileImage} alt="Profile" className="profile-avatar" />
+          <img  src={profile.profileImage || ProfileImage} alt="Profile" className="profile-avatar" />
           <div className="profile-details">
-            <h2 className="profile-name">danigal26</h2>
+            <h2 className="profile-name">{profile.username}</h2>
             <p className="profile-reviews">
               <Star size={16} fill="gold" stroke="gold" /> 342 reviews
             </p>
             <p className="profile-badges">
               <Package size={15} /> Frequent Uploads ·{" "}
               <Zap size={15} /> Speedy Shipping ·{" "}
-              <ShieldCheck size={15} /> Verified Info ·{" "}
-              <MapPin size={15} /> Location: United Kingdom ·{" "}
-              <Clock size={15} /> Last seen: 14 hours ago
+              <ShieldCheck size={15} />{" "}
+{profile.isVerified ? "Verified" : "Not verified"} ·{" "}
+
+              <MapPin size={15} /> Location:  {profile.location ? `${profile.location.city}, ${profile.location.country}` : "Unknown"} 
+              <Clock size={15} />  Last seen: {timeAgo(profile.lastSeen) || "N/A"}
             </p>
             <p className="profile-followers">
               <Users size={15} /> 5 followers, 25 following
@@ -175,17 +232,19 @@ const ProfilePage = () => {
           </div>
 
           {/* Listing Section */}
+            <h3 >{profile.products.count} item{profile.count !== 1 ? "s" : ""}</h3>
           <div className="listing-section">
-            <h3>1 item</h3>
-            <div className="item-card">
-              <img src={JacketImage} alt="Jacket" className="item-image" />
-              <Link to="/check-progress">
-                <div className="item-status">Check in progress</div>
-              </Link>
-              <p className="item-stats">0 Views</p>
-              <p className="item-stats">0 Fav</p>
-              <button className="bump-btn">Bump</button>
-            </div>
+             {profile.products.map((product) => (
+              <div key={product._id} className="item-card">
+                <img src={product.images?.[0] || JacketImage} alt={product.title} className="item-image" />
+                <Link to={`/check-progress`}>
+                  <div className="item-status">Check in progress</div>
+                </Link>
+                <p className="item-stats">0 Views</p>
+                <p className="item-stats">0 Fav</p>
+                <button className="bump-btn">Bump</button>
+              </div>
+            ))}
           </div>
         </>
       ) : (

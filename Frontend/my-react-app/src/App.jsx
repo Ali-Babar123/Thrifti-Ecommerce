@@ -24,20 +24,25 @@ import ProfilePage from './components/Profile';
 import ListingSingleProductPage from './components/ListingSingleProduct';
 import ReviewOrder from './components/ReviewOrder';
 import Sold from './components/Sold';
-import Reserved from './components/ReservedSold'
-import Donations from './components/Donations'
+import Reserved from './components/ReservedSold';
+import Donations from './components/Donations';
 import InviteFriends from './components/InviteFriends';
 import { Toaster } from 'sonner';
 import Category from './components/Category';
+import Loader from './components/loader';
 
+// ProtectedRoute component
 const ProtectedRoute = ({ isLoggedIn, element }) => {
-  return isLoggedIn ? element : <Navigate to="/" replace />;
+  if (isLoggedIn === null) {
+    // Show loading while login status is being checked
+    return <div><Loader/></div>;
+  }
+  return isLoggedIn ? element : <Navigate to="/" replace={true} />;
 };
 
 const App = () => {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(null); // null initially to prevent early redirect
   const [user, setUser] = useState(null);
-
 
   useEffect(() => {
     const loginStatus = localStorage.getItem("loggedIn") === "true";
@@ -45,19 +50,17 @@ const App = () => {
 
     setLoggedIn(loginStatus);
 
-    // Only parse valid JSON
     if (storedUser && storedUser !== "undefined") {
       try {
         setUser(JSON.parse(storedUser));
       } catch (err) {
         console.error("Failed to parse user from localStorage:", err);
-        localStorage.removeItem("user"); // optional cleanup
+        localStorage.removeItem("user");
       }
     }
   }, []);
 
-
-  // When user logs in successfully
+  // Handle successful login
   const handleLoginSuccess = (userData) => {
     localStorage.setItem("loggedIn", "true");
     localStorage.setItem("user", JSON.stringify(userData));
@@ -65,11 +68,11 @@ const App = () => {
     setUser(userData);
   };
 
-  // When user logs out
+  // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("loggedIn");
     localStorage.removeItem("token");
-    localStorage.removeItem("user"); // ✅ remove saved user
+    localStorage.removeItem("user");
     setLoggedIn(false);
     setUser(null);
   };
@@ -88,15 +91,7 @@ const App = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
-        <Route path='/category' element={<Category/>}  />
-        {/* <Route path="/men/:main?/:sub?" element={<Mens />} />
-        <Route path="/women/:main?/:sub?" element={<Women />} />
-        <Route path="/kids/:main?/:sub?" element={<Kids />} />
-        <Route path="/electronics/:main?/:sub?" element={<Electronics />} />
-        <Route path="/sports/:main?/:sub?" element={<Sports />} />
-        <Route path="/entertainment/:main?/:sub?" element={<Entertainment />} />
-        <Route path="/accessories/:main?/:sub?" element={<Accessories />} />
-        <Route path="/ourplatform" element={<OurPlateform />} /> */}
+        <Route path="/category" element={<Category />} />
         <Route path="/singleproduct/:id" element={<SingleProduct />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/payment" element={<Payment />} />
@@ -118,8 +113,6 @@ const App = () => {
           path="/notifications"
           element={<ProtectedRoute isLoggedIn={loggedIn} element={<Notifications />} />}
         />
-
-
         <Route
           path="/personalization"
           element={<ProtectedRoute isLoggedIn={loggedIn} element={<Personalization />} />}
@@ -129,46 +122,34 @@ const App = () => {
           element={<ProtectedRoute isLoggedIn={loggedIn} element={<Settings />} />}
         />
         <Route
-          path="/profile"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<ProfilePage />} />}
+          path="/member/:userId"
+          element={<ProtectedRoute isLoggedIn={loggedIn && user != null} element={<ProfilePage />} />}
         />
-
         <Route
           path="/check-progress"
           element={<ProtectedRoute isLoggedIn={loggedIn} element={<ListingSingleProductPage />} />}
         />
-
-
         <Route
           path="/review-checkout"
           element={<ProtectedRoute isLoggedIn={loggedIn} element={<ReviewOrder />} />}
         />
-
         <Route
           path="/sold"
           element={<ProtectedRoute isLoggedIn={loggedIn} element={<Sold />} />}
         />
-
-
         <Route
           path="/reserved"
           element={<ProtectedRoute isLoggedIn={loggedIn} element={<Reserved />} />}
         />
-
-
         <Route
           path="/settings/donations"
           element={<ProtectedRoute isLoggedIn={loggedIn} element={<Donations />} />}
         />
-
         <Route
           path="/referrals"
           element={<ProtectedRoute isLoggedIn={loggedIn} element={<InviteFriends />} />}
         />
-
       </Routes>
-
-
 
       <Footer />
     </>

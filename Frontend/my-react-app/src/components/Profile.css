@@ -7,7 +7,7 @@
 .profile-header {
   display: flex;
   justify-content: flex-start;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 40px;
 }
 
@@ -108,6 +108,11 @@
 }
 
 /* Listing */
+.listing-section {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+
 .listing-section h3 {
   font-weight: 600;
   font-size: 16px;

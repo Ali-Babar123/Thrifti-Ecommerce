@@ -267,9 +267,12 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
                     setSelectedCategories={setSelectedCategory}
                     
                     applyFilters={applyMobileFilters} // pass from Mens
-                    onSelectCategory={(s) =>
-                      setSelectedCategory(Array.isArray(s) ? s : [s])
-                    }
+                   
+
+                     
+                  onSelectCategory={(cat) => {
+    setSelectedCategory([cat]);
+    handleCategoryChange(cat);}}
                   />
 
                   <MultiSelectDropdown
@@ -525,7 +528,7 @@ const image = query.parent === "women" ? MenImg : query.parent === 'men' ? MenIm
             <div
               className="top-pick-card"
               key={item._id}
-              onClick={() => navigate(`/data/${item._id}`, { state: item })}
+              onClick={() => navigate(`/singleProduct/${item._id}`, { state: item })}
             >
               <div
                 className="top-pick-image"

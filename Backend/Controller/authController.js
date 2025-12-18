@@ -2,6 +2,7 @@ const User = require("../Models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const axios = require("axios");
+const mongoose = require('mongoose');
 
 const generateToken = (_id) =>
   jwt.sign({ _id }, process.env.JWT_SECRET);
@@ -73,6 +74,32 @@ exports.loginUser = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+exports.getProfile = async (req, res) => {
+  const { userId } = req.query;
+
+  if (!userId) return res.status(400).json({ success: false, message: "User not found" });
+  if (!mongoose.Types.ObjectId.isValid(userId)) return res.status(400).json({ success: false, message: "Invalid userId" });
+
+  try {
+    const profile = await User.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(userId) } },
+      { $lookup: { from: "products", localField: "_id", foreignField: "user", as: "products" } },
+      { $project: { products: 1, _id: 1, username: 1, profileImage: 1, lastSeen: 1, location: 1, isVerified: 1 } }
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      count: profile[0]?.products.length || 0,
+      profile: profile[0] || null
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 
 
 
