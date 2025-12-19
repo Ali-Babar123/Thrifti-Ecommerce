@@ -19,9 +19,9 @@ const Messages = () => {
         <h3 className="sidebar-title">Messages </h3>
 
         <div className="search-box">
-  <Search className="search-icon" size={18} />
-  <input type="text" placeholder="Search" />
-</div>
+          <Search className="search-icon" size={18} />
+          <input type="text" placeholder="Search" />
+        </div>
 
 
         <div className="all-chats-heading">
@@ -53,6 +53,7 @@ const Messages = () => {
 
       {/* Chat Section */}
       <main className="chat-main">
+        
         <div className="chat-header">
           <div className="chat-user">
             <img src={user1} alt="Fashion House" />
@@ -115,7 +116,9 @@ const Messages = () => {
             </div>
           </div>
         </div>
+
       </main>
+      
     </div>
   );
 };

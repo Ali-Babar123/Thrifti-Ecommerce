@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { ProductContext } from "../ProductContext/ProductContext";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { categoryData } from "./data/CategoryData";
 import "./Navbar.css";
 import { Bell, Heart, MessageSquare, ChevronRight, Grip } from "lucide-react";
@@ -20,48 +20,7 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
   const [activeMainCat, setActiveMainCat] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate()
-  const [searchValue, setSearchValue]= useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
-
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const [searchPlaceholder, setSearchPlaceholder] = useState("Search for items");
-
-
-
-useEffect(() => {
-  const parent = params.get("parent");
-  const main = params.get("main");
-  const sub = params.get("sub");
-
-  if (!parent && !main && !sub) {
-    setSearchPlaceholder("Search for items");
-    return;
-  }
-
-  let text = "";
-
-  if (parent) text += parent + " ";
-  if (main) text += main + " ";
-  if (sub) text += sub + " ";
-
-  const formatted =
-  `Search in "` +
-  [parent, main, sub]
-    .filter(Boolean)
-    .map((v, i) =>
-      i === 0
-        ? v.charAt(0).toUpperCase() + v.slice(1).toLowerCase()
-        : v.toLowerCase()
-    )
-    .join(" & ") +
-  `"`;
-
-
-  setSearchPlaceholder(formatted);
-  setSearchValue(""); // input clear rahe
-}, [location.search]);
-
 
   const { applyFilters } = useContext(ProductContext);
 
@@ -142,11 +101,8 @@ useEffect(() => {
               <img src={SearchIcon} alt="Search" className="search-icon-img" />
               <input
                 type="text"
-                placeholder={searchPlaceholder}
-  value={searchValue}
-  onChange={(e) => setSearchValue(e.target.value)}
+                placeholder="Search"
                 className="search-input"
-                 
               />
             </div>
           </div>
@@ -194,7 +150,7 @@ useEffect(() => {
                   />
                   {showDropdown && (
                     <div className="user-dropdown">
-                      <Link to={`/member/${user._id}`}>
+                      <Link to='/profile'>
                         <p className="user-dropdown-item">My Profile</p>
                       </Link>
                       <Link to='/settings/profile'>
@@ -362,11 +318,7 @@ useEffect(() => {
         <div className={`mobile-menu ${menuOpen ? "show" : ""}`}>
           <div className="search-container mobile-only">
             <img src={SearchIcon} alt="Search" className="search-icon-img" />
-            <input type="text" className="search-input"
-             
-             placeholder={searchPlaceholder}
-  value={searchValue}
-  onChange={(e) => setSearchValue(e.target.value)}/>
+            <input type="text" placeholder="Search" className="search-input" />
 
           </div>
 
@@ -443,7 +395,7 @@ useEffect(() => {
 
               <hr className="mobile-divider" />
 
-              <Link to={`/member/${user._id}`}onClick={handleLinkClick}>
+              <Link to="/profile" onClick={handleLinkClick}>
                 <p className="mobile-user-item">My Profile</p>
               </Link>
 

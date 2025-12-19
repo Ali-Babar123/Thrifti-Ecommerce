@@ -4,7 +4,12 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const googleLoginRoute = require('./routes/googleLogin');
-const productRoutes = require('./routes/productRoute')
+const productRoutes = require('./routes/productRoute');
+
+/** Routes */
+const chatRoutes = require("./routes/chat.routes.js");
+const messageRoutes = require("./routes/message.routes.js");
+
 dotenv.config();
 
 // Initialize express
@@ -33,11 +38,12 @@ app.use("/uploads", express.static("uploads"));
 connectDB(); 
 
 
-
 // Routes
 app.use("/api/auth", authRoutes);
 app.use('/api/auth', googleLoginRoute);
 app.use("/api/products", productRoutes);
+app.use("/api/chats", chatRoutes);
+app.use("/api/messages", messageRoutes);
 
 // Server
 const PORT = process.env.PORT || 9000;

@@ -49,7 +49,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.9rem 0.1rem;
-  font-size: 15px;
+  font-size: 18px;
+  font-weight: 500;
   border-bottom: 1px solid #eee;
   cursor: pointer;
   margin-left: -1rem;

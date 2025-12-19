@@ -253,6 +253,8 @@
   display: flex;
   justify-content: center;
   background: #fff;
+  position: sticky;
+  bottom: 2;
 }
 
 .input-wrapper {
