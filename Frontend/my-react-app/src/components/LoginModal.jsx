@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./LoginModal.css";
 import API from "../api/api";
 import { auth, provider } from "./firebase"; 
@@ -7,16 +7,20 @@ import { signInWithPopup } from "firebase/auth";
 
 import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaFacebook } from "react-icons/fa";
+import { AuthContext } from "../Contexts/AuthProvider";
 
 
 
 const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
+
+  
   const [isSignUp, setIsSignUp] = useState(false);
   const [useEmailForm, setUseEmailForm] = useState(false);
 
   const [location, setLocation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { setUser, setIsLoggedIn } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
     username: "",
@@ -99,7 +103,6 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
       const res = await API.post("/api/auth/signup", formData);
 
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("loggedIn", "true");
 
       if (onLoginSuccess) onLoginSuccess();
       onClose();
@@ -130,9 +133,10 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
       });
 
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("loggedIn", "true");
+      if (onLoginSuccess) {
+  onLoginSuccess(res.data.user);
+}
 
-      if (onLoginSuccess) onLoginSuccess();
       onClose();
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
@@ -144,7 +148,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
   // ================= GOOGLE LOGIN =================
 const handleGoogleLogin = async () => {
   try {
-    console.log("Google login started");
+    // console.log("Google login started");
     setLoading(true);
     setError("");
 
@@ -153,7 +157,7 @@ const handleGoogleLogin = async () => {
 
     // 1️⃣ Get user position
     try {
-      console.log("Requesting geolocation...");
+      // console.log("Requesting geolocation...");
       const pos = await new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject);
       });
@@ -161,7 +165,7 @@ const handleGoogleLogin = async () => {
 
       // 2️⃣ Reverse geocode to get city & country
       const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`;
-      console.log("Fetching reverse geocode from:", geoUrl);
+      // console.log("Fetching reverse geocode from:", geoUrl);
 
       const res = await fetch(geoUrl);
       const data = await res.json();
@@ -202,9 +206,12 @@ const handleGoogleLogin = async () => {
     console.log("Backend response:", backendRes.data);
 
     localStorage.setItem("token", backendRes.data.token);
-    localStorage.setItem("loggedIn", "true");
 
-    if (onLoginSuccess) onLoginSuccess(backendRes.data.user);
+   setUser(backendRes.data.user);
+   setIsLoggedIn(true);
+
+if (onLoginSuccess) onLoginSuccess();
+
     console.log("Login successful, closing modal");
     onClose();
   } catch (err) {

@@ -238,7 +238,7 @@ const timeAgo = (date) => {
              {profile.products.map((product) => (
               <div key={product._id} className="item-card">
                 <img src={product.images?.[0] || JacketImage} alt={product.title} className="item-image" />
-                <Link to={`/check-progress`}>
+                <Link to={`/check-progress/${product._id}`}>
                   <div className="item-status">Check in progress</div>
                 </Link>
                 <p className="item-stats">0 Views</p>

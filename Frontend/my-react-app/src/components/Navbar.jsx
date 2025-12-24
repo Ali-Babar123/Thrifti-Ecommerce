@@ -12,15 +12,17 @@ import Globe from "../assets/globe.png";
 import Like from "../assets/Like.png";
 import SearchIcon from "../assets/search-loupe.png";
 import Profile from "../assets/Ellipse 458.png";
+import { AuthContext } from "../Contexts/AuthProvider";
 
-const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accept props from App
+const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
   const [showLogin, setShowLogin] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
   const [activeMainCat, setActiveMainCat] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate()
-  const [searchValue, setSearchValue]= useState('');
+  const { user, isLoggedIn } = useContext(AuthContext);
+  const [searchValue, setSearchValue] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
 
   const location = useLocation();
@@ -29,45 +31,45 @@ const Navbar = ({ loggedIn, onLoginSuccess, user, onLogout }) => {  // ✅ accep
 
 
 
-useEffect(() => {
-  const parent = params.get("parent");
-  const main = params.get("main");
-  const sub = params.get("sub");
+  useEffect(() => {
+    const parent = params.get("parent");
+    const main = params.get("main");
+    const sub = params.get("sub");
 
-  if (!parent && !main && !sub) {
-    setSearchPlaceholder("Search for items");
-    return;
-  }
+    if (!parent && !main && !sub) {
+      setSearchPlaceholder("Search for items");
+      return;
+    }
 
-  let text = "";
+    let text = "";
 
-  if (parent) text += parent + " ";
-  if (main) text += main + " ";
-  if (sub) text += sub + " ";
+    if (parent) text += parent + " ";
+    if (main) text += main + " ";
+    if (sub) text += sub + " ";
 
-  const formatted =
-  `Search in "` +
-  [parent, main, sub]
-    .filter(Boolean)
-    .map((v, i) =>
-      i === 0
-        ? v.charAt(0).toUpperCase() + v.slice(1).toLowerCase()
-        : v.toLowerCase()
-    )
-    .join(" & ") +
-  `"`;
+    const formatted =
+      `Search in "` +
+      [parent, main, sub]
+        .filter(Boolean)
+        .map((v, i) =>
+          i === 0
+            ? v.charAt(0).toUpperCase() + v.slice(1).toLowerCase()
+            : v.toLowerCase()
+        )
+        .join(" & ") +
+      `"`;
 
 
-  setSearchPlaceholder(formatted);
-  setSearchValue(""); // input clear rahe
-}, [location.search]);
+    setSearchPlaceholder(formatted);
+    setSearchValue(""); // input clear rahe
+  }, [location.search]);
 
 
   const { applyFilters } = useContext(ProductContext);
 
 
   const slugify = (str) =>
-  str.toLowerCase().replace(/\s+/g, "-");
+    str.toLowerCase().replace(/\s+/g, "-");
 
 
   useEffect(() => {
@@ -94,16 +96,15 @@ useEffect(() => {
       setMenuOpen(false); // close menu after 150ms
     }, 350);
   };
-
-  const handleLoginSuccess = (userData) => {
+  const handleLoginSuccess = () => {
     setShowLogin(false);
-    onLoginSuccess(userData); // ✅ tell App we’re logged in
   };
 
 
 
+
   const handleStartSelling = () => {
-    if (!loggedIn) {
+    if (!isLoggedIn) {
       setShowLogin(true);
     }
   };
@@ -143,10 +144,10 @@ useEffect(() => {
               <input
                 type="text"
                 placeholder={searchPlaceholder}
-  value={searchValue}
-  onChange={(e) => setSearchValue(e.target.value)}
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 className="search-input"
-                 
+
               />
             </div>
           </div>
@@ -158,7 +159,7 @@ useEffect(() => {
           </div>
 
           <div className="navbar-right desktop-only">
-            {!loggedIn ? (
+            {!isLoggedIn ? (
               <>
                 <button
                   className="signin-btn"
@@ -171,7 +172,7 @@ useEffect(() => {
                 </button>
               </>
             ) : (
-              <div className="navbar-right-loggedin">
+              <div className="navbar-right-isLoggedIn">
                 <Link to='/notifications'>
                   <button className="icon-btn">
                     <Bell size={18} color="black" strokeWidth={2} />
@@ -194,7 +195,7 @@ useEffect(() => {
                   />
                   {showDropdown && (
                     <div className="user-dropdown">
-                      <Link to={`/member/${user._id}`}>
+                      <Link to={`/member/${user?._id}`}>
                         <p className="user-dropdown-item">My Profile</p>
                       </Link>
                       <Link to='/settings/profile'>
@@ -288,10 +289,10 @@ useEffect(() => {
                             }`}
                           onMouseEnter={() => setActiveMainCat(main.name)}
 
-                        onClick={() => {
-    applyFilters({ parent: item, main: main.name });
-     navigate(`/category?parent=${item}&main=${main.name}`);
-  }}
+                          onClick={() => {
+                            applyFilters({ parent: item, main: main.name });
+                            navigate(`/category?parent=${item}&main=${main.name}`);
+                          }}
                         >
                           <div className="main-item-content">
                             {main.icon && (
@@ -310,28 +311,28 @@ useEffect(() => {
 
                     {/* RIGHT SIDE */}
                     {activeMainCat && (
-  <div className="mega-right">
-    {categoryData[item].main
-      .find((m) => m.name === activeMainCat)
-      ?.sub.map((sub) => (
-        <Link
-          key={sub}
-          to={`/category?parent=${item}&main=${activeMainCat}&sub=${sub}`} // ✅ include main and sub in URL
-          className="mega-sub-item"
-          onClick={() => {
-            setActiveMainCat(null);
-            applyFilters({
-              parent: item,
-              main: activeMainCat, // ✅ include main
-              sub: sub,
-            });
-          }}
-        >
-          {sub}
-        </Link>
-      ))}
-  </div>
-)}
+                      <div className="mega-right">
+                        {categoryData[item].main
+                          .find((m) => m.name === activeMainCat)
+                          ?.sub.map((sub) => (
+                            <Link
+                              key={sub}
+                              to={`/category?parent=${item}&main=${activeMainCat}&sub=${sub}`} // ✅ include main and sub in URL
+                              className="mega-sub-item"
+                              onClick={() => {
+                                setActiveMainCat(null);
+                                applyFilters({
+                                  parent: item,
+                                  main: activeMainCat, // ✅ include main
+                                  sub: sub,
+                                });
+                              }}
+                            >
+                              {sub}
+                            </Link>
+                          ))}
+                      </div>
+                    )}
 
                   </div>
                 )}
@@ -363,15 +364,15 @@ useEffect(() => {
           <div className="search-container mobile-only">
             <img src={SearchIcon} alt="Search" className="search-icon-img" />
             <input type="text" className="search-input"
-             
-             placeholder={searchPlaceholder}
-  value={searchValue}
-  onChange={(e) => setSearchValue(e.target.value)}/>
+
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)} />
 
           </div>
 
           <div className="navbar-right mobile-only">
-            {!loggedIn ? (
+            {!isLoggedIn ? (
               <>
                 <button className="signin-btn" onClick={() => setShowLogin(true)}>
                   Sign in →
@@ -381,7 +382,7 @@ useEffect(() => {
                 </button>
               </>
             ) : (
-              <div className="navbar-right-loggedin-mobile">
+              <div className="navbar-right-isLoggedIn-mobile">
                 <Link to='/notifications'>
                   <button className="icon-btn">
                     <Bell size={18} color="black" strokeWidth={2} />
@@ -415,35 +416,35 @@ useEffect(() => {
           </div>
 
           <ul className="nav-links mobile-only">
-  {[
-    "Women",
-    "Men",
-    "Kids",
-    "Electronics",
-    "Sports",
-    "Entertainment",
-    "Accessories",
-    "ourplatform",
-  ].map((link) => (
-    <li key={link}>
-      <Link
-        to={`/category?parent=${link.toLowerCase()}`}
-        onClick={handleLinkClick}
-      >
-        {link}
-      </Link>
-    </li>
-  ))}
-</ul>
+            {[
+              "Women",
+              "Men",
+              "Kids",
+              "Electronics",
+              "Sports",
+              "Entertainment",
+              "Accessories",
+              "ourplatform",
+            ].map((link) => (
+              <li key={link}>
+                <Link
+                  to={`/category?parent=${link.toLowerCase()}`}
+                  onClick={handleLinkClick}
+                >
+                  {link}
+                </Link>
+              </li>
+            ))}
+          </ul>
 
 
           {/* --- Mobile User Links After Categories --- */}
-          {loggedIn && (
+          {isLoggedIn && (
             <div className="mobile-user-links">
 
               <hr className="mobile-divider" />
 
-              <Link to={`/member/${user._id}`}onClick={handleLinkClick}>
+              <Link to={`/member/${user?._id}`} onClick={handleLinkClick}>
                 <p className="mobile-user-item">My Profile</p>
               </Link>
 

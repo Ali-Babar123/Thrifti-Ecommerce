@@ -1,13 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const { createProduct, getProducts, updateProduct, deleteProduct, getProductByCategories, filterProducts, getUserProducts, getSingleProduct } = require("../Controller/Product");
-const { verifyToken } = require("../middleware/authmiddleware");
-const { verify } = require("jsonwebtoken");
+const { verifyToken } = require('../middleware/authMiddleware');
+
 
 // Create product with multiple images
-router.post("/create", verifyToken, createProduct);
+router.post("/create", verifyToken,  createProduct);
 
-router.get('/getProductByCategories', getProductByCategories)
+router.get('/getProductByCategories', getProductByCategories);
 
 // Filter
 router.get("/filter", filterProducts);
@@ -29,4 +29,3 @@ router.delete("/delete/:id", verifyToken, deleteProduct);
 module.exports = router;
 
 
-module.exports = router;

@@ -2,54 +2,80 @@ import React, { useState, useContext, useEffect } from "react";
 import "./SingleProduct.css";
 import { Link, useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { FaHeart } from "react-icons/fa";
 import { ProductContext } from "../ProductContext/ProductContext";
 import NewWomen from "../assets/newwomen.svg";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Loading from './loader'
 import API from '../api/api'
+import { AuthContext } from "../Contexts/AuthProvider";
+import LoginModal from "./LoginModal";
 
 function ProductPage() {
   const { id } = useParams();
-  const { products, loading, visibleCount, loadingMore, loadMoreProducts } = useContext(ProductContext);
+  const { products, loading, visibleCount, loadingMore, likedProducts, likesCount, toggleLike, loadMoreProducts } = useContext(ProductContext);
   const [singleProduct, setSingleProduct] = useState(null);
   const [sellerProducts, setSellerProducts] = useState([]);
   const visibleProducts = products.slice(0, visibleCount);
 
+  const { isLoggedIn } = useContext(AuthContext);
+
+  const [pendingLikeId, setPendingLikeId] = useState(null);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   useEffect(() => {
     fetchSingleProduct();
   }, [id]);
 
-
- 
-  const fetchSingleProduct = async () => {
-  try {
-    const res = await API.get(`/api/products/single/${id}`);
-
-    // If product not found
-    if (!res.data.success || !res.data.data) {
-      console.log("Product not found");
-      setSingleProduct(null);
-      setSellerProducts([]);
+  const handleToggleLike = (productId) => {
+    if (!isLoggedIn) {
+      setPendingLikeId(productId);
+      setAuthModalOpen(true);
       return;
     }
 
-    // Set product in state
-    setSingleProduct(res.data.data);
+    toggleLike(productId);
+  };
 
-    // Check if user exists BEFORE fetching seller products
-    if (res.data.data.user && res.data.data.user._id) {
-      fetchSellerProducts(res.data.data.user._id);
-    } else {
+
+  const handleLoginSuccess = () => {
+    setAuthModalOpen(false);
+
+    if (pendingLikeId) {
+      toggleLike(pendingLikeId);
+      setPendingLikeId(null);
+    }
+  }
+
+
+
+  const fetchSingleProduct = async () => {
+    try {
+      const res = await API.get(`/api/products/single/${id}`);
+
+      // If product not found
+      if (!res.data.success || !res.data.data) {
+        console.log("Product not found");
+        setSingleProduct(null);
+        setSellerProducts([]);
+        return;
+      }
+
+      // Set product in state
+      setSingleProduct(res.data.data);
+
+      // Check if user exists BEFORE fetching seller products
+      if (res.data.data.user && res.data.data.user._id) {
+        fetchSellerProducts(res.data.data.user._id);
+      } else {
+        setSellerProducts([]);
+      }
+
+    } catch (err) {
+      console.log("Single product error:", err);
+      setSingleProduct(null);
       setSellerProducts([]);
     }
-
-  } catch (err) {
-    console.log("Single product error:", err);
-    setSingleProduct(null);
-    setSellerProducts([]);
-  }
-};
+  };
 
 
 
@@ -92,7 +118,7 @@ function ProductPage() {
     }
   }, [product]);
 
-  
+
 
 
 
@@ -120,10 +146,10 @@ function ProductPage() {
     return "Just now";
   };
 
- useEffect(() => {
-  console.log("Single product data:", singleProduct);
-  console.log("Seller data:", singleProduct?.user);
-}, [singleProduct]);
+  useEffect(() => {
+    console.log("Single product data:", singleProduct);
+    console.log("Seller data:", singleProduct?.user);
+  }, [singleProduct]);
 
   return (
     <>
@@ -136,7 +162,7 @@ function ProductPage() {
           {/* Left - Images */}
           <div className="image-section">
             <div className="thumbnail-list">
-              {product.images.map((img) => (
+              {product.images?.map((img) => (
                 <img
                   key={img}
                   src={img}
@@ -153,8 +179,15 @@ function ProductPage() {
               onClick={() => setIsLightboxOpen(true)}
             >
               {mainImage && <img src={mainImage} alt="main" />}
-              <div className="likes">
-                <FaHeart color="black" size={14} /> {product.likes}
+              <div className="likes" onClick={(e) => { e.stopPropagation(); handleToggleLike(product._id); }}>
+                {
+                  likedProducts?.[product._id] ? (
+                    <FaHeart size={16} color="black" />
+                  ) : (
+                    <FaRegHeart size={16} color="gray" />
+                  )
+                }
+                <span className="count-likes">{likesCount?.[product._id] ?? product.likes?.length ?? 0}</span>
               </div>
             </div>
           </div>
@@ -229,17 +262,17 @@ function ProductPage() {
           </div>
 
           <div className="items-grid">
-            {sellerProducts.slice(0, 20).map((item) => (
+            {sellerProducts?.slice(0, 20).map((item) => (
               <div className="item-card" key={item._id}>
                 <img src={item.images[0]} alt="seller item" />
-                
-                               <div className="rec-info">
-                <div className="rec-details">
-                  <p className="rec-name">{item.title}</p>
-                  <p className="rec-condition">{item.size} - {item.condition}</p>
+
+                <div className="rec-info">
+                  <div className="rec-details">
+                    <p className="rec-name">{item.title}</p>
+                    <p className="rec-condition">{item.size} - {item.condition}</p>
+                  </div>
+                  <p className="rec-price">{item.price}</p>
                 </div>
-                <p className="rec-price">{item.price}</p>
-              </div>
               </div>
             ))}
 
@@ -260,28 +293,28 @@ function ProductPage() {
 
 
           {singleProduct ? (
-  <div className="seller-card">
-    <div className="seller-header">
-    <Link   className="seller-Link" to={`/member/${singleProduct.user?._id}`}>
-      <img 
-        src={singleProduct.user?.profileImage || NewWomen}
-        alt="seller"
-        className="seller-img"
-      />
-      </Link>
-      <div>
-        <Link to={`/member/${singleProduct.user?._id}`} className="seller-Link">
-        <p className="seller-name">@{singleProduct.user?.username}</p>
-        </Link>
-        <p className="seller-rating">⭐⭐⭐⭐⭐</p>
-      </div>
-    </div>
-    <div className="seller-body"> <hr className="seller-divider" /> <p className="speedy">🚚 Speedy Shipping</p> <p>Sends items promptly — usually within 24 hours.</p> <hr className="seller-divider" /> <p>📍{singleProduct.user?.location?.city}, {singleProduct.user?.location?.country}</p> <p>🕒 {timeAgo(singleProduct.user?.lastSeen)} </p> <hr className="seller-divider" /> <p className="follow-btn">Follow</p> </div> 
+            <div className="seller-card">
+              <div className="seller-header">
+                <Link className="seller-Link" to={`/member/${singleProduct.user?._id}`}>
+                  <img
+                    src={singleProduct.user?.profileImage || NewWomen}
+                    alt="seller"
+                    className="seller-img"
+                  />
+                </Link>
+                <div>
+                  <Link to={`/member/${singleProduct.user?._id}`} className="seller-Link">
+                    <p className="seller-name">@{singleProduct.user?.username}</p>
+                  </Link>
+                  <p className="seller-rating">⭐⭐⭐⭐⭐</p>
+                </div>
+              </div>
+              <div className="seller-body"> <hr className="seller-divider" /> <p className="speedy">🚚 Speedy Shipping</p> <p>Sends items promptly — usually within 24 hours.</p> <hr className="seller-divider" /> <p>📍{singleProduct.user?.location?.city}, {singleProduct.user?.location?.country}</p> <p>🕒 {timeAgo(singleProduct.user?.lastSeen)} </p> <hr className="seller-divider" /> <p className="follow-btn">Follow</p> </div>
 
-  </div>
-) : (
-  <p>Product not found</p>
-)}
+            </div>
+          ) : (
+            <p>Product not found</p>
+          )}
 
 
 
@@ -307,16 +340,24 @@ function ProductPage() {
         </div>
 
         <div className="rec-grid">
-          {visibleProducts.map((p) => (
+          {visibleProducts?.map((p) => (
             <div key={p._id} className="rec-card">
               <div className="rec-img-box">
                 {p.images.slice(0, 4).map((img) => (
                   <img key={img} src={img} alt={img} className="rec-img" />
                 ))}
 
-                <div className="rec-likes">
-                  <FaHeart color="black" size={14} /> {p.likes}
-                </div>
+               <div className="likes" onClick={(e) => { e.stopPropagation(); handleToggleLike(product._id); }}>
+                {
+                  likedProducts?.[product._id] ? (
+                    <FaHeart size={16} color="black" />
+                  ) : (
+                    <FaRegHeart size={16} color="gray" />
+                  )
+                }
+                <span className="count-likes">{likesCount?.[product._id] ?? product.likes?.length ?? 0}</span>
+              </div>
+                 
               </div>
 
               <div className="rec-info">
@@ -390,6 +431,13 @@ function ProductPage() {
           </div>
         </div>
       )}
+
+      <LoginModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
+
     </>
   );
 }

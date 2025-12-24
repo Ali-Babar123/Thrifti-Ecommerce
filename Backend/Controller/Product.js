@@ -1,3 +1,4 @@
+const Likes = require("../Models/Likes");
 const Product = require("../Models/product");
 const { uploadImages } = require("../middleware/uploadToCloudinary");
 
@@ -116,8 +117,54 @@ exports.getProductByCategories = async (req, res) => {
 // Get all products
 exports.getProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({createdAt: -1});
-    res.status(200).json({ success: true, data: products });
+    // const products = await Product.find().sort({createdAt: -1}).populate("");
+    const products = await Product.aggregate([
+      {
+        $lookup : { 
+          from:"productlikes",
+          let:{productId:"$_id"},
+          pipeline:[
+            {
+              $match : {
+                $expr : {
+                  $eq : ["$product","$$productId"]
+                }
+              }
+            }
+          ],
+          as:"likes"
+        }
+      },
+      {
+        $sort : {
+          createdAt:-1
+        }
+      },
+      {
+        $addFields : {
+          productLikes : {
+            $size : "$likes"
+          }
+        }
+      },
+      {
+        $project: {
+          _id:1,
+          category:1,
+          title:1,
+          images:1,
+          size:1,
+          condition:1,
+          brand:1,
+          price:1,
+          meterials:1,
+          colors:1,
+          likes:1,
+          productLikes:1, 
+        }
+      }
+    ]);
+    return res.status(200).json({ success: true, data: products });
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, message: err.message });

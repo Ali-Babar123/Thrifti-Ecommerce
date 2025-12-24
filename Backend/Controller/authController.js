@@ -42,6 +42,15 @@ exports.registerUser = async (req, res) => {
   }
 };
 
+exports.HandleGetCurrentUser = async (req,res) => {
+  try{
+    const user = req.user;
+    return res.status(200).json({user:user,statusCode:200});
+  } catch(e){
+    throw new Error(e?.message,e);
+  }
+};
+
 // ================= LOGIN =================
 exports.loginUser = async (req, res) => {
   try {

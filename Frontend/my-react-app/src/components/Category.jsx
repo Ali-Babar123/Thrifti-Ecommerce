@@ -6,17 +6,19 @@ import { useEffect, useState, useContext, useRef } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import API from '../api/api'
 import { ChevronDown, X, ChevronRight, ChevronLeft, CheckSquare } from "lucide-react";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { Filter, Sliders } from "lucide-react";
 import CategoryFilter from "./CategoryFilter";
 import kidsImg from "../assets/KidsMain.png";
 import MenImg from "../assets/Desktop - 59.png";
 import { ProductContext } from "../ProductContext/ProductContext";
+import { AuthContext } from '../Contexts/AuthProvider';
+import LoginModal from './LoginModal';
 
 
 
 const Category = () => {
-  
+
   const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedBrand, setSelectedBrand] = useState([]);
   const [selectedPrice, setSelectedPrice] = useState([]);
@@ -46,16 +48,45 @@ const Category = () => {
   };
 
 
-  const { products, applyFilters, filtered, visibleCount, loadMoreProducts, loadingMore } = useContext(ProductContext);
+  const { products, applyFilters, filtered, visibleCount, loadMoreProducts, loadingMore
+    , likesCount, likedProducts, toggleLike
+  } = useContext(ProductContext);
+
+  const {isLoggedIn} = useContext(AuthContext);
+
+  const [authModalOpen, setAuthModalOpen] = useState('');
+  const [pendingLikeId, setPendingLikeId] = useState('');
 
   const displayProductsList = filtered;
 
-  useEffect(()=>{
+  useEffect(() => {
 
     setVisibleProducts(displayProductsList.slice(0, visibleCount))
-  }, [displayProductsList])
+  }, [displayProductsList]);
+
+
+  const handleToggleLike = (productId) => {
+  if (!isLoggedIn) {
+    setPendingLikeId(productId);
+    setAuthModalOpen(true);
+    return;
+  }
+
+  toggleLike(productId);
+};
 
   
+  const handleLoginSuccess = () => {
+  setAuthModalOpen(false);
+
+  if (pendingLikeId) {
+  toggleLike(pendingLikeId);
+  setPendingLikeId(null);
+}
+
+};
+
+
 
   const filterCount =
     selectedCategory.length +
@@ -78,19 +109,19 @@ const Category = () => {
     setSelectedSort([]);
 
     const fetchProducts = async () => {
-        try {
-          const res = await API.get("/api/products/getAll");
-          setVisibleProducts(res.data.data);
-        } catch (err) {
-          console.log("Fetch error:", err);
-          setError("Failed to fetch products");
-        }
-      };
-    
-     setTimeout(
+      try {
+        const res = await API.get("/api/products/getAll");
+        setVisibleProducts(res.data.data);
+      } catch (err) {
+        console.log("Fetch error:", err);
+        setError("Failed to fetch products");
+      }
+    };
+
+    setTimeout(
       fetchProducts,
       1500
-     )
+    )
 
     applyFilters({
       parent: null,
@@ -106,19 +137,19 @@ const Category = () => {
     })
 
     const removeQueryParam = (param) => {
-  const searchParams = new URLSearchParams(location.search);
+      const searchParams = new URLSearchParams(location.search);
 
-  // Delete the specific query param
-  searchParams.delete(param);
+      // Delete the specific query param
+      searchParams.delete(param);
 
-  // Update the URL without reloading
-  navigate({
-    pathname: location.pathname,
-    search: searchParams.toString(),
-  }, { replace: true });
-};
+      // Update the URL without reloading
+      navigate({
+        pathname: location.pathname,
+        search: searchParams.toString(),
+      }, { replace: true });
+    };
 
-  setIsFilterOpen(false);
+    setIsFilterOpen(false);
 
   };
   const query = {
@@ -495,7 +526,7 @@ const Category = () => {
                     size={20}
                     className="tag-close"
                     onClick={() => setSelectedSort(selectedSort.filter(i => i !== item))
-                      
+
                     }
                   />
                 </div>
@@ -589,10 +620,24 @@ const Category = () => {
                   backgroundImage: `url(${item.images && item.images.length > 0 ? item.images[0] : 'https://via.placeholder.com/150'})`
                 }}
               >
-                <div className="top-pick-like">
-                  <FaHeart color="black" size={14} />
-                  <p>{item.likes}</p>
-                </div>
+                
+                        <div
+                                   className="top-pick-like"
+                                   onClick={(e) => {
+                                     e.stopPropagation();
+                                     handleToggleLike(item._id);
+                                   }}
+                                 >
+                                   {likedProducts?.[item._id] ? (
+                                     <FaHeart size={17} color="black" />
+                                   ) : (
+                                     <FaRegHeart size={17} color="gray" />
+                                   )}
+                       
+                                   <span className="like-count">
+                                     {likesCount?.[item._id] ?? item.likes?.length ?? 0}
+                                   </span>
+                                 </div>
               </div>
               <div className="top-pick-info">
                 <div>
@@ -618,6 +663,12 @@ const Category = () => {
 
 
       </section>
+
+        <LoginModal
+      isOpen={authModalOpen}
+      onClose={() => setAuthModalOpen(false)}
+      onLoginSuccess={handleLoginSuccess}
+    />
     </>
   )
 }
@@ -872,6 +923,7 @@ const MultiSelectDropdown = ({
         </div>
       )}
     </div>
+
   );
 };
 
