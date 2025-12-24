@@ -171,6 +171,85 @@ exports.getProducts = async (req, res) => {
   }
 };
 
+exports.getRecommendedProducts = async (req, res) => {
+  try {
+    const { productId } = req.params;
+
+    // 1️⃣ Get current product
+    const currentProduct = await Product.findById(productId);
+
+    if (!currentProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    const { parent, main, sub } = currentProduct.category;
+
+    // 2️⃣ Aggregation for recommended products
+    const products = await Product.aggregate([
+      {
+        $match: {
+          _id: { $ne: currentProduct._id },
+          "category.parent": parent,
+          "category.main": main,
+          "category.sub": sub,
+        },
+      },
+      {
+        $lookup: {
+          from: "productlikes",
+          let: { productId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$product", "$$productId"],
+                },
+              },
+            },
+          ],
+          as: "likes",
+        },
+      },
+      {
+        $addFields: {
+          productLikes: { $size: "$likes" },
+        },
+      },
+      {
+        $sort: { createdAt: -1 },
+      },
+      {
+        $limit: 10,
+      },
+      {
+        $project: {
+          title: 1,
+          images: 1,
+          price: 1,
+          brand: 1,
+          size: 1,
+          condition: 1,
+          productLikes: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: products,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
 // Update a product by ID
 exports.updateProduct = async (req, res) => {
   try {

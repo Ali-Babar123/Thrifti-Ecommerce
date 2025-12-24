@@ -29,7 +29,12 @@ const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
   const params = new URLSearchParams(location.search);
   const [searchPlaceholder, setSearchPlaceholder] = useState("Search for items");
 
-
+  useEffect(() => {
+  setMenuOpen(false);
+  setActiveMenu(null);
+  setActiveMainCat(null);
+  setShowDropdown(false);
+}, [location.pathname, location.search]);
 
   useEffect(() => {
     const parent = params.get("parent");
@@ -90,11 +95,7 @@ const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
     setMenuOpen(false); // closes mobile menu
     setActiveMenu(null); // reset mega menu if needed
     setActiveMainCat(null);
-
-
-    setTimeout(() => {
-      setMenuOpen(false); // close menu after 150ms
-    }, 350);
+    
   };
   const handleLoginSuccess = () => {
     setShowLogin(false);

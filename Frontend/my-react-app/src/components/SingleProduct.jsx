@@ -17,6 +17,7 @@ function ProductPage() {
   const [singleProduct, setSingleProduct] = useState(null);
   const [sellerProducts, setSellerProducts] = useState([]);
   const visibleProducts = products.slice(0, visibleCount);
+  const [recommended, setRecommended] = useState([]);
 
   const { isLoggedIn } = useContext(AuthContext);
 
@@ -24,6 +25,18 @@ function ProductPage() {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   useEffect(() => {
     fetchSingleProduct();
+  }, [id]);
+
+  useEffect(()=>{
+    if(!id) return;
+
+    const fetchRecommended = async ()=>{
+      const res = await API.get(`/api/products/${id}/recommended`);
+      console.log("recomended", res);
+      setRecommended(res.data.data)
+    }
+    fetchRecommended();
+
   }, [id]);
 
   const handleToggleLike = (productId) => {
@@ -179,7 +192,7 @@ function ProductPage() {
               onClick={() => setIsLightboxOpen(true)}
             >
               {mainImage && <img src={mainImage} alt="main" />}
-              <div className="likes" onClick={(e) => { e.stopPropagation(); handleToggleLike(product._id); }}>
+              <div className="singleproduct-rec-likes" onClick={(e) => { e.stopPropagation(); handleToggleLike(product._id); }}>
                 {
                   likedProducts?.[product._id] ? (
                     <FaHeart size={16} color="black" />
@@ -278,7 +291,13 @@ function ProductPage() {
 
           </div>
 
-          <button className="see-more-btn">See More</button>
+         <div className="top-picks-more">
+    {loadingMore ? (
+      <div className="circle-loader"></div>
+    ) : (
+      <button onClick={loadMoreProducts}>See More</button>
+    )}
+  </div>
         </div>
 
         {/* Seller Info */}
@@ -339,23 +358,26 @@ function ProductPage() {
           </a>
         </div>
 
-        <div className="rec-grid">
-          {visibleProducts?.map((p) => (
-            <div key={p._id} className="rec-card">
+        <div className="rec-grid" >
+          {recommended?.map((p) => (
+            <div key={p._id} className="rec-card"
+            onClick={() =>
+          navigate(`/singleproduct/${p._id}`, { state: p })
+        }>
               <div className="rec-img-box">
-                {p.images.slice(0, 4).map((img) => (
+                {/* {p.images.slice(0, 4).map((img) => (
                   <img key={img} src={img} alt={img} className="rec-img" />
-                ))}
-
-               <div className="likes" onClick={(e) => { e.stopPropagation(); handleToggleLike(product._id); }}>
+                ))} */}
+                <img  src={p?.images[0]} className="rec-img" />
+               <div className="singleproduct-rec-likes" onClick={(e) => { e.stopPropagation(); handleToggleLike(p._id); }}>
                 {
-                  likedProducts?.[product._id] ? (
+                  likedProducts?.[p._id] ? (
                     <FaHeart size={16} color="black" />
                   ) : (
                     <FaRegHeart size={16} color="gray" />
                   )
                 }
-                <span className="count-likes">{likesCount?.[product._id] ?? product.likes?.length ?? 0}</span>
+                <span className="count-likes">{likesCount?.[p._id] ?? 0}</span>
               </div>
                  
               </div>

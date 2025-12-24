@@ -149,19 +149,19 @@ if (sub)
   }));
 
   // 🔥 THIS IS THE MISSING PART
-  setProducts(prev =>
-    prev.map(p =>
-      p._id === productId
-        ? {
-            ...p,
-            likes: Array(
-              (likesCount[productId] ?? p.likes?.length ?? 0) +
-                (isLiked ? -1 : 1)
-            ).fill("x") // dummy, length matters only
-          }
-        : p
-    )
-  );
+setProducts(prev =>
+  prev.map(p =>
+    p._id === productId
+      ? {
+          ...p,
+          likes: isLiked
+            ? p.likes?.slice(0, Math.max((p.likes?.length || 1) - 1, 0))
+            : [...(p.likes || []), "x"]
+        }
+      : p
+  )
+);
+
 
   try {
     if (isLiked) {

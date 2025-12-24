@@ -4,10 +4,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Heart, Link, X } from "lucide-react";
 import DummyImage from "../assets/shirtofmen.svg"; // replace with your own
 import DeleteItemPopup from "./DeleteItemPopup";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { useEffect } from "react";
 import API from "../api/api";
 import Loader from "./loader";
+import { useContext } from "react";
+import { ProductContext } from "../ProductContext/ProductContext";
+import LoginModal from "./LoginModal";
+import { AuthContext } from "../Contexts/AuthProvider";
 
 function ListingSingleProductPage() {
   const dummyGallery = [DummyImage, DummyImage, DummyImage, DummyImage];
@@ -19,6 +23,11 @@ function ListingSingleProductPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
     const [showPopup, setShowPopup] = useState(false); 
     const [sellerProducts, setSellerProducts] = useState([]);
+    const {likedProducts, likesCount, toggleLike} = useContext(ProductContext);
+      const [authModalOpen, setAuthModalOpen] = useState(false);
+
+      const {isLoggedIn} = useContext(AuthContext);
+    
 
 
   const [showBumpModal, setShowBumpModal] = useState(false);
@@ -37,6 +46,9 @@ function ListingSingleProductPage() {
    setSellerProducts([]);
 
 }
+
+
+
 
 // Check if user exists BEFORE fetching seller products
     if (res.data.data.user && res.data.data.user._id) {
@@ -72,6 +84,27 @@ function ListingSingleProductPage() {
         setMainImage(product.images[0]);
       }
     }, [product]);
+
+
+     const handleToggleLike = (productId) => {
+    if (!isLoggedIn) {
+      setPendingLikeId(productId);
+      setAuthModalOpen(true);
+      return;
+    }
+
+    toggleLike(productId);
+  };
+
+
+  const handleLoginSuccess = () => {
+    setAuthModalOpen(false);
+
+    if (pendingLikeId) {
+      toggleLike(pendingLikeId);
+      setPendingLikeId(null);
+    }
+  }
 
 
   const timeAgo = (dateString) => {
@@ -129,8 +162,15 @@ function ListingSingleProductPage() {
                         onClick={() => setIsLightboxOpen(true)}
                       >
                         {mainImage && <img src={mainImage} alt="main" />}
-                        <div className="likes">
-                          <FaHeart color="black" size={14} /> {product.likes}
+                        <div className="likes" onClick={(e) => { e.stopPropagation(); handleToggleLike(product._id); }}>
+                           {
+                                            likedProducts?.[product._id] ? (
+                                              <FaHeart size={16} color="black" />
+                                            ) : (
+                                              <FaRegHeart size={16} color="gray" />
+                                            )
+                                          }
+                                          <span className="count-likes">{likesCount?.[product._id] ?? 0}</span>
                         </div>
                       </div>
                     </div>
@@ -356,6 +396,12 @@ function ListingSingleProductPage() {
     </div>
   </div>
 )}
+
+<LoginModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
 
     </>
   );

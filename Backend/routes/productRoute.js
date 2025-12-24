@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { createProduct, getProducts, updateProduct, deleteProduct, getProductByCategories, filterProducts, getUserProducts, getSingleProduct } = require("../Controller/Product");
+const { createProduct, getProducts, updateProduct, deleteProduct, getProductByCategories, filterProducts, getUserProducts, getSingleProduct, getRecommendedProducts } = require("../Controller/Product");
 const { verifyToken } = require('../middleware/authMiddleware');
 
 
@@ -21,6 +21,9 @@ router.get("/:userId",  getUserProducts);
 
 // Single product → MUST NOT conflict
 router.get("/single/:id",  getSingleProduct);
+
+
+router.get('/:productId/recommended', getRecommendedProducts);
 
 // Update & delete
 router.put("/update/:id", verifyToken, updateProduct);
