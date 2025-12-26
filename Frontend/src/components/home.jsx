@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import "./Home.css";
 import BannerImg from "../assets/HeroSection.png"; // replace this with your own image
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
 import Shirt from '../assets/shirts.png'
 import Women from '../assets/women.svg'
@@ -13,9 +13,11 @@ import Shoes from '../assets/shoes.svg'
 import Jacket from '../assets/jacket.svg'
 import Jwellery from '../assets/jwellery.svg'
 import WomenCloth from '../assets/WomenCloth.svg'
+import LoginModal from "./LoginModal";
 import Shoe from '../assets/shoe.svg'
 import { ProductContext } from "../ProductContext/ProductContext";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../Contexts/AuthProvider";
 
 const categories = [
   {
@@ -58,27 +60,51 @@ const categories = [
 ];
 
 const Home = () => {
-  const { products, visibleCount, loadMoreProducts, loadingMore } = useContext(ProductContext); // ✅ use products from context
-    const navigate = useNavigate(); // ✅ for navigation
+   const { 
+    products, 
+    visibleCount, 
+    loadMoreProducts, 
+    loadingMore,  
+    likedProducts, 
+    likesCount,
+    toggleLike 
+  } = useContext(ProductContext);
 
-        const [dropdownOpen, setDropdownOpen] = useState(false);
-        const [search, setSearch] = useState("");
-        const [openSections, setOpenSections] = useState({});
-        const [selected, setSelected] = useState({});
+  const navigate = useNavigate();
 
-        const visibleProducts = products.slice(0, visibleCount);
+  const {isLoggedIn} = useContext(AuthContext);
 
-      
-        const toggleSection = (key) => {
-          setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
-        };
-      
-        const handleCheckbox = (key) => {
-          setSelected((prev) => ({ ...prev, [key]: !prev[key] }));
-        };
-      
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [pendingLikeId, setPendingLikeId] = useState(null);
 
-  
+  const visibleProducts = products.slice(0, visibleCount);
+
+ 
+ const handleToggleLike = (productId) => {
+  if (!isLoggedIn) {
+    setPendingLikeId(productId);
+    setAuthModalOpen(true);
+    return;
+  }
+
+  toggleLike(productId);
+};
+
+
+
+
+
+const handleLoginSuccess = () => {
+  setAuthModalOpen(false);
+
+  if (pendingLikeId) {
+  toggleLike(pendingLikeId);
+  setPendingLikeId(null);
+}
+
+};
+
+
   
 
   
@@ -147,51 +173,68 @@ const Home = () => {
 </section>
 
 
-   <section className="top-picks">
-    {/* Product Grid */}
-    <div className="top-picks-grid">
-      {visibleProducts.map((item) => (
-       <div
-  className="top-pick-card"
-  key={item._id}
-  onClick={() => navigate(`/singleproduct/${item._id}`, { state: item })} // ✅ navigate like Men’s page
-  style={{ cursor: "pointer" }}
->
-
+   {/* Top Picks */}
+  <section className="top-picks">
+  <div className="top-picks-grid">
+    {visibleProducts.map((item) => (
+      <div
+        className="top-pick-card"
+        key={item._id}
+        onClick={() =>
+          navigate(`/singleproduct/${item._id}`, { state: item })
+        }
+        style={{ cursor: "pointer" }}
+      >
+        <div
+          className="top-pick-image"
+          style={{
+            backgroundImage: `url(${item.images?.[0] || "https://via.placeholder.com/150"})`,
+          }}
+        >
           <div
-            className="top-pick-image"
-            
-             style={{ 
-    backgroundImage: `url(${item.images && item.images.length > 0 ? item.images[0] : 'https://via.placeholder.com/150'})` 
-  }}
+            className="top-pick-like"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleLike(item._id);
+            }}
           >
-            <div className="top-pick-like">
-              <FaHeart color="black" size={14} />
-              <p>{item.likes}</p>
-            </div>
-          </div>
-          <div className="top-pick-info">
-            <div>
-              <h3>{item.title}</h3>
-              <p className="top-pick-condition">{item.size} - {item.condition}</p>
-              
-            </div>
-            <p className="top-pick-price">${item.price}</p>
+            {likedProducts?.[item._id] ? (
+              <FaHeart size={17} color="black" />
+            ) : (
+              <FaRegHeart size={17} color="gray" />
+            )}
+
+            <span className="like-count">
+              {likesCount?.[item._id] ?? item.likes?.length ?? 0}
+            </span>
           </div>
         </div>
-      ))}
-    </div>
-  
-    <div className="top-picks-more">
-     {loadingMore ? (
-  <div className="circle-loader"></div>
-) : (
-  <button onClick={loadMoreProducts}>See More</button>
-)}
+
+        <div className="top-pick-info">
+          <div>
+            <h3>{item.title}</h3>
+            <p className="top-pick-condition">
+              {item.size} - {item.condition}
+            </p>
+          </div>
+          <p className="top-pick-price">${item.price}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div className="top-picks-more">
+    {loadingMore ? (
+      <div className="circle-loader"></div>
+    ) : (
+      <button onClick={loadMoreProducts}>See More</button>
+    )}
+  </div>
+</section>
 
 
-    </div>
-  </section>
+
+      
 <section className="section-four">
  <div className="wardrobe-section">
       <div className="wardrobe-overlay">
@@ -209,6 +252,12 @@ const Home = () => {
     </div>
 
     </section>
+
+     <LoginModal
+      isOpen={authModalOpen}
+      onClose={() => setAuthModalOpen(false)}
+      onLoginSuccess={handleLoginSuccess}
+    />
     </>
   );
 };

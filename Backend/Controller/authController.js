@@ -53,7 +53,10 @@ exports.registerUser = async (req, res) => {
 
 exports.HandleGetCurrentUser = async (req,res) => {
   try{
+<<<<<<< HEAD
     console.log(req.headers)
+=======
+>>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a
     const user = req.user;
     return res.status(200).json({user:user,statusCode:200});
   } catch(e){
@@ -118,9 +121,12 @@ exports.getProfile = async (req, res) => {
     const profile = await User.aggregate([
       { $match: { _id: new mongoose.Types.ObjectId(userId) } },
       { $lookup: { from: "products", localField: "_id", foreignField: "user", as: "products" } },
-      { $project: { products: 1, _id: 1, username: 1, profileImage: 1, lastSeen: 1, location: 1, isVerified: 1 } }
+      { $lookup : { from: "follows",localField:"_id",foreignField:"follower",as:"following"}},
+      { $lookup : { from: "follows",localField:"_id",foreignField:"following",as:"followers"}},
+      { $addFields : { followers:{$size : "$followers"},following:{$size : "$following"}  } },
+      { $project: { products: 1, _id: 1, username: 1, profileImage: 1, lastSeen: 1, location: 1, isVerified: 1, followers: 1, following: 1 } }
     ]);
-
+    console.log(profile)
     return res.status(200).json({
       success: true,
       count: profile[0]?.products.length || 0,

@@ -1,20 +1,137 @@
 import React, { useState } from "react";
 import "./ListingSingleProduct.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Heart, Link, X } from "lucide-react";
 import DummyImage from "../assets/shirtofmen.svg"; // replace with your own
 import DeleteItemPopup from "./DeleteItemPopup";
+import { FaHeart, FaRegHeart } from "react-icons/fa";
+import { useEffect } from "react";
+import API from "../api/api";
+import Loader from "./loader";
+import { useContext } from "react";
+import { ProductContext } from "../ProductContext/ProductContext";
+import LoginModal from "./LoginModal";
+import { AuthContext } from "../Contexts/AuthProvider";
 
 function ListingSingleProductPage() {
   const dummyGallery = [DummyImage, DummyImage, DummyImage, DummyImage];
+  const {id} = useParams();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [mainImage, setMainImage] = useState(dummyGallery[0]);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
     const [showPopup, setShowPopup] = useState(false); 
+    const [sellerProducts, setSellerProducts] = useState([]);
+    const {likedProducts, likesCount, toggleLike} = useContext(ProductContext);
+      const [authModalOpen, setAuthModalOpen] = useState(false);
+
+      const {isLoggedIn} = useContext(AuthContext);
+    
 
 
   const [showBumpModal, setShowBumpModal] = useState(false);
   const navigate = useNavigate();
+  
+
+  useEffect(()=>{
+    const fetchProducts = async ()=>{
+      try {
+        const res = await API.get(`/api/products/single/${id}`);
+        console.log(res.data.data);
+        if (res.data.success && res.data.data) {
+  setProduct(res.data.data);
+} else {
+  setProduct(null);
+   setSellerProducts([]);
+
+}
+
+
+
+
+// Check if user exists BEFORE fetching seller products
+    if (res.data.data.user && res.data.data.user._id) {
+      fetchSellerProducts(res.data.data.user._id);
+    } else {
+      setSellerProducts([]);
+    }
+
+      } catch (error) {
+       console.error("Error fetching product:", error); 
+      }
+      finally {
+      setLoading(false);
+    }
+    };
+    fetchProducts()
+  }, [id]);
+
+  const fetchSellerProducts = async(userId) =>{
+    try {
+      const res = await API.get(`/api/products/${userId}`);
+      // console.log(res.data.data);
+      setSellerProducts(res.data.data);
+    } catch (error) {
+      console.error("seller product error", error)
+      
+    }
+  }
+
+
+   useEffect(() => {
+      if (product?.images?.[0]) {
+        setMainImage(product.images[0]);
+      }
+    }, [product]);
+
+
+     const handleToggleLike = (productId) => {
+    if (!isLoggedIn) {
+      setPendingLikeId(productId);
+      setAuthModalOpen(true);
+      return;
+    }
+
+    toggleLike(productId);
+  };
+
+
+  const handleLoginSuccess = () => {
+    setAuthModalOpen(false);
+
+    if (pendingLikeId) {
+      toggleLike(pendingLikeId);
+      setPendingLikeId(null);
+    }
+  }
+
+
+  const timeAgo = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const seconds = Math.floor((now - date) / 1000);
+
+    let interval = Math.floor(seconds / 31536000);
+    if (interval >= 1) return `${interval} year${interval > 1 ? "s" : ""} ago`;
+
+    interval = Math.floor(seconds / 2592000);
+    if (interval >= 1) return `${interval} month${interval > 1 ? "s" : ""} ago`;
+
+    interval = Math.floor(seconds / 86400);
+    if (interval >= 1) return `${interval} day${interval > 1 ? "s" : ""} ago`;
+
+    interval = Math.floor(seconds / 3600);
+    if (interval >= 1) return `${interval} hour${interval > 1 ? "s" : ""} ago`;
+
+    interval = Math.floor(seconds / 60);
+    if (interval >= 1) return `${interval} minute${interval > 1 ? "s" : ""} ago`;
+
+    return "Just now";
+  };
+
+  if (loading) return <p><Loader/></p>;
+  if (!product) return <p>Product not found</p>;
 
 
   return (
@@ -26,51 +143,60 @@ function ListingSingleProductPage() {
 
         <div className="product-container">
           {/* Left Side */}
-          <div className="image-section">
-            <div className="thumbnail-list">
-              {dummyGallery.map((img, index) => (
-                <img
-                  key={index}
-                  src={DummyImage}
-                  alt={`thumb-${index}`}
-                  className={`thumbnail ${
-                    DummyImage === img ? "active-thumbnail" : ""
-                  }`}
-                  onClick={() => setMainImage(img)}
-                />
-              ))}
-            </div>
-
-            <div className="main-image" onClick={() => setIsLightboxOpen(true)}>
-              <img src={mainImage} alt="main" />
-              <div className="likes">
-                <Heart size={14} /> 120
-              </div>
-            </div>
-          </div>
+           <div className="image-section">
+                      <div className="thumbnail-list">
+                        {product.images?.map((img) => (
+                          <img
+                            key={img}
+                            src={img}
+                            alt={`thumbnail-${img}`}
+                            className={`thumbnail ${mainImage === img ? "active-thumbnail" : ""
+                              }`}
+                            onClick={() => setMainImage(img)}
+                          />
+                        ))}
+                      </div>
+          
+                      <div
+                        className="main-image"
+                        onClick={() => setIsLightboxOpen(true)}
+                      >
+                        {mainImage && <img src={mainImage} alt="main" />}
+                        <div className="likes" onClick={(e) => { e.stopPropagation(); handleToggleLike(product._id); }}>
+                           {
+                                            likedProducts?.[product._id] ? (
+                                              <FaHeart size={16} color="black" />
+                                            ) : (
+                                              <FaRegHeart size={16} color="gray" />
+                                            )
+                                          }
+                                          <span className="count-likes">{likesCount?.[product._id] ?? 0}</span>
+                        </div>
+                      </div>
+                    </div>
 
           {/* Right Side */}
           <div className="details-section">
             <div className="check-progress" >
               <button className="buy-btn" style={{width: '100%', marginBottom: '15px'}}>Check in Progress</button>
               </div>
-            <h2>Classic Black Jacket</h2>
-            <p className="subtext">Gently Used</p>
+            <h2>{product.title}</h2>
+            <p className="subtext">{product.condition} - {product.brand}</p>
 
             <div className="price">
               <span className="old-price">$70.00</span>
-              <span className="new-price">$49.99</span>
+              <span className="new-price">{product.price}</span>
             </div>
 
             <p className="buyer-protection">Includes Buyer Protection</p>
             <button className="discount-btn">🚚 Upto -100% postage</button>
 
             <div className="product-info">
-              <p><strong>Brand:</strong> Zara</p>
-              <p><strong>Size:</strong> M</p>
-              <p><strong>Condition:</strong> Good</p>
-              <p><strong>Color:</strong> Black</p>
-              <p><strong>Uploaded:</strong> 15 hours ago</p>
+              <p><strong>Brand:</strong> {product.brand}</p>
+              <p><strong>Size:</strong> {product.size}</p>
+              <p><strong>Condition:</strong> {product.condition}</p>
+              <p><strong>Color:</strong>  {product.colors.join(", ")}</p>
+              <p><strong>Uploaded:</strong> {timeAgo(product.createdAt)}</p>
             </div>
 
             <p className="brand-box">Brand new with box</p>
@@ -107,7 +233,7 @@ function ListingSingleProductPage() {
       {/* Member Section */}
       <section className="member-section">
         <div className="member-left">
-          <h2>Member's items (4)</h2>
+          <h2>Member's items ({sellerProducts.length})</h2>
 
           <div className="bundle-actions">
             <div className="left-actions">
@@ -118,15 +244,15 @@ function ListingSingleProductPage() {
           </div>
 
           <div className="items-grid">
-            {dummyGallery.slice(0, 2).map((img, index) => (
-              <div className="item-card" key={index}>
-                <img src={img} alt={`gallery-${index}`} />
+            {sellerProducts?.slice(0, 2).map((item) => (
+              <div className="item-card" key={item._id}>
+                <img src={item.images[0]} alt={`gallery-${item}`} />
                 <div className="product-content">
                   <div className="name-des">
-                    <p className="item-title">Classic Jacket</p>
-                    <p className="item-condition">Used - Good</p>
+                    <p className="item-title">{item.title}</p>
+                    <p className="item-condition">{item.condition}</p>
                   </div>
-                  <p className="item-price">$49.99</p>
+                  <p className="item-price">{item.price}</p>
                 </div>
               </div>
             ))}
@@ -147,9 +273,9 @@ function ListingSingleProductPage() {
 
           <div className="seller-card">
             <div className="seller-header">
-              <img src={DummyImage} alt="seller" className="seller-img" />
+              <img src={product.user?.profileImage} loading="lazy" alt="seller" className="seller-img" />
               <div>
-                <p className="seller-name">@fashionstore</p>
+                <p className="seller-name">{product.user?.username}</p>
                 <p className="seller-rating">⭐⭐⭐⭐⭐</p>
               </div>
             </div>
@@ -159,8 +285,8 @@ function ListingSingleProductPage() {
               <p className="speedy">🚚 Speedy Shipping</p>
               <p>Sends items promptly — usually within 24 hours.</p>
               <hr className="seller-divider" />
-              <p>📍 Manchester, United Kingdom</p>
-              <p>🕒 Last seen 8 hours ago</p>
+              <p>📍 {product.user?.location?.city || "Unknown"}, {product.user?.location?.country || "Unknown"}</p>
+              <p>🕒 {timeAgo(product.user?.lastSeen)}</p>
               <hr className="seller-divider" />
               <p className="follow-btn">Follow</p>
             </div>
@@ -194,8 +320,8 @@ function ListingSingleProductPage() {
               <ChevronLeft size={18} color="white" />
             </button>
 
-            <img
-              src={dummyGallery[currentIndex]}
+           <img
+              src={product.images[currentIndex]}
               alt={`gallery-${currentIndex}`}
               className="lightbox-image"
             />
@@ -270,6 +396,12 @@ function ListingSingleProductPage() {
     </div>
   </div>
 )}
+
+<LoginModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
 
     </>
   );

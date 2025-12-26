@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect,useContext } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './components/home';
 import Footer from './components/Footer';
@@ -31,6 +31,9 @@ import { Toaster } from 'sonner';
 import Category from './components/Category';
 import Loader from './components/loader';
 
+/** Contexts */
+import {AuthContext} from "./Contexts/AuthProvider";
+
 // ProtectedRoute component
 const ProtectedRoute = ({ isLoggedIn, element }) => {
   if (isLoggedIn === null) {
@@ -41,49 +44,29 @@ const ProtectedRoute = ({ isLoggedIn, element }) => {
 };
 
 const App = () => {
-  const [loggedIn, setLoggedIn] = useState(null); // null initially to prevent early redirect
-  const [user, setUser] = useState(null);
 
-  useEffect(() => {
-    const loginStatus = localStorage.getItem("loggedIn") === "true";
-    const storedUser = localStorage.getItem("user");
+  const {user,isLoggedIn,setIsLoggedIn,setUser} = useContext(AuthContext);
+  const navigate = useNavigate();
 
-    setLoggedIn(loginStatus);
 
-    if (storedUser && storedUser !== "undefined") {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (err) {
-        console.error("Failed to parse user from localStorage:", err);
-        localStorage.removeItem("user");
-      }
-    }
-  }, []);
-
-  // Handle successful login
+ 
   const handleLoginSuccess = (userData) => {
-    localStorage.setItem("loggedIn", "true");
-    localStorage.setItem("user", JSON.stringify(userData));
-    setLoggedIn(true);
-    setUser(userData);
-  };
+  setIsLoggedIn(true);
+  setUser(userData);
+};
 
-  // Handle logout
-  const handleLogout = () => {
-    localStorage.removeItem("loggedIn");
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    setLoggedIn(false);
-    setUser(null);
-  };
+const handleLogout = () => {
+  localStorage.removeItem("token"); // ✅ only token matters
+  setIsLoggedIn(false);
+  setUser(null);
+  navigate("/", {replace:true});
+};
 
   return (
     <>
       <Navbar
-        loggedIn={loggedIn}
         onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
-        user={user}
       />
 
       <Toaster richColors position="top-right" />
@@ -99,55 +82,55 @@ const App = () => {
         {/* Protected Routes */}
         <Route
           path="/items/new"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<SellItem />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<SellItem />} />}
         />
         <Route
           path="/my-orders"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<MyOrder />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<MyOrder />} />}
         />
         <Route
           path="/inbox"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Messages />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Messages />} />}
         />
         <Route
           path="/notifications"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Notifications />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Notifications />} />}
         />
         <Route
           path="/personalization"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Personalization />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Personalization />} />}
         />
         <Route
           path="/settings/profile"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Settings />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Settings />} />}
         />
         <Route
           path="/member/:userId"
-          element={<ProtectedRoute isLoggedIn={loggedIn && user != null} element={<ProfilePage />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn && user != null} element={<ProfilePage />} />}
         />
         <Route
-          path="/check-progress"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<ListingSingleProductPage />} />}
+          path="/check-progress/:id"
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<ListingSingleProductPage />} />}
         />
         <Route
           path="/review-checkout"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<ReviewOrder />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<ReviewOrder />} />}
         />
         <Route
           path="/sold"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Sold />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Sold />} />}
         />
         <Route
           path="/reserved"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Reserved />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Reserved />} />}
         />
         <Route
           path="/settings/donations"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<Donations />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Donations />} />}
         />
         <Route
           path="/referrals"
-          element={<ProtectedRoute isLoggedIn={loggedIn} element={<InviteFriends />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<InviteFriends />} />}
         />
       </Routes>
 

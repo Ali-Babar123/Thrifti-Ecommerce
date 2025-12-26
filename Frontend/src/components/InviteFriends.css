@@ -188,8 +188,8 @@
 
 .modal-close {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 4px;
+  right: 8px;
   font-size: 22px;
   background: transparent;
   border: none;
@@ -197,8 +197,8 @@
 }
 
 .modal-title {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 550;
   margin-bottom: 25px;
 }
 

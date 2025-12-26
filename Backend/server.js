@@ -66,6 +66,12 @@ const messageRoutes = require("./routes/message.routes.js");
 const authRoutes = require("./routes/authRoutes");
 const googleLoginRoute = require('./routes/googleLogin');
 const productRoutes = require('./routes/productRoute');
+<<<<<<< HEAD
+=======
+const likeProductRoute = require('./routes/likesRoute');
+const followRoutes = require('./routes/followRoute');
+dotenv.config();
+>>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a
 
 /** Mongoose requiring */
 const MongooseConnection = require("./config/db.js");
@@ -102,8 +108,26 @@ MongooseConnection().then( async () => {
   /** Server creating */
   socketService._io.attach(httpServer);
 
+<<<<<<< HEAD
   /** Socket initialization */
   socketService.initListeners();
   
   httpServer.listen( Port,() => console.log(`\n Server at running this Port http://localhost:${Port}`));
 })
+=======
+// Connect to database
+connectDB(); 
+
+
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use('/api/auth', googleLoginRoute);
+app.use("/api/products", productRoutes);
+app.use('/api/follow', followRoutes);
+app.use("/api/likes", likeProductRoute);
+
+// Server
+const PORT = process.env.PORT || 9000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+>>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a

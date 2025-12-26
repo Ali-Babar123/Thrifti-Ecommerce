@@ -4,7 +4,12 @@ const User = require("../Models/User");
 const { Socket } = require("socket.io");
 
 const verifyToken = async (req, res, next) => {
+<<<<<<< HEAD
   /** const authHeader = req.headers.authorization;
+=======
+  const authHeader = req.headers.authorization;
+  // console.log(authHeader);
+>>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a
 
     console.log(authHeader)
 

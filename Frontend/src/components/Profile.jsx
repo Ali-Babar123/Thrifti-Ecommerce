@@ -1,5 +1,11 @@
+<<<<<<< HEAD:Frontend/src/components/Profile.jsx
 import React, { useState } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+=======
+import React, { useState, useEffect, useContext } from "react";
+import { FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { useLocation } from "react-router-dom";
+>>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a:Frontend/my-react-app/src/components/Profile.jsx
 import "./Profile.css";
 import ProfileImage from "../assets/settingsimage.svg";
 import JacketImage from "../assets/Modern.svg";
@@ -13,6 +19,12 @@ import {
   Zap,
   ShieldCheck,
 } from "lucide-react";
+<<<<<<< HEAD:Frontend/src/components/Profile.jsx
+=======
+import API from "../api/api";
+import Loader from "./loader";
+import { FollowContext } from "../FollowContext/FollowProvider";
+>>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a:Frontend/my-react-app/src/components/Profile.jsx
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("listing"); // 👈 Controls which section to show
@@ -21,6 +33,35 @@ const ProfilePage = () => {
   const [openSections, setOpenSections] = useState({});
   const [selected, setSelected] = useState({});
 
+<<<<<<< HEAD:Frontend/src/components/Profile.jsx
+=======
+
+ const {userId} = useParams();
+//  console.log(userId)
+
+
+
+  useEffect(()=>{
+    if (!userId) return;
+
+    const fetchProfile = async() =>{
+      const res = await API.get(`/api/auth/member?userId=${userId}` );
+      try { if (res.data.success){
+        setProfile(res.data.profile);
+      }
+      else{
+        console.log(res.data.message);
+      }
+    }
+      catch(err){
+        console.error("Error fetching profile:", err);
+  }
+};
+      fetchProfile();
+    }, [userId])
+    
+    
+>>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a:Frontend/my-react-app/src/components/Profile.jsx
   const toggleSection = (key) => {
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
   };
@@ -67,7 +108,7 @@ const ProfilePage = () => {
               <Clock size={15} /> Last seen: 14 hours ago
             </p>
             <p className="profile-followers">
-              <Users size={15} /> 5 followers, 25 following
+              <Users size={15} /> {profile.followers || 0} followers, {profile.following || 0 } following
             </p>
           </div>
         </div>
@@ -176,6 +217,7 @@ const ProfilePage = () => {
 
           {/* Listing Section */}
           <div className="listing-section">
+<<<<<<< HEAD:Frontend/src/components/Profile.jsx
             <h3>1 item</h3>
             <div className="item-card">
               <img src={JacketImage} alt="Jacket" className="item-image" />
@@ -186,6 +228,19 @@ const ProfilePage = () => {
               <p className="item-stats">0 Fav</p>
               <button className="bump-btn">Bump</button>
             </div>
+=======
+             {profile.products.map((product) => (
+              <div key={product._id} className="item-card">
+                <img src={product.images?.[0] || JacketImage} alt={product.title} className="item-image" />
+                <Link to={`/check-progress/${product._id}`}>
+                  <div className="item-status">Check in progress</div>
+                </Link>
+                <p className="item-stats">0 Views</p>
+                <p className="item-stats">0 Fav</p>
+                <button className="bump-btn">Bump</button>
+              </div>
+            ))}
+>>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a:Frontend/my-react-app/src/components/Profile.jsx
           </div>
         </>
       ) : (

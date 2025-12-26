@@ -1,8 +1,10 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import API from "../api/api";
 import Loader from "../components/loader";
+import { AuthContext } from "../Contexts/AuthProvider";
 
 export const ProductContext = createContext();
+
 
 export const ProductProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
@@ -11,6 +13,10 @@ export const ProductProvider = ({ children }) => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [likedProducts, setLikedProducts] = useState({});
+  const [likesCount, setLikesCount] = useState({});
+const { isLoggedIn } = useContext(AuthContext);
+
 
   // Fetch all products
   const fetchProducts = async () => {
@@ -122,6 +128,93 @@ if (sub)
 
   const addProduct = (product) => setProducts(prev => [...prev, product]);
 
+
+  const likedProduct = async (productId) => {
+    await API.post(`/api/likes/${productId}/like`);
+  };
+
+
+ const toggleLike = async (productId) => {
+  const isLiked = likedProducts[productId];
+
+  // 1️⃣ Optimistic UI update
+  setLikedProducts(prev => ({
+    ...prev,
+    [productId]: !isLiked
+  }));
+
+  setLikesCount(prev => ({
+    ...prev,
+    [productId]: (prev[productId] ?? 0) + (isLiked ? -1 : 1)
+  }));
+
+  // 🔥 THIS IS THE MISSING PART
+setProducts(prev =>
+  prev.map(p =>
+    p._id === productId
+      ? {
+          ...p,
+          likes: isLiked
+            ? p.likes?.slice(0, Math.max((p.likes?.length || 1) - 1, 0))
+            : [...(p.likes || []), "x"]
+        }
+      : p
+  )
+);
+
+
+  try {
+    if (isLiked) {
+      await API.delete(`/api/likes/${productId}/unlike`);
+    } else {
+      await API.post(`/api/likes/${productId}/like`);
+    }
+  } catch (err) {
+    // rollback
+    setLikedProducts(prev => ({
+      ...prev,
+      [productId]: isLiked
+    }));
+  }
+};
+
+
+
+  // Load likes for logged-in users
+  useEffect(() => {
+  if (!products.length) return;
+
+  // 🧹 USER LOGGED OUT → CLEAR LIKES
+  if (!isLoggedIn) {
+    setLikedProducts({});
+    setLikesCount({});
+    return;
+  }
+
+  const loadLikes = async () => {
+    const likesMap = {};
+    const countMap = {};
+
+    for (const p of products) {
+      try {
+        const res = await API.get(`/api/likes/${p._id}/like-status`);
+        likesMap[p._id] = res.data.liked;
+        countMap[p._id] = res.data.likes;
+      } catch {
+        likesMap[p._id] = false;
+        countMap[p._id] = p.likes?.length || 0;
+      }
+    }
+
+    setLikedProducts(likesMap);
+    setLikesCount(countMap);
+  };
+
+  loadLikes();
+}, [products, isLoggedIn]);
+
+
+
   return (
     <ProductContext.Provider
       value={{
@@ -134,6 +227,10 @@ if (sub)
         visibleCount,
         loadingMore,
         loadMoreProducts,
+        likedProduct,
+        toggleLike,
+        likesCount,
+        likedProducts
       }}
     >
       {loading ? <Loader /> : children}

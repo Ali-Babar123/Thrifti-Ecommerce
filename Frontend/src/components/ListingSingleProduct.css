@@ -81,9 +81,9 @@
     float: right;
   right: 15px;
   background: rgba(255, 255, 255, 0.9);
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 10px 12px;
+  border-radius: 24px;
+  font-size: 15px;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -749,8 +749,6 @@
   }
 }
 
-
-
 .rec-section {
   width: 88%;
   margin: 50px auto;
@@ -758,6 +756,7 @@
   color: #222;
 }
 
+/* Header */
 .rec-header {
   display: flex;
   justify-content: space-between;
@@ -777,21 +776,23 @@
   font-weight: 500;
 }
 
+/* GRID LAYOUT */
 .rec-grid {
-  display: flex;
-  cursor: pointer;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* 5 products per row */
   gap: 20px;
+  cursor: pointer;
 }
 
+/* Card */
 .rec-card {
-  flex: 1 1 220px;
-  max-width: 230px;
   background: #fff;
   border-radius: 10px;
   overflow: hidden;
+  width: 100%;
 }
 
+/* Image box */
 .rec-img-box {
   position: relative;
   width: 100%;
@@ -801,29 +802,21 @@
   gap: 2px;
 }
 
+/* Images */
 .rec-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.rec-likes {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: #fff;
-  font-size: 13px;
-  border-radius: 2px;
-  padding: 4px 8px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
-}
+/* Likes badge */
 
+/* Info */
 .rec-info {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 6px;
-  margin-top: 10px;
+  padding: 10px;
 }
 
 .rec-details {
@@ -849,6 +842,7 @@
   font-size: 15px;
 }
 
+/* Button */
 .rec-button {
   margin: 30px auto 0;
   display: block;
@@ -865,21 +859,34 @@
   background: #000;
   color: #fff;
 }
-/* Existing styles remain the same */
 
-/* Mobile responsiveness */
+/* ========================= */
+/* RESPONSIVE BREAKPOINTS */
+/* ========================= */
+
+/* Large screens */
+@media (max-width: 1200px) {
+  .rec-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Tablets */
+@media (max-width: 992px) {
+  .rec-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
   .rec-grid {
-    gap: 15px; /* Slightly smaller gap on mobile */
-  }
-
-  .rec-card {
-    flex: 1 1 calc(50% - 15px); /* 2 cards per row with gap considered */
-    max-width: calc(54% - 15px);
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
   }
 
   .rec-img-box {
-    height: 220px; /* Slightly smaller image for mobile */
+    height: 220px;
   }
 
   .rec-title {
@@ -895,11 +902,16 @@
     font-size: 12px;
   }
 
-  .rec-likes {
-    font-size: 12px;
-    padding: 3px 6px;
+  
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .rec-grid {
+     grid-template-columns: repeat(2, 1fr);
   }
 }
+
 
 /* Background Overlay */
 /* Transparent Overlay (only dim around image) */
