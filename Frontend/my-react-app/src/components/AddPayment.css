@@ -106,7 +106,7 @@
   gap: 8px;
 }
 
-button {
+.payment-button {
   padding: 8px;
   border: none;
   border-radius: 5px;

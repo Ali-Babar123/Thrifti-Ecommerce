@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
-
 import "./Profile.css";
 import ProfileImage from "../assets/settingsimage.svg";
 import JacketImage from "../assets/Modern.svg";
@@ -17,6 +16,7 @@ import {
 } from "lucide-react";
 import API from "../api/api";
 import Loader from "./loader";
+import { FollowContext } from "../FollowContext/FollowProvider";
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("listing"); // 👈 Controls which section to show
@@ -26,8 +26,11 @@ const ProfilePage = () => {
   const [selected, setSelected] = useState({});
    const [profile, setProfile] = useState(null);
 
+
  const {userId} = useParams();
 //  console.log(userId)
+
+
 
   useEffect(()=>{
     if (!userId) return;
@@ -125,7 +128,7 @@ const timeAgo = (date) => {
               <Clock size={15} />  Last seen: {timeAgo(profile.lastSeen) || "N/A"}
             </p>
             <p className="profile-followers">
-              <Users size={15} /> 5 followers, 25 following
+              <Users size={15} /> {profile.followers || 0} followers, {profile.following || 0 } following
             </p>
           </div>
         </div>

@@ -6,14 +6,17 @@ import { BrowserRouter } from "react-router-dom";
 import App from './App.jsx'
 import { ProductProvider } from "./ProductContext/ProductContext";
 import { AuthProvider } from './Contexts/AuthProvider.jsx';
+import { FollowProvider } from './FollowContext/FollowProvider.jsx';
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
+        <FollowProvider>
         <ProductProvider>
           <App />
         </ProductProvider>
+        </FollowProvider>
       </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,

@@ -8,7 +8,7 @@ const {
     isFollowing
 } = require('../Controller/FollowController');
 
-const { verifyToken } = require('../middleware/authMiddleware');
+const { verifyToken } = require('../middleware/authmiddleware');
 
 router.post('/follow', verifyToken, followNow);
 router.delete('/unfollow/:unFollowerId', verifyToken, unFollow);

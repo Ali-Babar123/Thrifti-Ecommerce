@@ -7,7 +7,7 @@ const {
     deleteReview
 } = require('../Controller/ReviewController');
 
-const { verifyToken } = require('../middleware/authMiddleware');
+const { verifyToken } = require('../middleware/authmiddleware');
 
 router.post('/', verifyToken, createReview);
 router.get('/product/:productId', getReviewsByProduct);

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { createProduct, getProducts, updateProduct, deleteProduct, getProductByCategories, filterProducts, getUserProducts, getSingleProduct, getRecommendedProducts } = require("../Controller/Product");
-const { verifyToken } = require('../middleware/authMiddleware');
+const { verifyToken } = require('../middleware/authmiddleware');
 
 
 // Create product with multiple images

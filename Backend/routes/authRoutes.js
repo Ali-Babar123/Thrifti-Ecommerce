@@ -9,7 +9,6 @@ router.post("/login", loginUser);
 router.get('/getAllUsers', getAllUsers);
 router.delete('/deleteUser/:id', deleteUser );
 router.get('/location', getLocation);
-
 router.get('/member', getProfile);
 
 

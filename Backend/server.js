@@ -5,7 +5,8 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const googleLoginRoute = require('./routes/googleLogin');
 const productRoutes = require('./routes/productRoute');
-const likeProductRoute = require('./routes/likesRoute')
+const likeProductRoute = require('./routes/likesRoute');
+const followRoutes = require('./routes/followRoute');
 dotenv.config();
 
 // Initialize express
@@ -39,7 +40,7 @@ connectDB();
 app.use("/api/auth", authRoutes);
 app.use('/api/auth', googleLoginRoute);
 app.use("/api/products", productRoutes);
-
+app.use('/api/follow', followRoutes);
 app.use("/api/likes", likeProductRoute);
 
 // Server

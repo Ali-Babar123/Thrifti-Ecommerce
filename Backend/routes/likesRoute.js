@@ -8,7 +8,7 @@ const {
     getLikeStatus
 } = require('../Controller/LikesController');
 
-const { verifyToken } = require('../middleware/authMiddleware');
+const { verifyToken } = require('../middleware/authmiddleware');
 
 router.post('/:productId/like', verifyToken, likeProduct);
 router.delete('/:productId/unlike', verifyToken, unlikeProduct);

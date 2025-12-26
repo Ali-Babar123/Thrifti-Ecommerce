@@ -95,7 +95,7 @@ const AddPayment = () => {
               <input type="text" placeholder="MM/YYYY" />
               <input type="text" placeholder="CVV" />
             </div>
-            <button>Use this Card</button>
+            <button  className="payment-button">Use this Card</button>
             <button
               type="button"
               className="cancel"
@@ -127,7 +127,7 @@ const AddPayment = () => {
             </div>
             <label>Billing Address</label>
             <input type="text" placeholder="Add Address" />
-            <button>Save</button>
+            <button  className="payment-button">Save</button>
             <button
               type="button"
               className="cancel"
@@ -157,7 +157,7 @@ const AddPayment = () => {
             <input type="text" placeholder="Address line 1" />
             <input type="text" placeholder="Address line 2" />
             <input type="text" placeholder="Post Code" />
-            <button>Save Address</button>
+            <button  className="payment-button">Save Address</button>
             <button
               type="button"
               className="cancel"

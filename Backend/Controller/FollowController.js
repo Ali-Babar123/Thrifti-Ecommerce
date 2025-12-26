@@ -35,6 +35,7 @@ exports.followNow = async (req, res) => {
         });
 
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             message: error.message
@@ -66,6 +67,7 @@ exports.unFollow = async (req, res) => {
         });
 
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             message: error.message
@@ -85,6 +87,7 @@ exports.getFollowers = async (req, res) => {
             followers
         });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ success: false, message: error.message });
     }
 };

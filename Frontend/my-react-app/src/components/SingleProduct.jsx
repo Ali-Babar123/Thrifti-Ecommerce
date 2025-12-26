@@ -10,6 +10,7 @@ import Loading from './loader'
 import API from '../api/api'
 import { AuthContext } from "../Contexts/AuthProvider";
 import LoginModal from "./LoginModal";
+import { FollowContext } from "../FollowContext/FollowProvider";
 
 function ProductPage() {
   const { id } = useParams();
@@ -20,9 +21,36 @@ function ProductPage() {
   const [recommended, setRecommended] = useState([]);
 
   const { isLoggedIn } = useContext(AuthContext);
+  const {followUser, unfollowUser, followingMap, checkFollowing, loadFollowCounts } = useContext(FollowContext);
 
   const [pendingLikeId, setPendingLikeId] = useState(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  const sellerId = singleProduct?.user?._id;
+  
+  const delay = (fn, ms) =>
+    new Promise(resolve =>
+      setTimeout(() => resolve(fn()), ms)
+  );
+
+  /** useEffect(()=>{
+
+    const init = async() =>{
+      if(loading || singleProduct === null){
+        alert(seller)
+        return false;
+      }
+      const isFollowing = await checkFollowing(sellerId);
+      console.log(sellerId)
+       setTimeout(() =>{
+        followingMap[sellerId] = isFollowing;
+       } , 0);
+
+      //  loadFollowCounts(sellerId);
+    }
+  init();
+  }, [sellerId,singleProduct]);
+  **/
   useEffect(() => {
     fetchSingleProduct();
   }, [id]);
@@ -328,7 +356,31 @@ function ProductPage() {
                   <p className="seller-rating">⭐⭐⭐⭐⭐</p>
                 </div>
               </div>
-              <div className="seller-body"> <hr className="seller-divider" /> <p className="speedy">🚚 Speedy Shipping</p> <p>Sends items promptly — usually within 24 hours.</p> <hr className="seller-divider" /> <p>📍{singleProduct.user?.location?.city}, {singleProduct.user?.location?.country}</p> <p>🕒 {timeAgo(singleProduct.user?.lastSeen)} </p> <hr className="seller-divider" /> <p className="follow-btn">Follow</p> </div>
+              <div className="seller-body">
+                 <hr className="seller-divider" /> 
+                 <p className="speedy">🚚 Speedy Shipping</p>
+                  <p>Sends items promptly — usually within 24 hours.</p> 
+                  <hr className="seller-divider" /> <p>📍{singleProduct.user?.location?.city}, {singleProduct.user?.location?.country}</p> 
+                  <p>🕒 {timeAgo(singleProduct.user?.lastSeen)} </p> <hr className="seller-divider" /> 
+            <div className="single-follow-btn">
+             <button
+  className={`new-btn ${followingMap[sellerId] ? "UnFollow" : ""}`}
+  onClick={() => {
+    if (!isLoggedIn) {
+      setAuthModalOpen(true);
+      return;
+    }
+
+    followingMap[sellerId]
+      ? unfollowUser(sellerId)
+      : followUser(sellerId);
+  }}
+>
+  {followingMap[sellerId] ? "unFollow" : "Follow"}
+</button>
+</div>
+
+              </div>
 
             </div>
           ) : (
