@@ -70,7 +70,7 @@ async function HandleGetUserChats(req,res){
         {
             $match : {
                 $expr : {
-                    $in : ["$members",new mongoose.Types.ObjectId(req.user._id)]
+                    $in : [new mongoose.Types.ObjectId(req.user._id),"$members"]
                 }
             }
         },
@@ -101,7 +101,15 @@ async function HandleGetUserChats(req,res){
         {
             $addFields : {
                 member : {
-                    $first : "$members"
+                    $first : {
+                        $filter : {
+                            input:"$members",
+                            as:"m",
+                            cond : {
+                                $ne : ["$$m._id", new mongoose.Types.ObjectId(req?.user?._id)]
+                            }
+                        }
+                    }
                 },
                 lastMessage : {
                     $first : "$lastMessage"
@@ -114,7 +122,8 @@ async function HandleGetUserChats(req,res){
                 "member._id":1,
                 "member.email":1,
                 "member.fullname":1,
-                "member._profileImage":1,
+                "member.username":1,
+                "member.profileImage":1,
                 "member.lastSeen":1,
                 "member.createdAt":1,
                 lastMessage:1,

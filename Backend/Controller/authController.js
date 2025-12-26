@@ -4,9 +4,6 @@ const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const mongoose = require('mongoose');
 
-const generateToken = (_id) =>
-  jwt.sign({ _id }, process.env.JWT_SECRET);
-
 
 // ================= REGISTER =================
 exports.registerUser = async (req, res) => {
@@ -30,15 +27,37 @@ exports.registerUser = async (req, res) => {
       }
     });
 
-    res.status(201).json({
+    /** Access token Generating */
+    const accessToken = await user.GenerateAccessToken();
+    const cookieOptions = {
+      httpOnly:true,
+      secure:true,
+      sameSite:"None"
+    };
+    if(!accessToken){
+      throw new Error("Error: Server Error..");
+    }
+
+    res.status(201)
+    .cookie("accessToken",accessToken,cookieOptions)
+    .json({
       _id: user._id,
       username: user.username,
       email: user.email,
-      token: generateToken(user._id),
     });
 
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+exports.HandleGetCurrentUser = async (req,res) => {
+  try{
+    console.log(req.headers)
+    const user = req.user;
+    return res.status(200).json({user:user,statusCode:200});
+  } catch(e){
+    throw new Error(e?.message,e);
   }
 };
 
@@ -59,15 +78,28 @@ exports.loginUser = async (req, res) => {
     user.lastSeen = new Date();
 
     // 🔹 update location
-   
+  
+    /** Access token generate */
+    const accessToken = await user.GenerateAccessToken();
+    const cookieOptions = {
+      httpOnly:true,
+      secure:true,
+      sameSite:"None"
+    };
+
+    if(!accessToken){
+      throw new Error("Error: Server Error..");
+    }
+
 
     await user.save();
 
-    res.json({
+    res.status(200)
+    .cookie("accessToken",accessToken,cookieOptions)
+    .json({
       _id: user._id,
       username: user.username,
       email: user.email,
-      token: generateToken(user._id),
     });
 
   } catch (err) {

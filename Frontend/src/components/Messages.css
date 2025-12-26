@@ -327,15 +327,19 @@
   }
 
   .chat-main {
+    position: relative;
     width: 100%;
   }
 
   .chat-header {
+    position: sticky;
+    top: 0;
     padding: 30px 20px;
   }
 
   .chat-body {
     padding: 20px;
+    overflow: scroll;
   }
 
   .chat-item img {

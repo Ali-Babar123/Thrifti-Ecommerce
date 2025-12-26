@@ -57,8 +57,6 @@ const categories = [
   },
 ];
 
-
-
 const Home = () => {
   const { products, visibleCount, loadMoreProducts, loadingMore } = useContext(ProductContext); // ✅ use products from context
     const navigate = useNavigate(); // ✅ for navigation

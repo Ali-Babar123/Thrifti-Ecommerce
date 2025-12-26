@@ -4,14 +4,32 @@ const chatModel = require("../Models/Chat.js");
 
 async function HandleSendMessage(req,res){
     try {
-        const {content} = req.body;
-        const messagePayload = {
-            content:content,
+        // return console.log("requested")
+        const {content,chatId} = req.body;
+        let createdMessage = await messageModel.create({
+        content,
+        sender: req.user._id,
+        chatId
+        });
+
+        createdMessage = createdMessage.toObject();
+
+        createdMessage.sender = {
+        _id: req.user._id,
+        fullname: req.user.fullname,
+        email: req.user.email,
+        profileImage: req.user.profileImage
         };
-        const createdMessage = await messageModel.create(messagePayload);
+        const socketService = global.server;
+        
+        socketService.to(chatId.toString()).emit("event:new-message",createdMessage);
+        
+        /** Update chat last message */
+        const updateChat = await chatModel.findByIdAndUpdate(new mongoose.Types.ObjectId(createdMessage.chatId),{lastMessage:new mongoose.Types.ObjectId(createdMessage?._id)});
         return res.status(200).json({message:createdMessage});
     } catch (e) {
-        return res.status(error?.status || 500).json({
+        console.log(e);
+        return res.status(e?.status || 500).json({
             error:e,
             message:e?.message
         })
@@ -80,6 +98,7 @@ async function HandleUpdateMessageSeenStatus(req,res){
 async function HandleGetChatMessages(req,res){
     try {
         const {chatId} = req.query;
+        
         if(!chatId){
             return res.status(400).json({
                 message:"Error: chatId field is missing.",
@@ -93,17 +112,26 @@ async function HandleGetChatMessages(req,res){
                 statusCode:404
             });
         }
-        const [member] = chat.members.filter( (m) => m.toString() !== req.user._id.toString());
+        const [receiver] = chat.members.filter( (m) => m.toString() !== req.user._id.toString());
+        
         const chatMessages = await messageModel.aggregate([
             {
-                $match : {
-                    $expr : {
-                        $or : [
+                 
+                $match: {
+                    $expr: {
+                        $or: [
+                            // Normal messages (sender ↔ receiver)
                             {
-                                $eq : ["$sender",new mongoose.Types.ObjectId(req.user._id)]
+                                $and: [
+                                    { $eq: ["$sender", new mongoose.Types.ObjectId(req.user?._id)] },
+                                    { $eq: ["$chatId", new mongoose.Types.ObjectId(chat?._id)] }
+                                ]
                             },
                             {
-                                $eq : ["$sender",new mongoose.Types.ObjectId(member)]
+                                $and: [
+                                    { $eq: ["$sender", new mongoose.Types.ObjectId(receiver)] },
+                                    { $eq: ["$chatId", new mongoose.Types.ObjectId(chat?._id)] }
+                                ]
                             }
                         ]
                     }
@@ -119,7 +147,7 @@ async function HandleGetChatMessages(req,res){
             },
             {
                 $sort : {
-                    createdAt:-1
+                    createdAt:1
                 }
             },
             {
@@ -129,10 +157,10 @@ async function HandleGetChatMessages(req,res){
                 $project : {
                     _id:1,
                     chatId:1,
-                    "member._id":1,
-                    "member.fullname":1,
-                    "member.email":1,
-                    "member.profileImage":1,
+                    "sender._id":1,
+                    "sender.fullname":1,
+                    "sender.email":1,
+                    "sender.profileImage":1,
                     content:1,
                     seen:1,
                     status:1,
@@ -146,8 +174,9 @@ async function HandleGetChatMessages(req,res){
             message:"Success: chat messages successfully fetched.",
             statusCode:200
         })
-    } catch (error) {
-        return res.status(error?.status || 500).json({
+    } catch (e) {
+        console.log(e)
+        return res.status(e?.status || 500).json({
             error:e,
             message:e?.message
         })          
