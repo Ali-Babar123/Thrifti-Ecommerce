@@ -12,7 +12,7 @@ const useCreateChat = () => {
 
     const CreateChat = async (payload) => {
         try {
-            const createChat = await API.post("/chats/create-chat",payload);
+            const createChat = await API.post("/api/chats/create-chat",payload);
             if(createChat?.data?.statusCode === 200){
                 SetData( (prevValues) => ({...prevValues,CreatedChat:createChat?.data?.data,CreateChatLoading:false}));
             }else {

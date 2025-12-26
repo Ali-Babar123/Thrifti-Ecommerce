@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
 import { ProductContext } from "../ProductContext/ProductContext";
 import NewWomen from "../assets/newwomen.svg";
+import useCreateChat from "../hooks/useCreateChat";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Loading from './loader'
 import API from '../api/api'
@@ -16,12 +17,13 @@ function ProductPage() {
   const [sellerProducts, setSellerProducts] = useState([]);
   const visibleProducts = products.slice(0, visibleCount);
 
+  /** Hooks */
+  const {CreateChat,Data} = useCreateChat();
+
   useEffect(() => {
     fetchSingleProduct();
   }, [id]);
 
-
- 
   const fetchSingleProduct = async () => {
   try {
     const res = await API.get(`/api/products/single/${id}`);
@@ -92,9 +94,6 @@ function ProductPage() {
     }
   }, [product]);
 
-  
-
-
 
   // You can put this inside your ProductPage.js or in a separate utils file
   const timeAgo = (dateString) => {
@@ -120,10 +119,22 @@ function ProductPage() {
     return "Just now";
   };
 
- useEffect(() => {
-  console.log("Single product data:", singleProduct);
-  console.log("Seller data:", singleProduct?.user);
-}, [singleProduct]);
+  useEffect(() => {
+    console.log("Single product data:", singleProduct);
+    console.log("Seller data:", singleProduct?.user);
+  }, [singleProduct]);
+
+  const HandleCreateChat = async () => {
+    const createChatPayload = {
+      userId:singleProduct?.user?._id
+    };
+    const createdChat = await CreateChat(createChatPayload);
+    console.log(createdChat);
+  };
+
+  useEffect( () => {
+    console.log(Data.CreatedChat);
+  },[Data.CreatedChat])
 
   return (
     <>
@@ -209,7 +220,7 @@ function ProductPage() {
                 Buy Now
               </button>
               <button className="offer-btn">Make an offer</button>
-              <button className="seller-btn-new">Ask Seller</button>
+              <button className="seller-btn-new" onClick={HandleCreateChat}>Ask Seller</button>
             </div>
           </div>
         </div>
