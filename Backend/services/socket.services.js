@@ -1,6 +1,9 @@
 const {Server} = require("socket.io");
 const {socketAuthMiddleware} = require("../middleware/authmiddleware");
 const User = require("../Models/User");
+const dotEnv = require("dotenv");
+
+dotEnv.config();
 
 // Global map to track online users: userId -> socketId
 const onlineUsers = new Map();
@@ -9,7 +12,7 @@ class SocketService {
     constructor(){
         this._io = new Server({
             cors : {
-                origin : process.env.CLIENT_URL || "http://localhost:5173",
+                origin : process.env.CLIENT_URL || ['https://thrifti.temp2027.com','http://localhost:5173'],
                 credentials: true,
                 methods: ["GET", "POST"]
             }
