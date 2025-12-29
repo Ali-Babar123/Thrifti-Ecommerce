@@ -1,4 +1,3 @@
-const Likes = require("../Models/Likes");
 const Product = require("../Models/product");
 const { uploadImages } = require("../middleware/uploadToCloudinary");
 
@@ -249,6 +248,7 @@ exports.getRecommendedProducts = async (req, res) => {
     });
   }
 };
+
 
 // Update a product by ID
 exports.updateProduct = async (req, res) => {

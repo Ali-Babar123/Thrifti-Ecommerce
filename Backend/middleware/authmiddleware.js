@@ -1,86 +1,129 @@
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const User = require("../Models/User");
-const { Socket } = require("socket.io");
+const {Server} = require("socket.io");
 
+// Required authentication middleware - returns 401 if no valid token
 const verifyToken = async (req, res, next) => {
-<<<<<<< HEAD
-  /** const authHeader = req.headers.authorization;
-=======
-  const authHeader = req.headers.authorization;
-  // console.log(authHeader);
->>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a
-
-    console.log(authHeader)
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "No token provided" });
-    }
-
-    try {
-      const token = authHeader.split(" ")[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      const user = await User.findById(decoded._id);
-      if (!user) {
-        return res.status(401).json({ message: "User not found" });
-      }
-
-      // ✅ update last seen
-      user.lastSeen = new Date();
-      await user.save();
-
-      req.user = user;
-      next();
-    } catch (err) {
-      return res.status(401).json({ message: "Invalid token" });
-    }
-  **/
   try {
-    
-      const accessToken = req.cookies?.accessToken || req.headers?.authorization?.split("Bearer ")[0];
-      if(!accessToken){
-        throw new Error("Error: Unauthrized request.");
-      }
-      const decodJwtToken = await jwt.verify(accessToken,process.env.JWT_SECRET);
-      if(!decodJwtToken){
-        throw new Error("Error: Invalid accessToken.");
-      }
-      const user = await User.findById(new mongoose.Types.ObjectId(decodJwtToken?._id)).select("-password");
-      if(!user){
-        throw new Error("Error: User not found.");
-      }
-      req.user = user;
-      next();
-  } catch (e) {
-    throw new Error(e)
+    let token;
+    if (req.cookies?.accessToken) {
+      token = req.cookies.accessToken;
+    } else if (req.headers.authorization?.startsWith("Bearer ")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized: Token missing" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded._id).select("-password");
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 
-async function socketAuthMiddleware(socket,next) {
+// Optional authentication middleware - sets req.user if token is valid, but doesn't return 401 if missing
+const optionalVerifyToken = async (req, res, next) => {
+  try {
+    let token;
+    if (req.cookies?.accessToken) {
+      token = req.cookies.accessToken;
+    } else if (req.headers.authorization?.startsWith("Bearer ")) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    // If no token, continue without setting req.user
+    if (!token) {
+      req.user = null;
+      return next();
+    }
+
     try {
-        const token = socket.handshake.headers.cookie?.split("; ")
-      .find((row) => row.startsWith("accessToken="))
-      ?.split("=")[1];
-        if(!token){
-          return next(new Error("Unauthorized: Token missing"));
-        }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findById(decoded._id).select("-password");
+      
+      if (user) {
+        req.user = user;
+      } else {
+        req.user = null;
+      }
+    } catch (error) {
+      // Invalid token, but allow request to continue
+      req.user = null;
+    }
     
-        const verifyJwt = jwt.verify(token,process.env.JWT_SECRET);
+    next();
+  } catch (error) {
+    // Any other error, allow request to continue without auth
+    req.user = null;
+    next();
+  }
+};
 
-        if(!verifyJwt) {
-            throw new Error("Jwt Is Not Verifed")
+
+
+async function socketAuthMiddleware(socket, next) {
+    try {
+        // Extract token from cookies
+        const cookies = socket.handshake.headers.cookie;
+        
+        // If no cookies, allow connection as guest (unauthenticated)
+        if (!cookies) {
+            socket.user = null;
+            socket.isAuthenticated = false;
+            return next();
         }
-        const checkTheUserInDb = await User.findById(verifyJwt._id).select("-password");
-        if(!checkTheUserInDb){
-            throw new Error("User Not Found Error From verifyJsonWebToekns")
+
+        const token = cookies
+            .split("; ")
+            .find((row) => row.startsWith("accessToken="))
+            ?.split("=")[1];
+
+        // If no token, allow connection as guest (unauthenticated)
+        if (!token) {
+            socket.user = null;
+            socket.isAuthenticated = false;
+            return next();
         }
 
-        socket.user = checkTheUserInDb;
+        try {
+            // Verify JWT token
+            const verifyJwt = jwt.verify(token, process.env.JWT_SECRET);
+            
+            // Find user in database
+            const checkTheUserInDb = await User.findById(verifyJwt._id).select("-password");
+            
+            if (checkTheUserInDb) {
+                // Attach user to socket
+                socket.user = checkTheUserInDb;
+                socket.isAuthenticated = true;
+            } else {
+                // User not found, allow as guest
+                socket.user = null;
+                socket.isAuthenticated = false;
+            }
+        } catch (error) {
+            // Invalid token, but allow connection as guest
+            socket.user = null;
+            socket.isAuthenticated = false;
+        }
 
+        // Always allow connection, but mark authentication status
         next();
     } catch (error) {
-        throw new Error(error);
+        // Any error, allow connection as guest
+        socket.user = null;
+        socket.isAuthenticated = false;
+        next();
     }
 }
-module.exports = { verifyToken,socketAuthMiddleware };
+module.exports = { verifyToken, optionalVerifyToken, socketAuthMiddleware };

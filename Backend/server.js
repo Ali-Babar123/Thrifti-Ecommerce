@@ -66,12 +66,8 @@ const messageRoutes = require("./routes/message.routes.js");
 const authRoutes = require("./routes/authRoutes");
 const googleLoginRoute = require('./routes/googleLogin');
 const productRoutes = require('./routes/productRoute');
-<<<<<<< HEAD
-=======
-const likeProductRoute = require('./routes/likesRoute');
 const followRoutes = require('./routes/followRoute');
-dotenv.config();
->>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a
+const likeRoutes = require('./routes/likesRoute.js');
 
 /** Mongoose requiring */
 const MongooseConnection = require("./config/db.js");
@@ -89,8 +85,8 @@ MongooseConnection().then( async () => {
     origin: ["http://localhost:5173", "http://127.0.0.1:5173", "https://accounts.google.com", "https://thrifti.temp2027.com"],
     credentials: true
   }));
-  app.use(express.json());
-  app.use(express.urlencoded({extended:true}));
+  app.use(express.json({limit: "50mb"}));
+  app.use(express.urlencoded({extended:true, limit: "50mb"}));
   app.use(cookieParser());
   app.use("/uploads", express.static("uploads"));
 
@@ -100,6 +96,8 @@ MongooseConnection().then( async () => {
   app.use("/api/products", productRoutes);
   app.use("/api/chats", chatRoutes);
   app.use("/api/messages", messageRoutes);
+  app.use("/api/follow",followRoutes);
+  app.use("/api/likes",likeRoutes);
 
   app.get("/",(req,res) => {
     return res.send("welcome")
@@ -108,26 +106,8 @@ MongooseConnection().then( async () => {
   /** Server creating */
   socketService._io.attach(httpServer);
 
-<<<<<<< HEAD
   /** Socket initialization */
   socketService.initListeners();
   
   httpServer.listen( Port,() => console.log(`\n Server at running this Port http://localhost:${Port}`));
 })
-=======
-// Connect to database
-connectDB(); 
-
-
-
-// Routes
-app.use("/api/auth", authRoutes);
-app.use('/api/auth', googleLoginRoute);
-app.use("/api/products", productRoutes);
-app.use('/api/follow', followRoutes);
-app.use("/api/likes", likeProductRoute);
-
-// Server
-const PORT = process.env.PORT || 9000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
->>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a

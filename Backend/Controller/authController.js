@@ -9,7 +9,6 @@ const mongoose = require('mongoose');
 exports.registerUser = async (req, res) => {
   try {
     const { username, email, password, country,city } = req.body;
-    console.log(req.body);
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
@@ -29,17 +28,23 @@ exports.registerUser = async (req, res) => {
 
     /** Access token Generating */
     const accessToken = await user.GenerateAccessToken();
-    const cookieOptions = {
-      httpOnly:true,
-      secure:true,
-      sameSite:"None"
-    };
+    
     if(!accessToken){
       throw new Error("Error: Server Error..");
     }
 
+    // Production-ready cookie configuration
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction, // true in production (HTTPS), false in development
+      sameSite: isProduction ? 'None' : 'Lax', // None for cross-site in production, Lax for same-site
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    };
+
     res.status(201)
-    .cookie("accessToken",accessToken,cookieOptions)
+    .cookie("accessToken", accessToken, cookieOptions)
     .json({
       _id: user._id,
       username: user.username,
@@ -51,16 +56,49 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-exports.HandleGetCurrentUser = async (req,res) => {
-  try{
-<<<<<<< HEAD
-    console.log(req.headers)
-=======
->>>>>>> ec46aa9cf537dfdedb8247cd48e428eb11b93e8a
-    const user = req.user;
-    return res.status(200).json({user:user,statusCode:200});
-  } catch(e){
-    throw new Error(e?.message,e);
+exports.HandleGetCurrentUser = async (req, res) => {
+  try {
+    // If user is not authenticated, return success with null user (not 401)
+    if (!req.user) {
+      return res.status(200).json({
+        user: null,
+        isAuthenticated: false,
+        statusCode: 200
+      });
+    }
+
+    // User is authenticated
+    return res.status(200).json({
+      user: req.user,
+      isAuthenticated: true,
+      statusCode: 200
+    });
+  } catch (e) {
+    return res.status(500).json({
+      message: "Internal server error",
+      statusCode: 500
+    });
+  }
+};
+
+// ================= LOGOUT =================
+exports.logoutUser = async (req, res) => {
+  try {
+    // Clear the access token cookie
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'None' : 'Lax',
+      path: '/',
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully"
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
   }
 };
 
@@ -84,21 +122,25 @@ exports.loginUser = async (req, res) => {
   
     /** Access token generate */
     const accessToken = await user.GenerateAccessToken();
-    const cookieOptions = {
-      httpOnly:true,
-      secure:true,
-      sameSite:"None"
-    };
-
+    
     if(!accessToken){
       throw new Error("Error: Server Error..");
     }
 
+    // Production-ready cookie configuration
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction, // true in production (HTTPS), false in development
+      sameSite: isProduction ? 'None' : 'Lax', // None for cross-site in production, Lax for same-site
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    };
 
     await user.save();
 
     res.status(200)
-    .cookie("accessToken",accessToken,cookieOptions)
+    .cookie("accessToken", accessToken, cookieOptions)
     .json({
       _id: user._id,
       username: user.username,
@@ -126,7 +168,7 @@ exports.getProfile = async (req, res) => {
       { $addFields : { followers:{$size : "$followers"},following:{$size : "$following"}  } },
       { $project: { products: 1, _id: 1, username: 1, profileImage: 1, lastSeen: 1, location: 1, isVerified: 1, followers: 1, following: 1 } }
     ]);
-    console.log(profile)
+
     return res.status(200).json({
       success: true,
       count: profile[0]?.products.length || 0,

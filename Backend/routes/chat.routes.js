@@ -10,7 +10,7 @@ const chatRouter = express.Router();
 
 /** secure routes */
 chatRouter.route("/create-chat").post(authMiddleware.verifyToken,chatControllers.HandleCreateChat);
-chatRouter.route("/delete-chat").delete(authMiddleware.verifyToken,chatControllers.HandleDeleteChat);
+chatRouter.route("/delete-chat/:chatId").delete(authMiddleware.verifyToken,chatControllers.HandleDeleteChat);
 chatRouter.route("/chats-history").get(authMiddleware.verifyToken,chatControllers.HandleGetUserChats);
 
 
