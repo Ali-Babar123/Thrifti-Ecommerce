@@ -79,7 +79,7 @@ const Home = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [pendingLikeId, setPendingLikeId] = useState(null);
 
-  const visibleProducts = products?.slice(0, visibleCount);
+  const visibleProducts = products.slice(0, visibleCount);
 
  
  const handleToggleLike = (productId) => {
@@ -178,7 +178,7 @@ const handleLoginSuccess = () => {
    {/* Top Picks */}
   <section className="top-picks">
   <div className="top-picks-grid">
-    {visibleProducts?.map((item) => (
+    {visibleProducts.map((item) => (
       <div
         className="top-pick-card"
         key={item._id}

@@ -102,10 +102,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
 
       const res = await API.post("/api/auth/signup", formData);
 
-      // Token is now stored in HTTP-only cookie, no need for localStorage
-      // Update user context with response data
-      setUser(res.data);
-      setIsLoggedIn(true);
+      localStorage.setItem("token", res.data.token);
 
       if (onLoginSuccess) onLoginSuccess();
       onClose();
@@ -135,13 +132,10 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
         password: formData.password,
       });
 
-      // Token is now stored in HTTP-only cookie, no need for localStorage
-      setUser(res.data);
-      setIsLoggedIn(true);
-      
+      localStorage.setItem("token", res.data.token);
       if (onLoginSuccess) {
-        onLoginSuccess(res.data);
-      }
+  onLoginSuccess(res.data.user);
+}
 
       onClose();
     } catch (err) {
@@ -211,9 +205,10 @@ const handleGoogleLogin = async () => {
     });
     console.log("Backend response:", backendRes.data);
 
-    // Token is now stored in HTTP-only cookie, no need for localStorage
-    setUser(backendRes.data.user);
-    setIsLoggedIn(true);
+    localStorage.setItem("token", backendRes.data.token);
+
+   setUser(backendRes.data.user);
+   setIsLoggedIn(true);
 
 if (onLoginSuccess) onLoginSuccess();
 

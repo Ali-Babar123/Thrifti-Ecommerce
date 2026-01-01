@@ -12,7 +12,6 @@ import Globe from "../assets/globe.png";
 import Like from "../assets/Like.png";
 import SearchIcon from "../assets/search-loupe.png";
 import Profile from "../assets/Ellipse 458.png";
-import userEmptyState from '/user-empty-state.svg'
 import { AuthContext } from "../Contexts/AuthProvider";
 
 const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
@@ -190,7 +189,6 @@ const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
                 </Link>
                 <div className="user-profile-wrapper">
                   <img
-                    onError={ (e) => e.target.src = userEmptyState}
                     src={user?.profileImage || Profile}
                     alt="Profile"
                     className="user-avatar"
@@ -403,7 +401,7 @@ const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
                 {/* Profile dropdown for mobile */}
                 <div className="user-profile-wrapper">
                   <img
-                    src={user?.profileImage || userEmptyState}
+                    src={user?.profileImage || Profile}
                     alt="Profile"
                     className="user-avatar"
                     onClick={() => setShowDropdown(!showDropdown)}

@@ -31,7 +31,7 @@ const googleLogin = async (req, res) => {
         try {
           const imgResponse = await axios.get(picture, { responseType: "arraybuffer" });
           fs.writeFileSync(savePath, imgResponse.data);
-          localImagePath = `${process.env.BASE_URL || "https://thirifti.vercel.app"}/uploads/users/${fileName}`;
+          localImagePath = `${process.env.BASE_URL || "http://localhost:9000"}/uploads/users/${fileName}`;
         } catch (err) {
           console.log("⚠️ Failed to save Google image locally:", err.message);
         }
@@ -70,7 +70,7 @@ const googleLogin = async (req, res) => {
         try {
           const imgResponse = await axios.get(picture, { responseType: "arraybuffer" });
           fs.writeFileSync(savePath, imgResponse.data);
-          user.profileImage = `${process.env.BASE_URL || "https://thirifti.vercel.app"}/uploads/users/${fileName}`;
+          user.profileImage = `${process.env.BASE_URL || "http://localhost:9000"}/uploads/users/${fileName}`;
           updated = true;
         } catch (err) {
           console.log("⚠️ Failed to save Google image locally:", err.message);
@@ -83,30 +83,11 @@ const googleLogin = async (req, res) => {
     }
 
     // Generate JWT
-    const accessToken = await user.GenerateAccessToken();
-    if(!accessToken){
-      throw new Error("Error: Server error.");
-    }
-
-    // Update last seen
-    user.lastSeen = new Date();
-    await user.save();
-
-    // Production-ready cookie configuration
-    const isProduction = process.env.NODE_ENV === 'production';
-    const cookieOptions = {
-      httpOnly: true,
-      secure: isProduction, // true in production (HTTPS), false in development
-      sameSite: isProduction ? 'None' : 'Lax', // None for cross-site in production, Lax for same-site
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      path: '/',
-    };
-    
-    return res.status(200)
-    .cookie("accessToken", accessToken, cookieOptions)
-    .json({
+    const myToken = jwt.sign({ _id: user._id, email: user.email }, process.env.JWT_SECRET);
+    return res.json({
       success: true,
       message: "Google login successful",
+      token: myToken,
       user,
     });
   } catch (error) {

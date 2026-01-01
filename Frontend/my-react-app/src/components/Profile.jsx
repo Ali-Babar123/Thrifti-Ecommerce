@@ -5,7 +5,6 @@ import "./Profile.css";
 import ProfileImage from "../assets/settingsimage.svg";
 import JacketImage from "../assets/Modern.svg";
 import { useParams,Link } from "react-router-dom";
-import userEmptyState from '/user-empty-state.svg'
 import {
   MapPin,
   Clock,
@@ -37,8 +36,7 @@ const ProfilePage = () => {
     if (!userId) return;
 
     const fetchProfile = async() =>{
-      const res = await API.get(`/api/auth/member?userId=${userId}`,{withCredentials: true});
-      console.log(res.data);
+      const res = await API.get(`/api/auth/member?userId=${userId}` );
       try { if (res.data.success){
         setProfile(res.data.profile);
       }
@@ -114,8 +112,7 @@ const timeAgo = (date) => {
       {/* Header Section */}
       <div className="profile-header">
         <div className="profile-info">
-          <img  src={profile.profileImage || userEmptyState} onError={ (e) => e.target.src = userEmptyState} 
-          loading="lazy" alt="Profile" className="profile-avatar" />
+          <img  src={profile.profileImage || ProfileImage} alt="Profile" className="profile-avatar" />
           <div className="profile-details">
             <h2 className="profile-name">{profile.username}</h2>
             <p className="profile-reviews">

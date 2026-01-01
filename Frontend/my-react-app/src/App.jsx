@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { useState, useEffect,useContext } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './components/home';
 import Footer from './components/Footer';
@@ -30,75 +30,43 @@ import InviteFriends from './components/InviteFriends';
 import { Toaster } from 'sonner';
 import Category from './components/Category';
 import Loader from './components/loader';
-import { AuthContext } from './Contexts/AuthProvider';
+
+/** Contexts */
+import {AuthContext} from "./Contexts/AuthProvider";
 
 // ProtectedRoute component
-const ProtectedRoute = ({ isLoggedIn, isCheckingAuth, element }) => {
-  // Show loading while login status is being checked
-  if (isCheckingAuth || isLoggedIn === null || isLoggedIn === undefined) {
+const ProtectedRoute = ({ isLoggedIn, element }) => {
+  if (isLoggedIn === null) {
+    // Show loading while login status is being checked
     return <div><Loader/></div>;
   }
   return isLoggedIn ? element : <Navigate to="/" replace={true} />;
 };
 
 const App = () => {
-  const { isLoggedIn, user, setUser, setIsLoggedIn, isCheckingAuth } = useContext(AuthContext);
-  const [localUser, setLocalUser] = useState(null);
 
-  useEffect(() => {
-    // Sync with localStorage for backward compatibility
-    const storedUser = localStorage.getItem("user");
-    if (storedUser && storedUser !== "undefined") {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setLocalUser(parsedUser);
-      } catch (err) {
-        console.error("Failed to parse user from localStorage:", err);
-        localStorage.removeItem("user");
-      }
-    }
-  }, []);
+  const {user,isLoggedIn,setIsLoggedIn,setUser} = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  // Handle successful login
+
+ 
   const handleLoginSuccess = (userData) => {
-    localStorage.setItem("loggedIn", "true");
-    localStorage.setItem("user", JSON.stringify(userData));
-    setUser(userData);
-    setIsLoggedIn(true);
-    setLocalUser(userData);
-  };
+  setIsLoggedIn(true);
+  setUser(userData);
+};
 
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      // Call logout endpoint to clear cookie
-      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`, {
-        method: 'POST',
-        credentials: 'include', // Send cookies
-      });
-    } catch (err) {
-      console.error("Logout error:", err);
-    } finally {
-      // Clear local state regardless of API call result
-      localStorage.removeItem("loggedIn");
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      setUser(null);
-      setIsLoggedIn(false);
-      setLocalUser(null);
-    }
-  };
-
-  // Use AuthContext's user if available, otherwise fall back to localUser
-  const currentUser = user || localUser;
+const handleLogout = () => {
+  localStorage.removeItem("token"); // ✅ only token matters
+  setIsLoggedIn(false);
+  setUser(null);
+  navigate("/", {replace:true});
+};
 
   return (
     <>
       <Navbar
-        loggedIn={isLoggedIn}
         onLoginSuccess={handleLoginSuccess}
         onLogout={handleLogout}
-        user={currentUser}
       />
 
       <Toaster richColors position="top-right" />
@@ -114,56 +82,55 @@ const App = () => {
         {/* Protected Routes */}
         <Route
           path="/items/new"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<SellItem />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<SellItem />} />}
         />
         <Route
           path="/my-orders"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<MyOrder />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<MyOrder />} />}
         />
         <Route
           path="/inbox"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<Messages />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Messages />} />}
         />
         <Route
           path="/notifications"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<Notifications />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Notifications />} />}
         />
         <Route
           path="/personalization"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<Personalization />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Personalization />} />}
         />
         <Route
           path="/settings/profile"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<Settings />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Settings />} />}
         />
-        {/* Profile page should be public - anyone can view user profiles */}
         <Route
           path="/member/:userId"
-          element={<ProfilePage />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn && user != null} element={<ProfilePage />} />}
         />
         <Route
           path="/check-progress/:id"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<ListingSingleProductPage />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<ListingSingleProductPage />} />}
         />
         <Route
           path="/review-checkout"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<ReviewOrder />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<ReviewOrder />} />}
         />
         <Route
           path="/sold"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<Sold />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Sold />} />}
         />
         <Route
           path="/reserved"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<Reserved />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Reserved />} />}
         />
         <Route
           path="/settings/donations"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<Donations />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<Donations />} />}
         />
         <Route
           path="/referrals"
-          element={<ProtectedRoute isLoggedIn={isLoggedIn} isCheckingAuth={isCheckingAuth} element={<InviteFriends />} />}
+          element={<ProtectedRoute isLoggedIn={isLoggedIn} element={<InviteFriends />} />}
         />
       </Routes>
 
