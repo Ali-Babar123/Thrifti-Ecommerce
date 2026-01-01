@@ -31,7 +31,7 @@ const googleLogin = async (req, res) => {
         try {
           const imgResponse = await axios.get(picture, { responseType: "arraybuffer" });
           fs.writeFileSync(savePath, imgResponse.data);
-          localImagePath = `${process.env.BASE_URL || "http://localhost:9000"}/uploads/users/${fileName}`;
+          localImagePath = `${process.env.BASE_URL || "https://thirifti.vercel.app"}/uploads/users/${fileName}`;
         } catch (err) {
           console.log("⚠️ Failed to save Google image locally:", err.message);
         }
@@ -70,7 +70,7 @@ const googleLogin = async (req, res) => {
         try {
           const imgResponse = await axios.get(picture, { responseType: "arraybuffer" });
           fs.writeFileSync(savePath, imgResponse.data);
-          user.profileImage = `${process.env.BASE_URL || "http://localhost:9000"}/uploads/users/${fileName}`;
+          user.profileImage = `${process.env.BASE_URL || "https://thirifti.vercel.app"}/uploads/users/${fileName}`;
           updated = true;
         } catch (err) {
           console.log("⚠️ Failed to save Google image locally:", err.message);
