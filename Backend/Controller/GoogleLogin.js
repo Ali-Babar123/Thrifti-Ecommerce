@@ -83,11 +83,30 @@ const googleLogin = async (req, res) => {
     }
 
     // Generate JWT
-    const myToken = jwt.sign({ _id: user._id, email: user.email }, process.env.JWT_SECRET);
-    return res.json({
+    const accessToken = await user.GenerateAccessToken();
+    if(!accessToken){
+      throw new Error("Error: Server error.");
+    }
+
+    // Update last seen
+    user.lastSeen = new Date();
+    await user.save();
+
+    // Production-ready cookie configuration
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction, // true in production (HTTPS), false in development
+      sameSite: isProduction ? 'None' : 'Lax', // None for cross-site in production, Lax for same-site
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    };
+    
+    return res.status(200)
+    .cookie("accessToken", accessToken, cookieOptions)
+    .json({
       success: true,
       message: "Google login successful",
-      token: myToken,
       user,
     });
   } catch (error) {

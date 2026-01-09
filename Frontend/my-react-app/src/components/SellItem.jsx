@@ -256,13 +256,8 @@ const SellItem = () => {
         images: base64Images, // send base64 array
       };
 
-      const res = await API.post("/api/products/create", payload,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-          }
-        }
-      );
+      // Cookies are automatically sent with withCredentials: true
+      const res = await API.post("/api/products/create", payload);
 
       // Success
       toast.success("Product added successfully");

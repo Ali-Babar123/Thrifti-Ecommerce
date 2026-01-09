@@ -4,15 +4,11 @@ const jwt = require("jsonwebtoken");
 const axios = require("axios");
 const mongoose = require('mongoose');
 
-const generateToken = (_id) =>
-  jwt.sign({ _id }, process.env.JWT_SECRET);
-
 
 // ================= REGISTER =================
 exports.registerUser = async (req, res) => {
   try {
     const { username, email, password, country,city } = req.body;
-    console.log(req.body);
     const existingUser = await User.findOne({ email });
     if (existingUser)
       return res.status(400).json({ message: "User already exists" });
@@ -30,11 +26,29 @@ exports.registerUser = async (req, res) => {
       }
     });
 
-    res.status(201).json({
+    /** Access token Generating */
+    const accessToken = await user.GenerateAccessToken();
+    
+    if(!accessToken){
+      throw new Error("Error: Server Error..");
+    }
+
+    // Production-ready cookie configuration
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction, // true in production (HTTPS), false in development
+      sameSite: isProduction ? 'None' : 'Lax', // None for cross-site in production, Lax for same-site
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    };
+
+    res.status(201)
+    .cookie("accessToken", accessToken, cookieOptions)
+    .json({
       _id: user._id,
       username: user.username,
       email: user.email,
-      token: generateToken(user._id),
     });
 
   } catch (err) {
@@ -42,12 +56,49 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-exports.HandleGetCurrentUser = async (req,res) => {
-  try{
-    const user = req.user;
-    return res.status(200).json({user:user,statusCode:200});
-  } catch(e){
-    throw new Error(e?.message,e);
+exports.HandleGetCurrentUser = async (req, res) => {
+  try {
+    // If user is not authenticated, return success with null user (not 401)
+    if (!req.user) {
+      return res.status(200).json({
+        user: null,
+        isAuthenticated: false,
+        statusCode: 200
+      });
+    }
+
+    // User is authenticated
+    return res.status(200).json({
+      user: req.user,
+      isAuthenticated: true,
+      statusCode: 200
+    });
+  } catch (e) {
+    return res.status(500).json({
+      message: "Internal server error",
+      statusCode: 500
+    });
+  }
+};
+
+// ================= LOGOUT =================
+exports.logoutUser = async (req, res) => {
+  try {
+    // Clear the access token cookie
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'None' : 'Lax',
+      path: '/',
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully"
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
   }
 };
 
@@ -68,15 +119,32 @@ exports.loginUser = async (req, res) => {
     user.lastSeen = new Date();
 
     // 🔹 update location
-   
+  
+    /** Access token generate */
+    const accessToken = await user.GenerateAccessToken();
+    
+    if(!accessToken){
+      throw new Error("Error: Server Error..");
+    }
+
+    // Production-ready cookie configuration
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = {
+      httpOnly: true,
+      secure: isProduction, // true in production (HTTPS), false in development
+      sameSite: isProduction ? 'None' : 'Lax', // None for cross-site in production, Lax for same-site
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+    };
 
     await user.save();
 
-    res.json({
+    res.status(200)
+    .cookie("accessToken", accessToken, cookieOptions)
+    .json({
       _id: user._id,
       username: user.username,
       email: user.email,
-      token: generateToken(user._id),
     });
 
   } catch (err) {
@@ -100,7 +168,7 @@ exports.getProfile = async (req, res) => {
       { $addFields : { followers:{$size : "$followers"},following:{$size : "$following"}  } },
       { $project: { products: 1, _id: 1, username: 1, profileImage: 1, lastSeen: 1, location: 1, isVerified: 1, followers: 1, following: 1 } }
     ]);
-    console.log(profile)
+
     return res.status(200).json({
       success: true,
       count: profile[0]?.products.length || 0,
@@ -143,6 +211,48 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
+exports.updateProfile = async (req, res)=>{
+  // return console.log(req.body);
+  try {
+    const userId = req.user._id;
+
+    const {username, location, profileImage, about, language} = req.body;
+
+    const updates = {};
+
+    if (username) updates.username = username;
+    if (about) updates.about = about;
+    if (language) updates.language = language;
+    if (location){
+      updates.location = {
+        city: location?.city || req?.user?.location?.city,
+        country: location?.country || req?.user?.location?.country,
+      }
+    }
+    if(req?.file){
+      updates.profileImage = "http://localhost:9000/uploads/" + req?.file?.filename;
+    }
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updates},
+      {new: true}
+    ).select("--password");
+
+    console.log(updatedUser)
+
+    return res.status(200).json({
+       success: true,
+       message: "Profile Updated Successfully",
+       user: updatedUser
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+}
 
 
 exports.getLocation = async (req, res) => { 
@@ -166,5 +276,4 @@ exports.getLocation = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 }
-
 

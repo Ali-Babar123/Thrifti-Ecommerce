@@ -5,6 +5,7 @@ import "./Profile.css";
 import ProfileImage from "../assets/settingsimage.svg";
 import JacketImage from "../assets/Modern.svg";
 import { useParams,Link } from "react-router-dom";
+import userEmptyState from '/user-empty-state.svg';
 import {
   MapPin,
   Clock,
@@ -16,7 +17,6 @@ import {
 } from "lucide-react";
 import API from "../api/api";
 import Loader from "./loader";
-import { FollowContext } from "../FollowContext/FollowProvider";
 
 const ProfilePage = () => {
   const [activeTab, setActiveTab] = useState("listing"); // 👈 Controls which section to show
@@ -24,7 +24,7 @@ const ProfilePage = () => {
   const [search, setSearch] = useState("");
   const [openSections, setOpenSections] = useState({});
   const [selected, setSelected] = useState({});
-   const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState(null);
 
 
  const {userId} = useParams();
@@ -36,7 +36,8 @@ const ProfilePage = () => {
     if (!userId) return;
 
     const fetchProfile = async() =>{
-      const res = await API.get(`/api/auth/member?userId=${userId}` );
+      const res = await API.get(`/api/auth/member?userId=${userId}`,{withCredentials: true});
+      console.log(res.data);
       try { if (res.data.success){
         setProfile(res.data.profile);
       }
@@ -112,7 +113,8 @@ const timeAgo = (date) => {
       {/* Header Section */}
       <div className="profile-header">
         <div className="profile-info">
-          <img  src={profile.profileImage || ProfileImage} alt="Profile" className="profile-avatar" />
+          <img  src={profile.profileImage || userEmptyState} onError={ (e) => e.target.src = userEmptyState} 
+          loading="lazy" alt="Profile" className="profile-avatar" />
           <div className="profile-details">
             <h2 className="profile-name">{profile.username}</h2>
             <p className="profile-reviews">

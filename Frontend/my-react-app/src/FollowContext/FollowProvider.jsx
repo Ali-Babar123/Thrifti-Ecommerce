@@ -13,12 +13,40 @@ export const FollowProvider = ({ children }) => {
 
   /* CHECK FOLLOWING  */
   const checkFollowing = async (userId) => {
-    if (!isLoggedIn || userId) return false;
+    if (!isLoggedIn || !userId) return false;
 
     try {
       const res = await API.get(`/api/follow/is-following/${userId}`);
-      return res.data.following;
+      const isFollowing = res.data.following;
+      // Update the followingMap with the actual state
+      setFollowingMap(prev => ({ ...prev, [userId]: isFollowing }));
+      return isFollowing;
     } catch {
+      return false;
+    }
+  };
+
+  /* LOAD FOLLOW STATE FOR A USER - Call this when viewing a profile/product */
+  const loadFollowState = async (userId) => {
+    if (!isLoggedIn || !userId) {
+      // If not logged in, ensure it's set to false
+      setFollowingMap(prev => ({ ...prev, [userId]: false }));
+      return false;
+    }
+
+    // If we already have the state, don't refetch
+    if (followingMap[userId] !== undefined) {
+      return followingMap[userId];
+    }
+
+    try {
+      const res = await API.get(`/api/follow/is-following/${userId}`);
+      const isFollowing = res.data.following;
+      setFollowingMap(prev => ({ ...prev, [userId]: isFollowing }));
+      return isFollowing;
+    } catch (err) {
+      // On error, default to false
+      setFollowingMap(prev => ({ ...prev, [userId]: false }));
       return false;
     }
   };
@@ -32,8 +60,10 @@ export const FollowProvider = ({ children }) => {
     }));
 
     try {
-      await API.post("/api/follow/follow", { followerId: userId });
+      const res = await API.post("/api/follow/follow", { followerId: userId });
+      console.log(res.data);
     } catch (err) {
+      console.log(err);
       // rollback
       setFollowingMap(prev => ({ ...prev, [userId]: false }));
     }
@@ -81,6 +111,7 @@ export const FollowProvider = ({ children }) => {
         followUser,
         unfollowUser,
         checkFollowing,
+        loadFollowState,
         followingMap,
         followersCount,
         followingCount,

@@ -3,6 +3,8 @@ import "./Home.css";
 import BannerImg from "../assets/HeroSection.png"; // replace this with your own image
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import Shirt from '../assets/shirts.png'
 import Women from '../assets/women.svg'
 import child from '../assets/child.svg'
@@ -69,7 +71,8 @@ const Home = () => {
     loadingMore,  
     likedProducts, 
     likesCount,
-    toggleLike 
+    toggleLike ,
+    loading
   } = useContext(ProductContext);
 
   const navigate = useNavigate();
@@ -79,7 +82,7 @@ const Home = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [pendingLikeId, setPendingLikeId] = useState(null);
 
-  const visibleProducts = products.slice(0, visibleCount);
+  const visibleProducts = products?.slice(0, visibleCount);
 
  
  const handleToggleLike = (productId) => {
@@ -174,55 +177,66 @@ const handleLoginSuccess = () => {
   </div>
 </section>
 
-
-   {/* Top Picks */}
-  <section className="top-picks">
+<section className="top-picks">
   <div className="top-picks-grid">
-    {visibleProducts.map((item) => (
-      <div
-        className="top-pick-card"
-        key={item._id}
-        onClick={() =>
-          navigate(`/singleproduct/${item._id}`, { state: item })
-        }
-        style={{ cursor: "pointer" }}
-      >
-        <div
-          className="top-pick-image"
-          style={{
-            backgroundImage: `url(${item.images?.[0] || "https://via.placeholder.com/150"})`,
-          }}
-        >
+    {loading
+      ? Array(20).fill().map((_, index) => (
+          <div className="top-pick-card" key={index}>
+            {/* Image skeleton */}
+            <Skeleton height={326} style={{ marginBottom: "5px" }} />
+            
+            {/* Info skeleton */}
+            <div className="top-pick-info1" >
+              <Skeleton height={20} width={'80%'}  baseColor="#ebebeb" highlightColor="#f5f5f5"/> {/* Title */}
+              <Skeleton height={20} width={'40%'}  baseColor="#ebebeb" highlightColor="#f5f5f5"/> {/* Title */}
+            
+            </div>
+          </div>
+        ))
+      : visibleProducts?.map((item) => (
           <div
-            className="top-pick-like"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleToggleLike(item._id);
-            }}
+            className="top-pick-card"
+            key={item._id}
+            onClick={() =>
+              navigate(`/singleproduct/${item._id}`, { state: item })
+            }
+            style={{ cursor: "pointer" }}
           >
-            {likedProducts?.[item._id] ? (
-              <FaHeart size={17} color="black" />
-            ) : (
-              <FaRegHeart size={17} color="gray" />
-            )}
+            <div
+              className="top-pick-image"
+              style={{
+                backgroundImage: `url(${item.images?.[0] || "https://via.placeholder.com/150"})`,
+              }}
+            >
+              <div
+                className="top-pick-like"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleLike(item._id);
+                }}
+              >
+                {likedProducts?.[item._id] ? (
+                  <FaHeart size={17} color="black" />
+                ) : (
+                  <FaRegHeart size={17} color="gray" />
+                )}
+                <span className="like-count">
+                  {likesCount?.[item._id] ?? item.likes?.length ?? 0}
+                </span>
+              </div>
+            </div>
 
-            <span className="like-count">
-              {likesCount?.[item._id] ?? item.likes?.length ?? 0}
-            </span>
+            <div className="top-pick-info">
+              <div>
+                <h3>{item.title}</h3>
+                <p className="top-pick-condition">
+                  {item.size} - {item.condition}
+                </p>
+              </div>
+              <p className="top-pick-price">${item.price}</p>
+            </div>
           </div>
-        </div>
-
-        <div className="top-pick-info">
-          <div>
-            <h3>{item.title}</h3>
-            <p className="top-pick-condition">
-              {item.size} - {item.condition}
-            </p>
-          </div>
-          <p className="top-pick-price">${item.price}</p>
-        </div>
-      </div>
-    ))}
+        ))}
   </div>
 
   <div className="top-picks-more">
@@ -233,6 +247,7 @@ const handleLoginSuccess = () => {
     )}
   </div>
 </section>
+
 
 
 

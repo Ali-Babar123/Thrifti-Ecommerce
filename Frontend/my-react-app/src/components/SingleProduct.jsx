@@ -4,6 +4,7 @@ import { Link, useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { ProductContext } from "../ProductContext/ProductContext";
 import NewWomen from "../assets/newwomen.svg";
+import userEmptyState from '/user-empty-state.svg'
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Loading from './loader'
@@ -11,20 +12,25 @@ import API from '../api/api'
 import { AuthContext } from "../Contexts/AuthProvider";
 import LoginModal from "./LoginModal";
 import { FollowContext } from "../FollowContext/FollowProvider";
+import useCreateChat from "../hooks/useCreateChat";
 
 function ProductPage() {
   const { id } = useParams();
   const { products, loading, visibleCount, loadingMore, likedProducts, likesCount, toggleLike, loadMoreProducts } = useContext(ProductContext);
   const [singleProduct, setSingleProduct] = useState(null);
   const [sellerProducts, setSellerProducts] = useState([]);
+  const [pendingFollowSeller, setPendingFollowSeller] = useState(null);
+
   const visibleProducts = products.slice(0, visibleCount);
   const [recommended, setRecommended] = useState([]);
 
   const { isLoggedIn } = useContext(AuthContext);
-  const {followUser, unfollowUser, followingMap, checkFollowing, loadFollowCounts } = useContext(FollowContext);
+  const {followUser, unfollowUser, followingMap, loadFollowState, loadFollowCounts } = useContext(FollowContext);
+  const { CreateChat } = useCreateChat();
 
   const [pendingLikeId, setPendingLikeId] = useState(null);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
 
   const sellerId = singleProduct?.user?._id;
   
@@ -33,27 +39,17 @@ function ProductPage() {
       setTimeout(() => resolve(fn()), ms)
   );
 
-  /** useEffect(()=>{
-
-    const init = async() =>{
-      if(loading || singleProduct === null){
-        alert(seller)
-        return false;
-      }
-      const isFollowing = await checkFollowing(sellerId);
-      console.log(sellerId)
-       setTimeout(() =>{
-        followingMap[sellerId] = isFollowing;
-       } , 0);
-
-      //  loadFollowCounts(sellerId);
-    }
-  init();
-  }, [sellerId,singleProduct]);
-  **/
   useEffect(() => {
     fetchSingleProduct();
   }, [id]);
+
+  // Load follow state when sellerId is available
+  useEffect(() => {
+    if (sellerId && isLoggedIn) {
+      loadFollowState(sellerId);
+      loadFollowCounts(sellerId);
+    }
+  }, [sellerId, isLoggedIn, loadFollowState, loadFollowCounts]);
 
   useEffect(()=>{
     if(!id) return;
@@ -85,6 +81,11 @@ function ProductPage() {
       toggleLike(pendingLikeId);
       setPendingLikeId(null);
     }
+     // ✅ Auto Follow
+  if (pendingFollowSeller) {
+    followUser(pendingFollowSeller);
+    setPendingFollowSeller(null);
+  }
   }
 
 
@@ -142,6 +143,36 @@ function ProductPage() {
     return <Loading />
   }
   const navigate = useNavigate();
+
+  const handleAskSeller = async () => {
+    if (!isLoggedIn) {
+      setAuthModalOpen(true);
+      return;
+    }
+
+    const sellerId = singleProduct?.user?._id;
+    if (!sellerId) {
+      alert("Seller information not available");
+      return;
+    }
+
+    setIsCreatingChat(true);
+    try {
+      const result = await CreateChat({ userId: sellerId });
+      if (result.success) {
+        // Navigate to inbox with the chat ID in state
+        // The Messages component will select this chat when it loads
+        navigate("/inbox", { state: { chatId: result.data._id } });
+      } else {
+        alert(result.error || "Failed to create chat");
+      }
+    } catch (error) {
+      console.error("Error creating chat:", error);
+      alert("Failed to create chat. Please try again.");
+    } finally {
+      setIsCreatingChat(false);
+    }
+  };
 
   const handleBuyNow = (e) => {
     e.preventDefault();
@@ -283,7 +314,13 @@ function ProductPage() {
                 Buy Now
               </button>
               <button className="offer-btn">Make an offer</button>
-              <button className="seller-btn-new">Ask Seller</button>
+              <button 
+                className="seller-btn-new" 
+                onClick={handleAskSeller}
+                disabled={isCreatingChat}
+              >
+                {isCreatingChat ? "Creating..." : "Ask Seller"}
+              </button>
             </div>
           </div>
         </div>
@@ -344,7 +381,9 @@ function ProductPage() {
               <div className="seller-header">
                 <Link className="seller-Link" to={`/member/${singleProduct.user?._id}`}>
                   <img
-                    src={singleProduct.user?.profileImage || NewWomen}
+                                      onError={ (e) => e.target.src = userEmptyState}
+                  userEmptyState
+                    src={singleProduct.user?.profileImage || userEmptyState}
                     alt="seller"
                     className="seller-img"
                   />
@@ -367,6 +406,7 @@ function ProductPage() {
   className={`new-btn ${followingMap[sellerId] ? "UnFollow" : ""}`}
   onClick={() => {
     if (!isLoggedIn) {
+       setPendingFollowSeller(sellerId); // 👈 seller save
       setAuthModalOpen(true);
       return;
     }

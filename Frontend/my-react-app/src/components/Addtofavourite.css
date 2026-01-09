@@ -1,0 +1,86 @@
+.favourites-page {
+  padding: 60px 40px;
+  text-align: center;
+  margin-left: 30px;
+  padding-bottom: 120px;
+}
+
+.favourite-heading{
+    text-align: left;
+    font-weight: 600;
+    font-size: 22px;
+}
+.favourites-empty {
+  display: flex;
+  margin-top: 80px;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.favourites-empty h2 {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.favourites-empty p {
+  color: gray;
+}
+
+.favourites-empty button {
+  padding: 10px 20px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top:8px;
+  font-size: 16px;
+}
+
+.favourites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.favourites-card {
+  cursor: pointer;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.favourites-card:hover {
+  transform: translateY(-5px);
+}
+
+.favourites-image {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+}
+
+.favourites-info {
+  padding: 10px;
+  text-align: left;
+}
+
+.favourites-info h3 {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.favourites-info p {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.favourites-info .like-count {
+  font-size: 14px;
+  color: #ff4081;
+}

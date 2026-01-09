@@ -1,9 +1,64 @@
 import React, { useState } from "react";
 import { Mail, Lock, Shield, Activity, ChevronRight, X } from "lucide-react";
 import "./Security.css";
+import { useForm } from "react-hook-form";
+import API from "../api/api";
+import { toast } from "sonner";
+
 
 const Security = () => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm();
+
   const [selected, setSelected] = useState(null);
+
+  const onSendEmailChange = async () => {
+    try {
+      const res = await API.post(
+        "/api/security/email/change",
+        {},
+        { withCredentials: true }
+      );
+      console.log(res);
+
+      toast.success(res.data.message || "Confirmation email sent");
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Something went wrong");
+    }
+  };
+
+
+
+  const onChangePassword = async (data) => {
+    const { currentPassword, newPassword, confirmPassword } = data;
+
+    if (newPassword !== confirmPassword) {
+      return toast.error("Passwords do not match");
+    }
+
+    try {
+      const res = await API.post(
+        "/api/security/password/password-change",
+        { currentPassword, newPassword },
+        { withCredentials: true }
+      );
+
+      toast.success(res.data.message || "Your password has been changed successfully");
+
+      reset(); // clears inputs
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Failed to change password"
+      );
+    }
+  };
+
+
+
 
   const items = [
     {
@@ -41,37 +96,90 @@ const Security = () => {
               <h3>Confirm Change</h3>
               <X onClick={() => setSelected(null)} className="close-icon" />
             </div>
-            <p>We’ll send a confirmation email to verify your change.</p>
-            <button className="btn-primary">Send Confirmation Email</button>
-            <button className="btn-secondary">I don’t have access to this email</button>
+
+            <p>You need to confirm  is your email address before you can update it.</p>
+
+            <button className="btn-primary" onClick={onSendEmailChange}>
+              Send Confirmation Email
+            </button>
+
+            <button
+              className="btn-secondary"
+              onClick={() => setSelected(null)}
+            >
+             i don't have access to this email
+            </button>
           </div>
         );
+
 
       case "password":
         return (
           <div className="security-detail">
             <div className="security-detail-header">
-              <h3>Password Change</h3>
+              <h3>Change password</h3>
               <X onClick={() => setSelected(null)} className="close-icon" />
             </div>
-            <ul>
-              <li>Use a strong, unique password that you don’t use elsewhere.</li>
-              <li>Never share your password with anyone.</li>
-            </ul>
-            <input type="password" placeholder="New Password" />
-            <input type="password" placeholder="Confirm New Password" />
-            <button className="btn-primary">Change Password</button>
-            <button className="btn-secondary">Cancel</button>
+           <p>To create a secure password:</p>
+           <ul> 
+            <li>When setting up a password, go for something that is not too obvious. It can be a combination of numbers, special characters, capital and lower case letters. The length of the password should be at least 8 characters.</li>
+          <li>Don’t use your name or date of birth when setting up a password.</li>
+           <li>Memorize your password. Do not keep any record of it, do not tell other people about it. Try to change it regularly.</li>
+           <li>Make sure no one can see you entering the password.</li>
+           </ul>
+
+            <form onSubmit={handleSubmit(onChangePassword)}>
+  <input
+    type="password"
+    placeholder="Current password"
+    {...register("currentPassword", {
+      required: "Current password is required",
+    })}
+  />
+  {errors.currentPassword && (
+    <small className="error">{errors.currentPassword.message}</small>
+  )}
+
+  <input
+    type="password"
+    placeholder="New password"
+    {...register("newPassword", {
+      required: "New password is required",
+      minLength: { value: 8, message: "At least 8 characters" },
+    })}
+  />
+  {errors.newPassword && (
+    <small className="error">{errors.newPassword.message}</small>
+  )}
+
+  <input
+    type="password"
+    placeholder="Confirm new password"
+    {...register("confirmPassword", {
+      required: "Please confirm your new password",
+    })}
+  />
+  {errors.confirmPassword && (
+    <small className="error">{errors.confirmPassword.message}</small>
+  )}
+
+  <button type="submit" className="btn-primary" disabled={isSubmitting}>
+    {isSubmitting ? "Updating..." : "Change password"}
+  </button>
+</form>
+
           </div>
         );
+
 
       case "verification":
         return (
           <div className="security-detail">
             <div className="security-detail-header">
-              <h3>Verify Your Phone Number</h3>
+              <h3>Verify your phone number</h3>
               <X onClick={() => setSelected(null)} className="close-icon" />
             </div>
+              <p>We’ll send a confirmation message or give you a call to verify that this is your number.</p>
             <input type="text" placeholder="Enter Your Phone Number" />
             <button className="btn-primary">Send</button>
             <button className="btn-secondary">Cancel</button>
@@ -87,8 +195,8 @@ const Security = () => {
             </div>
             <p>Here are your recent login locations:</p>
             <ul>
-              <li>📍 Islamabad, Pakistan — Logged in recently</li>
-              <li>📍 Rawalpindi, Pakistan — Logged in recently</li>
+              <li> Islamabad, Pakistan — Logged in recently</li>
+              <li> Rawalpindi, Pakistan — Logged in recently</li>
             </ul>
             <button className="btn-secondary">Log Out</button>
           </div>

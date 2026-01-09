@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useEffect, useContext, useRef } from "react";
 import API from "../api/api";
 import Loader from "../components/loader";
 import { AuthContext } from "../Contexts/AuthProvider";
@@ -15,14 +15,29 @@ export const ProductProvider = ({ children }) => {
   const [error, setError] = useState("");
   const [likedProducts, setLikedProducts] = useState({});
   const [likesCount, setLikesCount] = useState({});
-const { isLoggedIn } = useContext(AuthContext);
+  const { isLoggedIn } = useContext(AuthContext);
+  const likesLoadedRef = useRef(0);
 
+  /** Delay Function */
+  const Delay = (fc,ms) => {
+    return new Promise( (resolve,reject) => {
+      setTimeout( async () => {
+        try {
+          const result = await fc();
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      },ms )
+    })
+  }
 
   // Fetch all products
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await API.get("/api/products/getAll");
+      const res = await Delay( () => API.get("/api/products/getAll"),5000);
+      console.log(res)
       setProducts(res.data.data);
     } catch (err) {
       console.log("Fetch error:", err);
@@ -35,6 +50,27 @@ const { isLoggedIn } = useContext(AuthContext);
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Initialize global like counts from product data (for both logged-in and non-logged-in users)
+  useEffect(() => {
+    if (!products?.length) return;
+    
+    // Initialize like counts from product data if not already set
+    setLikesCount(prev => {
+      const newCounts = { ...prev };
+      let hasUpdates = false;
+      
+      for (const p of products) {
+        if (newCounts[p._id] === undefined) {
+          // Use product's likes array length if available
+          newCounts[p._id] = p.likes?.length || 0;
+          hasUpdates = true;
+        }
+      }
+      
+      return hasUpdates ? newCounts : prev;
+    });
+  }, [products]);
 
   // RESET visible count when filtered list changes
   useEffect(() => {
@@ -137,7 +173,7 @@ if (sub)
  const toggleLike = async (productId) => {
   const isLiked = likedProducts[productId];
 
-  // 1️⃣ Optimistic UI update
+  // 1️⃣ Optimistic UI update - update state immediately
   setLikedProducts(prev => ({
     ...prev,
     [productId]: !isLiked
@@ -148,46 +184,50 @@ if (sub)
     [productId]: (prev[productId] ?? 0) + (isLiked ? -1 : 1)
   }));
 
-  // 🔥 THIS IS THE MISSING PART
-setProducts(prev =>
-  prev.map(p =>
-    p._id === productId
-      ? {
-          ...p,
-          likes: isLiked
-            ? p.likes?.slice(0, Math.max((p.likes?.length || 1) - 1, 0))
-            : [...(p.likes || []), "x"]
-        }
-      : p
-  )
-);
-
-
   try {
     if (isLiked) {
       await API.delete(`/api/likes/${productId}/unlike`);
     } else {
       await API.post(`/api/likes/${productId}/like`);
     }
+    // After successful API call, update the count from response if available
+    // The optimistic update already handled the UI, so we just need to confirm
   } catch (err) {
-    // rollback
+    // rollback on error
     setLikedProducts(prev => ({
       ...prev,
       [productId]: isLiked
+    }));
+    setLikesCount(prev => ({
+      ...prev,
+      [productId]: (prev[productId] ?? 0) + (isLiked ? 1 : -1)
     }));
   }
 };
 
 
 
-  // Load likes for logged-in users
+  // Load likes for logged-in users - only on initial load or when login status changes
   useEffect(() => {
-  if (!products.length) return;
+  if (!products?.length) return;
 
-  // 🧹 USER LOGGED OUT → CLEAR LIKES
+  // 🧹 USER LOGGED OUT → CLEAR ONLY USER-SPECIFIC LIKES (not global counts)
   if (!isLoggedIn) {
+    // Only clear which products the user liked (user-specific state)
     setLikedProducts({});
-    setLikesCount({});
+    // DO NOT clear likesCount - it's the global count of likes per product and should persist
+    // setLikesCount({}); // REMOVED - keep global like counts
+    likesLoadedRef.current = 0;
+    return;
+  }
+
+  // Only load likes once when products are first available, or when user logs in
+  // This prevents overwriting optimistic updates from toggleLike
+  const currentProductsLength = products.length;
+  const lastLoadedLength = likesLoadedRef.current || 0;
+  
+  // Skip if we've already loaded likes for this number of products and we have likes data
+  if (lastLoadedLength === currentProductsLength && lastLoadedLength > 0 && Object.keys(likedProducts).length > 0) {
     return;
   }
 
@@ -202,16 +242,21 @@ setProducts(prev =>
         countMap[p._id] = res.data.likes;
       } catch {
         likesMap[p._id] = false;
-        countMap[p._id] = p.likes?.length || 0;
+        // Use existing count if available, otherwise fall back to product's likes array length
+        countMap[p._id] = likesCount[p._id] ?? (p.likes?.length || 0);
       }
     }
 
     setLikedProducts(likesMap);
-    setLikesCount(countMap);
+    // Merge with existing counts to preserve global like counts
+    setLikesCount(prev => ({ ...prev, ...countMap }));
+    likesLoadedRef.current = currentProductsLength;
   };
 
   loadLikes();
-}, [products, isLoggedIn]);
+  // Only depend on products.length and isLoggedIn to avoid reloading on every products change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [products.length, isLoggedIn]);
 
 
 
@@ -233,7 +278,7 @@ setProducts(prev =>
         likedProducts
       }}
     >
-      {loading ? <Loader /> : children}
+      {children}
     </ProductContext.Provider>
   );
 };

@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 
 const userSchema = new mongoose.Schema(
   {
@@ -13,13 +14,52 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+    about: {
+      type: String,
+      default: null, // user can add later
+      maxlength: 500,
+    },
+
+    // ✅ OPTIONAL FIELD
+    language: {
+      type: String,
+      default: null, // user selects later
+    },
     location: {
       country: String,
       city: String,
+    },
+    emailChangeToken: {
+      type: String,
+    },
+    emailChangeExpires: {
+      type: String,
+    },
+    pendingEmail: {
+      type: String
     }
+
   },
   { timestamps: true }
 );
+
+userSchema.methods.GenerateAccessToken = async function () {
+  try {
+    const accessTokenPayload = {
+      _id:this._id,
+      fullname:this.fullName,
+      profileImage:this.profileImage,
+      username:this.username,
+      isVerified:this.isVerified,
+      lastSeen:this.lastSeen,
+      location:this.location
+    };
+    const accessToken = await jwt.sign(accessTokenPayload,process.env.JWT_SECRET);
+    return accessToken;
+  } catch (error) {
+    return error;
+  }
+};
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 module.exports = User;

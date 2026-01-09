@@ -13,6 +13,8 @@ import Like from "../assets/Like.png";
 import SearchIcon from "../assets/search-loupe.png";
 import Profile from "../assets/Ellipse 458.png";
 import { AuthContext } from "../Contexts/AuthProvider";
+import useSockets from "../hooks/useSockets";
+import API from "../api/api";
 
 const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
   const [showLogin, setShowLogin] = useState(false);
@@ -24,10 +26,13 @@ const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
   const { user, isLoggedIn } = useContext(AuthContext);
   const [searchValue, setSearchValue] = useState('');
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 900);
+  const [unreadMessagesCount, setUnreadMessagesCount] = useState(0);
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const [searchPlaceholder, setSearchPlaceholder] = useState("Search for items");
+
+  const { NewMessage } = useSockets();
 
   useEffect(() => {
   setMenuOpen(false);
@@ -35,6 +40,50 @@ const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
   setActiveMainCat(null);
   setShowDropdown(false);
 }, [location.pathname, location.search]);
+
+  // Fetch unread messages count on load / auth change
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        if (!isLoggedIn) {
+          setUnreadMessagesCount(0);
+          return;
+        }
+        const response = await API.get("/api/messages/unread-count");
+        if (response?.data?.statusCode === 200) {
+          setUnreadMessagesCount(response?.data?.data?.count || 0);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    fetchUnreadCount();
+  }, [isLoggedIn]);
+
+  // Increment unread count on new incoming message
+  useEffect(() => {
+    if (!NewMessage || !user) return;
+    if (NewMessage?.sender?._id === user?._id) return;
+
+    setUnreadMessagesCount((prev) => prev + 1);
+  }, [NewMessage, user]);
+
+  // When user visits inbox, mark all as read
+  useEffect(() => {
+    const markAllMessagesAsRead = async () => {
+      try {
+        if (isLoggedIn && location.pathname === "/inbox") {
+          await API.post("/api/messages/read-all-messages");
+          setUnreadMessagesCount(0);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    markAllMessagesAsRead();
+  }, [isLoggedIn, location.pathname]);
 
   useEffect(() => {
     const parent = params.get("parent");
@@ -126,11 +175,6 @@ const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showDropdown]);
 
-
-
-
-
-
   return (
     <>
       <nav className="navbar">
@@ -174,18 +218,52 @@ const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
               </>
             ) : (
               <div className="navbar-right-isLoggedIn">
-                <Link to='/notifications'>
+                <Link to='/notifications' style={{position:"relative"}}>
                   <button className="icon-btn">
                     <Bell size={18} color="black" strokeWidth={2} />
                   </button>
+                  <span style={{
+                    backgroundColor: '#d40140', // Deep Red (Vinted red/maroon se milta julta)
+                    position:"absolute",
+                    top:"0",
+                    right:"2",
+                    color: '#fff',              // Text color white
+                    padding: '2px 4px',         // Andar se jagah (Top/Bottom 2px, Left/Right 6px)
+                    borderRadius: '12px',       // Kinare gol (pill shape) karne ke liye
+                    fontSize: '0.75rem',        // Chota text size
+                    fontWeight: '700',          // Text ko mota (bold)
+                    display: 'inline-block',    // Agar single digit ho tab bhi padding maintain rahe
+                    lineHeight: '1'             // Text ko center mein rakhne ke liye
+                }}>
+                    {user?.unread_notifications_count}
+                </span>
                 </Link>
+                <Link to='/member/item/favourite_list'>
                 <button className="icon-btn">
                   <Heart size={18} color="black" strokeWidth={2} />
                 </button>
-                <Link to='/inbox'>
+                </Link>
+                <Link to='/inbox' style={{ position: "relative" }}>
                   <button className="icon-btn">
                     <MessageSquare size={18} color="black" strokeWidth={2} />
                   </button>
+                  {unreadMessagesCount > 0 && (
+                    <span style={{
+                      backgroundColor: '#d40140',
+                      position:"absolute",
+                      top:"0",
+                      right:"2",
+                      color: '#fff',
+                      padding: '2px 4px',
+                      borderRadius: '12px',
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      display: 'inline-block',
+                      lineHeight: '1'
+                    }}>
+                      {unreadMessagesCount}
+                    </span>
+                  )}
                 </Link>
                 <div className="user-profile-wrapper">
                   <img
@@ -389,13 +467,32 @@ const Navbar = ({ onLoginSuccess, onLogout }) => {  // ✅ accept props from App
                     <Bell size={18} color="black" strokeWidth={2} />
                   </button>
                 </Link>
+                <Link to='/member/item/favourite_list'>
                 <button className="icon-btn">
                   <Heart size={18} color="black" strokeWidth={2} />
                 </button>
-                <Link to='/inbox'>
+                  </Link>
+                <Link to='/inbox' style={{ position: "relative" }}>
                   <button className="icon-btn">
                     <MessageSquare size={18} color="black" strokeWidth={2} />
                   </button>
+                  {unreadMessagesCount > 0 && (
+                    <span style={{
+                      backgroundColor: '#d40140',
+                      position:"absolute",
+                      top:"0",
+                      right:"2",
+                      color: '#fff',
+                      padding: '2px 4px',
+                      borderRadius: '12px',
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      display: 'inline-block',
+                      lineHeight: '1'
+                    }}>
+                      {unreadMessagesCount}
+                    </span>
+                  )}
                 </Link>
 
                 {/* Profile dropdown for mobile */}

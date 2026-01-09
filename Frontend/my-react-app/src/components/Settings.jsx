@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import "./Settings.css";
 import ProfileDetails from "./ProfileDetails";
 import AccountSettings from "./AccountSettings";
@@ -9,8 +9,11 @@ import NewNotifications from "./NewNotification";
 import ManageAccountData from "./ManageAccountData";
 import Security from "./Security";
 import AddPayment from "./AddPayment";
+import { AuthContext } from "../Contexts/AuthProvider";
 const Settings = () => {
   const [activeTab, setActiveTab] = useState("profile");
+
+  
 
   return (
      

@@ -3,7 +3,7 @@ import "./LoginModal.css";
 import API from "../api/api";
 import { auth, provider } from "./firebase"; 
 import { signInWithPopup } from "firebase/auth";
-
+import { useNavigate } from "react-router-dom";
 
 import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaFacebook } from "react-icons/fa";
@@ -16,7 +16,7 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
   
   const [isSignUp, setIsSignUp] = useState(false);
   const [useEmailForm, setUseEmailForm] = useState(false);
-
+  const Redirect = useNavigate();
   const [location, setLocation] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -47,6 +47,10 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
       () => setError("Location permission denied")
     );
   }, []);
+
+
+  const HandleLoginWithFacebook = () => Redirect(`${import.meta.env.VITE_API_BASE_URL}/api/auth/facebook`);
+
 
   // ================= CONVERT LAT/LON → CITY/COUNTRY =================
   useEffect(() => {
@@ -102,7 +106,10 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
 
       const res = await API.post("/api/auth/signup", formData);
 
-      localStorage.setItem("token", res.data.token);
+      // Token is now stored in HTTP-only cookie, no need for localStorage
+      // Update user context with response data
+      setUser(res.data);
+      setIsLoggedIn(true);
 
       if (onLoginSuccess) onLoginSuccess();
       onClose();
@@ -132,10 +139,13 @@ const LoginModal = ({ isOpen, onClose, onLoginSuccess }) => {
         password: formData.password,
       });
 
-      localStorage.setItem("token", res.data.token);
+      // Token is now stored in HTTP-only cookie, no need for localStorage
+      setUser(res.data);
+      setIsLoggedIn(true);
+      
       if (onLoginSuccess) {
-  onLoginSuccess(res.data.user);
-}
+        onLoginSuccess(res.data);
+      }
 
       onClose();
     } catch (err) {
@@ -205,10 +215,9 @@ const handleGoogleLogin = async () => {
     });
     console.log("Backend response:", backendRes.data);
 
-    localStorage.setItem("token", backendRes.data.token);
-
-   setUser(backendRes.data.user);
-   setIsLoggedIn(true);
+    // Token is now stored in HTTP-only cookie, no need for localStorage
+    setUser(backendRes.data.user);
+    setIsLoggedIn(true);
 
 if (onLoginSuccess) onLoginSuccess();
 
@@ -340,8 +349,8 @@ if (onLoginSuccess) onLoginSuccess();
             <button className="auth-btn">
               <FaApple /> Continue with Apple
             </button>
-            <button className="auth-btn">
-              <FaFacebook color="#1877F2" /> Continue with Facebook
+            <button className="auth-btn" onClick={HandleLoginWithFacebook}>
+              <FaFacebook color="#1877F2"/> Continue with Facebook
             </button>
 
             <div className="modal-footer">

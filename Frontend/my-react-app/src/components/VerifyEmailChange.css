@@ -1,0 +1,104 @@
+/* Page background */
+.email-page {
+  min-height: 100vh;
+  background: #f3f7f6;
+  padding: 40px 60px;
+}
+
+/* Title */
+.page-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #111827;
+}
+
+/* Card */
+.email-card {
+  background: #ffffff;
+  padding: 28px 32px;
+  border-radius: 8px;
+}
+
+/* Input row */
+.email-row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+}
+
+.email-row label {
+  min-width: 120px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.email-row input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  padding: 8px 0;
+}
+
+.email-row input::placeholder {
+  color: #9ca3af;
+}
+
+/* Helper text */
+.email-hint {
+  font-size: 14px;
+  color: #6b7280;
+  margin-top: 12px;
+}
+
+/* Button area */
+.email-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 28px;
+}
+
+/* Black button */
+.email-actions button {
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  padding: 10px 22px;
+  font-size: 15px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.email-actions button:hover {
+  opacity: 0.85;
+}
+
+.email-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .email-page {
+    padding: 24px;
+  }
+
+  .email-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .email-actions {
+    justify-content: stretch;
+  }
+
+  .email-actions button {
+    width: 100%;
+  }
+}

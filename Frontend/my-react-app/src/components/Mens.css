@@ -247,6 +247,7 @@
 .top-pick-info h3 {
   font-size: 0.9rem;
   margin: 0;
+  text-align: left;
   font-weight: 500;
 }
 
@@ -281,26 +282,6 @@
   border-color: #000;
   color: #000;
 }
-.top-picks-filters-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-.sort-by-dropdown {
-  flex-shrink: 0;
-}
-
-.sort-by-dropdown select {
-  padding: 8px 14px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background: #ebeaea;
-  font-size: 1rem;
-  cursor: pointer;
-}
 
 .circle-loader {
   width: 32px;
@@ -315,6 +296,49 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+
+
+
+/* Optional: Responsive tweaks */
+@media (max-width: 768px) {
+  .top-picks-filters-row {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .top-picks-more{
+    margin-bottom: 30px;
+  }
+
+  .sort-by-dropdown {
+    align-self: flex-start;
+    
+  }
+}
+
+
+/* Responsive Layouts */
+@media (max-width: 1024px) {
+  .top-picks-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .top-picks {
+    padding: 20px;
+  }
+
+  .top-picks-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .top-picks-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -437,46 +461,6 @@
 
 
 
-/* Optional: Responsive tweaks */
-@media (max-width: 768px) {
-  .top-picks-filters-row {
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  .sort-by-dropdown {
-    align-self: flex-start;
-    
-  }
-}
-
-
-/* Responsive Layouts */
-@media (max-width: 1024px) {
-  .top-picks-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .top-picks {
-    padding: 20px;
-  }
-
-  .top-picks-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .top-picks-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-
-
-
 /* Container */
 .msd-container {
   width: 100%;
@@ -506,6 +490,29 @@
 .msd-display:hover {
   border-color: #000;
 }
+
+
+.top-picks-filters-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.sort-by-dropdown {
+  flex-shrink: 0;
+}
+
+.sort-by-dropdown select {
+  padding: 8px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #ebeaea;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
 
 /* Brand search input (no outer border) */
 .msd-brand-input {

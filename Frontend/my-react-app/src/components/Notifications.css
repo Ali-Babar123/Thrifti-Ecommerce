@@ -1,5 +1,5 @@
 .notifications-container {
-
+  position: relative;
   padding: 40px 50px;
   background-color: #fff;
   min-height: 100vh;
@@ -11,6 +11,31 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
+}
+
+.notifications-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: start;
+}
+
+.notifications-pagination button {
+  background-color: #ffffff;
+  color: #777;
+  padding: 5px 10px;
+  position: absolute;
+  bottom: 20px;
+  /* top: 100%; */
+  border-radius: 20px;
+  margin-left: 5px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+}
+
+.notifications-pagination button.active {
+  background-color: #777;
+  color: #ffffff;
+  border-color: #777;
 }
 
 .breadcrumb-notification {

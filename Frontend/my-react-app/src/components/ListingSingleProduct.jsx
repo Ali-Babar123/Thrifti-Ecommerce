@@ -11,6 +11,7 @@ import Loader from "./loader";
 import { useContext } from "react";
 import { ProductContext } from "../ProductContext/ProductContext";
 import LoginModal from "./LoginModal";
+import userEmptyState from '/user-empty-state.svg'
 import { AuthContext } from "../Contexts/AuthProvider";
 
 function ListingSingleProductPage() {
@@ -273,7 +274,8 @@ function ListingSingleProductPage() {
 
           <div className="seller-card">
             <div className="seller-header">
-              <img src={product.user?.profileImage} loading="lazy" alt="seller" className="seller-img" />
+              <img src={product.user?.profileImage || userEmptyState}
+                onError={ (e) => e.target.src = userEmptyState} loading="lazy" alt="seller" className="seller-img" />
               <div>
                 <p className="seller-name">{product.user?.username}</p>
                 <p className="seller-rating">⭐⭐⭐⭐⭐</p>
